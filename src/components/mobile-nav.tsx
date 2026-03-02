@@ -12,7 +12,7 @@ import {
 import { cn } from "@/lib/utils";
 
 const tabs = [
-  { label: "Dashboard", href: "/", icon: LayoutDashboard },
+  { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { label: "Listings", href: "/listings", icon: Building2 },
   { label: "Leads", href: "/leads", icon: Users },
   { label: "Messages", href: "/messages", icon: MessageSquare },
@@ -23,7 +23,7 @@ export function MobileNav() {
   const pathname = usePathname();
 
   const isActive = (href: string) => {
-    if (href === "/") return pathname === "/";
+    if (href === "/dashboard") return pathname === "/dashboard";
     return pathname.startsWith(href);
   };
 

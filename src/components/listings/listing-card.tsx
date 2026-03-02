@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { MapPin, BedDouble, Maximize, Building2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatPrice } from "@/lib/utils";
@@ -32,10 +33,12 @@ function ListingCard({ listing, className }: ListingCardProps) {
         {/* Image */}
         <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
           {listing.images.length > 0 ? (
-            <img
+            <Image
               src={listing.images[0]}
               alt={listing.title}
-              className="h-full w-full object-cover transition-transform group-hover:scale-105"
+              fill
+              className="object-cover transition-transform group-hover:scale-105"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />
           ) : (
             <div className="flex h-full items-center justify-center">

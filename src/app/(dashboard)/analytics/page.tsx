@@ -1,15 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import { Building2, Users, Flame, TrendingUp } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Tabs } from "@/components/ui/tabs";
 import { Spinner } from "@/components/ui/spinner";
 import { StatCard } from "@/components/analytics/stat-card";
-import { LeadsOverTimeChart } from "@/components/analytics/leads-over-time-chart";
-import { LeadSourceChart } from "@/components/analytics/lead-source-chart";
-import { ListingsByTypeChart } from "@/components/analytics/listings-by-type-chart";
-import { ConversionFunnel } from "@/components/analytics/conversion-funnel";
 import {
   useDashboardStats,
   useLeadsByStatus,
@@ -17,6 +14,29 @@ import {
   useListingsByType,
   useLeadsOverTime,
 } from "@/hooks/use-analytics";
+
+const ChartSkeleton = () => (
+  <div className="flex h-80 items-center justify-center rounded-lg border border-slate-200 bg-white">
+    <Spinner />
+  </div>
+);
+
+const LeadsOverTimeChart = dynamic(
+  () => import("@/components/analytics/leads-over-time-chart").then((m) => ({ default: m.LeadsOverTimeChart })),
+  { loading: ChartSkeleton }
+);
+const LeadSourceChart = dynamic(
+  () => import("@/components/analytics/lead-source-chart").then((m) => ({ default: m.LeadSourceChart })),
+  { loading: ChartSkeleton }
+);
+const ListingsByTypeChart = dynamic(
+  () => import("@/components/analytics/listings-by-type-chart").then((m) => ({ default: m.ListingsByTypeChart })),
+  { loading: ChartSkeleton }
+);
+const ConversionFunnel = dynamic(
+  () => import("@/components/analytics/conversion-funnel").then((m) => ({ default: m.ConversionFunnel })),
+  { loading: ChartSkeleton }
+);
 
 const PERIOD_TABS = [
   { value: "7d", label: "7 Days" },

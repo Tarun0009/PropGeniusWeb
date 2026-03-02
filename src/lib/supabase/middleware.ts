@@ -33,18 +33,27 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
+  // Logged-in user visiting landing page → redirect to dashboard
+  if (user && request.nextUrl.pathname === "/") {
+    const url = request.nextUrl.clone();
+    url.pathname = "/dashboard";
+    return NextResponse.redirect(url);
+  }
+
   // Auth routes — redirect to dashboard if already logged in
   const authRoutes = ["/login", "/signup", "/forgot-password"];
   if (user && authRoutes.some((route) => request.nextUrl.pathname.startsWith(route))) {
     const url = request.nextUrl.clone();
-    url.pathname = "/";
+    url.pathname = "/dashboard";
     return NextResponse.redirect(url);
   }
 
   // Protected routes — redirect to login if not logged in
-  const publicRoutes = ["/login", "/signup", "/forgot-password", "/api/"];
+  const publicRoutes = ["/", "/login", "/signup", "/forgot-password", "/api/"];
   const isPublicRoute = publicRoutes.some((route) =>
-    request.nextUrl.pathname.startsWith(route)
+    route === "/"
+      ? request.nextUrl.pathname === "/"
+      : request.nextUrl.pathname.startsWith(route)
   );
 
   if (!user && !isPublicRoute) {

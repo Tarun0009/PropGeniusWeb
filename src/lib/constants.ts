@@ -67,7 +67,7 @@ export const PLAN_LIMITS = {
 } as const;
 
 export const NAV_ITEMS = [
-  { label: "Dashboard", href: "/", icon: "LayoutDashboard" },
+  { label: "Dashboard", href: "/dashboard", icon: "LayoutDashboard" },
   { label: "Listings", href: "/listings", icon: "Building2" },
   { label: "Leads", href: "/leads", icon: "Users" },
   { label: "Messages", href: "/messages", icon: "MessageSquare" },

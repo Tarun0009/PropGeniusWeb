@@ -27,7 +27,7 @@ const LeadKanban = dynamic(
 
 const VIEW_TABS = [
   { value: "table", label: "Table" },
-  { value: "kanban", label: "Kanban" },
+  { value: "kanban", label: "Pipeline" },
 ];
 
 export default function LeadsPage() {

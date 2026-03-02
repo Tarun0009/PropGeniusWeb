@@ -14,6 +14,7 @@ import { AmenityPicker } from "./amenity-picker";
 import { ImageUploader } from "./image-uploader";
 import { AIGenerator } from "./ai-generator";
 import { useCreateListing, useUpdateListing } from "@/hooks/use-listings";
+import { useNotificationStore } from "@/stores/notification-store";
 import {
   listingFormSchema,
   type ListingFormData,
@@ -56,6 +57,16 @@ const FACING_OPTIONS = [
 
 const STATE_OPTIONS = INDIAN_STATES.map((s) => ({ value: s, label: s }));
 
+// Convert empty/NaN number inputs to undefined so Zod .optional() works
+const asOptionalNumber = (v: string) => {
+  if (v === "" || v === undefined || v === null) return undefined;
+  const n = Number(v);
+  return Number.isNaN(n) ? undefined : n;
+};
+
+// Convert empty string to undefined for optional enum/string selects
+const asOptionalString = (v: string) => (v === "" ? undefined : v);
+
 interface ListingFormProps {
   listing?: Listing;
 }
@@ -78,6 +89,7 @@ function ListingForm({ listing }: ListingFormProps) {
 
   const createMutation = useCreateListing();
   const updateMutation = useUpdateListing();
+  const addToast = useNotificationStore((s) => s.addToast);
   const isEditing = !!listing;
 
   const {
@@ -187,7 +199,15 @@ function ListingForm({ listing }: ListingFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+    <form
+      onSubmit={handleSubmit(onSubmit, (fieldErrors) => {
+        const firstError = Object.values(fieldErrors)[0];
+        const message =
+          firstError?.message || "Please fix the errors before saving.";
+        addToast({ type: "error", title: String(message) });
+      })}
+      className="space-y-8"
+    >
       {/* Step Indicator */}
       <nav className="flex items-center justify-between">
         {STEPS.map((s, i) => (
@@ -325,45 +345,45 @@ function ListingForm({ listing }: ListingFormProps) {
                 type="number"
                 placeholder="e.g. 3"
                 min={0}
-                {...register("bedrooms", { valueAsNumber: true })}
+                {...register("bedrooms", { setValueAs: asOptionalNumber })}
               />
               <Input
                 label="Bathrooms"
                 type="number"
                 placeholder="e.g. 2"
                 min={0}
-                {...register("bathrooms", { valueAsNumber: true })}
+                {...register("bathrooms", { setValueAs: asOptionalNumber })}
               />
               <Input
                 label="Area (sq.ft.)"
                 type="number"
                 placeholder="e.g. 1200"
-                {...register("area_sqft", { valueAsNumber: true })}
+                {...register("area_sqft", { setValueAs: asOptionalNumber })}
               />
               <Input
                 label="Carpet Area (sq.ft.)"
                 type="number"
                 placeholder="e.g. 950"
-                {...register("carpet_area_sqft", { valueAsNumber: true })}
+                {...register("carpet_area_sqft", { setValueAs: asOptionalNumber })}
               />
               <Input
                 label="Floor Number"
                 type="number"
                 placeholder="e.g. 5"
                 min={0}
-                {...register("floor_number", { valueAsNumber: true })}
+                {...register("floor_number", { setValueAs: asOptionalNumber })}
               />
               <Input
                 label="Total Floors"
                 type="number"
                 placeholder="e.g. 15"
                 min={0}
-                {...register("total_floors", { valueAsNumber: true })}
+                {...register("total_floors", { setValueAs: asOptionalNumber })}
               />
               <Select
                 label="Furnishing"
                 options={[{ value: "", label: "Select" }, ...FURNISHING_OPTIONS.map((f) => ({ value: f.value, label: f.label }))]}
-                {...register("furnishing")}
+                {...register("furnishing", { setValueAs: asOptionalString })}
               />
               <Select
                 label="Facing"
@@ -375,14 +395,14 @@ function ListingForm({ listing }: ListingFormProps) {
                 type="number"
                 placeholder="e.g. 2"
                 min={0}
-                {...register("age_years", { valueAsNumber: true })}
+                {...register("age_years", { setValueAs: asOptionalNumber })}
               />
               <Input
                 label="Parking Spots"
                 type="number"
                 placeholder="e.g. 1"
                 min={0}
-                {...register("parking", { valueAsNumber: true })}
+                {...register("parking", { setValueAs: asOptionalNumber })}
               />
             </div>
             <div className="mt-4">

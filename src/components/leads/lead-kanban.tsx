@@ -42,7 +42,7 @@ function KanbanColumn({ status, label, leads, onLeadClick }: KanbanColumnProps) 
   return (
     <div
       ref={setNodeRef}
-      className={`flex w-64 shrink-0 flex-col rounded-lg border bg-slate-50 transition-colors ${
+      className={`flex w-64 shrink-0 snap-start flex-col rounded-lg border bg-slate-50 transition-colors ${
         isOver ? "border-primary-400 bg-primary-50/50" : "border-slate-200"
       }`}
     >
@@ -169,7 +169,7 @@ function LeadKanban({ leads }: LeadKanbanProps) {
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      <div className="flex gap-3 overflow-x-auto pb-4">
+      <div className="flex gap-3 overflow-x-auto pb-4 snap-x snap-mandatory sm:snap-none">
         {LEAD_STATUSES.map(({ value, label }) => (
           <KanbanColumn
             key={value}

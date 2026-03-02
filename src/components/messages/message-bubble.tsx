@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { Check, CheckCheck, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { WhatsAppMessage } from "@/types/message";
@@ -59,11 +60,15 @@ function MessageBubble({ message }: MessageBubbleProps) {
         {/* Media */}
         {message.media_url && (
           <div className="mb-1.5 overflow-hidden rounded-lg">
-            <img
-              src={message.media_url}
-              alt="Media"
-              className="max-h-48 w-full object-cover"
-            />
+            <div className="relative h-48 w-full">
+              <Image
+                src={message.media_url}
+                alt="Media"
+                fill
+                className="object-cover"
+                sizes="300px"
+              />
+            </div>
           </div>
         )}
 

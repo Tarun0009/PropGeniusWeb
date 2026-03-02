@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { ArrowLeft, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,16 +12,12 @@ import { useAuthStore } from "@/stores/auth-store";
 function ChatLayout() {
   const searchParams = useSearchParams();
   const initialLeadId = searchParams.get("lead");
-  const [activeLeadId, setActiveLeadId] = useState<string | null>(initialLeadId);
+  const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
   const { data: conversations = [], isLoading } = useConversations();
   const profile = useAuthStore((s) => s.profile);
 
-  // Update active lead from URL search params
-  useEffect(() => {
-    if (initialLeadId) {
-      setActiveLeadId(initialLeadId);
-    }
-  }, [initialLeadId]);
+  const activeLeadId = useMemo(() => selectedLeadId ?? initialLeadId, [selectedLeadId, initialLeadId]);
+  const setActiveLeadId = setSelectedLeadId;
 
   const activeLead = activeLeadId
     ? conversations.find((c) => c.lead.id === activeLeadId)?.lead

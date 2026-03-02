@@ -15,7 +15,8 @@
       "Bash(find \"C:\\\\Users\\\\Tarun\\\\Documents\\\\propgenius\\\\src\\\\app\\\\\\(dashboard\\)\" -name \"page.tsx\" -type f)",
       "Bash(find \"C:\\\\Users\\\\Tarun\\\\Documents\\\\propgenius\\\\src\\\\app\\\\\\(auth\\)\" -name \"page.tsx\" -type f)",
       "Bash(npx eslint src/components/billing/ src/app/api/billing/ src/lib/razorpay.ts src/hooks/use-billing.ts)",
-      "Bash(npx eslint src/components/billing/)"
+      "Bash(npx eslint src/components/billing/)",
+      "Bash(npx eslint src/)"
     ]
   }
 }

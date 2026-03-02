@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 import { cn, getInitials } from "@/lib/utils";
 
 const sizeStyles = {
@@ -6,6 +7,8 @@ const sizeStyles = {
   md: "h-10 w-10 text-sm",
   lg: "h-12 w-12 text-base",
 } as const;
+
+const sizePx = { sm: 32, md: 40, lg: 48 } as const;
 
 export interface AvatarProps {
   src?: string | null;
@@ -27,10 +30,13 @@ function Avatar({ src, alt, name, size = "md", className }: AvatarProps) {
       )}
     >
       {src ? (
-        <img
+        <Image
           src={src}
           alt={alt || name || "Avatar"}
+          width={sizePx[size]}
+          height={sizePx[size]}
           className="h-full w-full object-cover"
+          unoptimized
         />
       ) : (
         <span aria-label={name || "Avatar"}>{initials}</span>

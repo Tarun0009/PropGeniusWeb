@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import { useCreateCheckout, useVerifyPayment } from "@/hooks/use-billing";
 import { useNotificationStore } from "@/stores/notification-store";
 
@@ -24,23 +24,7 @@ function CheckoutButton({ plan, billingCycle, onClose }: CheckoutButtonProps) {
   const verifyMutation = useVerifyPayment();
   const addToast = useNotificationStore((s) => s.addToast);
 
-  useEffect(() => {
-    // Load Razorpay script
-    const script = document.createElement("script");
-    script.src = "https://checkout.razorpay.com/v1/checkout.js";
-    script.async = true;
-    document.body.appendChild(script);
-
-    script.onload = () => {
-      initiateCheckout();
-    };
-
-    return () => {
-      document.body.removeChild(script);
-    };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const initiateCheckout = async () => {
+  const initiateCheckout = useCallback(async () => {
     try {
       const data = await checkoutMutation.mutateAsync({
         plan,
@@ -64,7 +48,6 @@ function CheckoutButton({ plan, billingCycle, onClose }: CheckoutButtonProps) {
           razorpay_subscription_id: string;
           razorpay_signature: string;
         }) => {
-          // Verify payment on server
           await verifyMutation.mutateAsync({
             razorpay_payment_id: response.razorpay_payment_id,
             razorpay_subscription_id: response.razorpay_subscription_id,
@@ -86,9 +69,24 @@ function CheckoutButton({ plan, billingCycle, onClose }: CheckoutButtonProps) {
     } catch {
       onClose();
     }
-  };
+  }, [plan, billingCycle, onClose, addToast, checkoutMutation, verifyMutation]);
 
-  return null; // This component triggers checkout on mount, no UI
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+    document.body.appendChild(script);
+
+    script.onload = () => {
+      initiateCheckout();
+    };
+
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, [initiateCheckout]);
+
+  return null;
 }
 
 export { CheckoutButton };

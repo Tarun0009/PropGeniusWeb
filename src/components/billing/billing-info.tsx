@@ -126,7 +126,7 @@ function BillingInfo({ currentPlan }: BillingInfoProps) {
           <div>
             <p className="text-sm text-slate-600">
               Are you sure you want to cancel your <strong>{planConfig?.name}</strong> plan?
-              You'll be downgraded to the Free plan and lose access to premium features.
+              You&apos;ll be downgraded to the Free plan and lose access to premium features.
             </p>
           </div>
         </div>

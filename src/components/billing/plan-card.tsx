@@ -31,7 +31,6 @@ function PlanCard({
   onSelect,
   isLoading,
 }: PlanCardProps) {
-  const price = isAnnual ? priceAnnual : priceMonthly;
   const isEnterprise = priceMonthly === -1;
   const isFree = priceMonthly === 0;
 

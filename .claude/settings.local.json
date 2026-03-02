@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --use-npm --no-turbopack)",
+      "Bash(npx create-next-app@latest propgenius-temp --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --use-npm --no-turbopack)",
+      "Bash(npm install @supabase/supabase-js @supabase/ssr @tanstack/react-query @tanstack/react-table zustand react-hook-form @hookform/resolvers zod recharts lucide-react clsx tailwind-merge)",
+      "Bash(ls -la src/app/\\\\\\(dashboard\\\\\\)/)",
+      "Bash(wc -l src/app/\\\\\\(dashboard\\\\\\)/page.tsx src/app/layout.tsx src/app/\\\\\\(dashboard\\\\\\)/layout.tsx)",
+      "Bash(npm install @google/generative-ai)",
+      "Bash(npm run build)",
+      "Bash(npm install @dnd-kit/core @dnd-kit/sortable @dnd-kit/utilities)",
+      "Bash(ls -la c:/Users/Tarun/Documents/propgenius/src/app/\\\\\\(dashboard\\\\\\)/messages/)",
+      "Bash(npm install twilio resend)",
+      "Bash(npm install razorpay)",
+      "Bash(find \"C:\\\\Users\\\\Tarun\\\\Documents\\\\propgenius\\\\src\\\\app\\\\\\(dashboard\\)\" -name \"page.tsx\" -type f)",
+      "Bash(find \"C:\\\\Users\\\\Tarun\\\\Documents\\\\propgenius\\\\src\\\\app\\\\\\(auth\\)\" -name \"page.tsx\" -type f)"
+    ]
+  }
+}

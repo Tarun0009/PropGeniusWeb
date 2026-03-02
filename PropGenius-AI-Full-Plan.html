@@ -1,0 +1,1886 @@
+<h1>PropGenius AI — Complete Project Plan</h1>
+<h2>AI-Powered Real Estate Listing Generator + CRM</h2>
+<h3>Version 1.0 | February 2026</h3>
+<hr>
+<h1>TABLE OF CONTENTS</h1>
+<ol>
+<li>Executive Summary</li>
+<li>Business Model &amp; Revenue</li>
+<li>Tech Stack</li>
+<li>System Architecture</li>
+<li>Database Schema</li>
+<li>Design System</li>
+<li>Directory Structure</li>
+<li>Feature Breakdown</li>
+<li>AI Integration Details</li>
+<li>API Routes</li>
+<li>Development Phases</li>
+<li>Environment Variables</li>
+<li>Deployment &amp; DevOps</li>
+<li>Testing Strategy</li>
+<li>Security Considerations</li>
+<li>Future Roadmap</li>
+</ol>
+<hr>
+<h1>1. EXECUTIVE SUMMARY</h1>
+<h2>Problem Statement</h2>
+<p>Indian real estate agents face two critical problems:</p>
+<ol>
+<li><strong>Listing Creation is Time-Consuming</strong>: Agents spend 30-60 minutes writing each property listing description manually. With 10-20 listings per month, that&#39;s 5-20 hours wasted on repetitive writing.</li>
+<li><strong>Lead Leakage</strong>: 60-70% of leads are lost due to poor follow-up. Agents use WhatsApp and phone calls without any system to track, score, or prioritize leads.</li>
+</ol>
+<h2>Solution: PropGenius AI</h2>
+<p>A SaaS web application that:</p>
+<ul>
+<li><strong>AI Listing Generator</strong>: Input property details, get professional listings in seconds (description, SEO title, social media posts, platform-specific formats)</li>
+<li><strong>Smart CRM</strong>: Manage leads with AI-powered scoring, Kanban board, activity tracking, and automated WhatsApp follow-ups</li>
+<li><strong>Analytics Dashboard</strong>: Track listing performance, lead conversion, and agent productivity</li>
+</ul>
+<h2>Target Market</h2>
+<ul>
+<li>500,000+ registered real estate agents in India</li>
+<li>50,000+ small brokerages</li>
+<li>Growing PropTech market ($1.2B in India, 2025)</li>
+</ul>
+<h2>Competitive Advantage</h2>
+<ul>
+<li>AI-first approach (not just a CRM with AI bolted on)</li>
+<li>Built for Indian market (₹ pricing, Indian property types, local platforms)</li>
+<li>WhatsApp-native communication (India&#39;s #1 business messenger)</li>
+<li>Free tier to drive adoption, premium for power features</li>
+</ul>
+<hr>
+<h1>2. BUSINESS MODEL &amp; REVENUE</h1>
+<h2>Subscription Plans (via Razorpay)</h2>
+<table>
+<thead>
+<tr>
+<th>Plan</th>
+<th>Price/Month</th>
+<th>Annual (20% off)</th>
+<th>Features</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Free</strong></td>
+<td>₹0</td>
+<td>₹0</td>
+<td>5 AI listings/month, 50 leads, basic CRM, email support</td>
+</tr>
+<tr>
+<td><strong>Pro</strong></td>
+<td>₹999</td>
+<td>₹9,588</td>
+<td>Unlimited listings, 500 leads, WhatsApp integration, AI lead scoring, priority support</td>
+</tr>
+<tr>
+<td><strong>Business</strong></td>
+<td>₹2,499</td>
+<td>₹23,988</td>
+<td>Everything in Pro + team (5 agents), analytics dashboard, bulk operations, custom templates</td>
+</tr>
+<tr>
+<td><strong>Enterprise</strong></td>
+<td>Custom</td>
+<td>Custom</td>
+<td>Unlimited agents, API access, custom branding, dedicated account manager, SLA</td>
+</tr>
+</tbody></table>
+<h2>Additional Revenue Streams</h2>
+<ul>
+<li><strong>Pay-per-listing</strong>: ₹49/listing for free users after quota</li>
+<li><strong>WhatsApp credits</strong>: Extra message packs (₹199 for 500 messages)</li>
+<li><strong>Premium templates</strong>: ₹299 for industry-specific listing templates</li>
+<li><strong>API access</strong>: ₹4,999/month for integration with external property portals</li>
+</ul>
+<h2>Financial Projections (Year 1)</h2>
+<table>
+<thead>
+<tr>
+<th>Month</th>
+<th>Free Users</th>
+<th>Pro</th>
+<th>Business</th>
+<th>MRR</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Month 1</td>
+<td>100</td>
+<td>5</td>
+<td>0</td>
+<td>₹4,995</td>
+</tr>
+<tr>
+<td>Month 3</td>
+<td>500</td>
+<td>25</td>
+<td>3</td>
+<td>₹32,472</td>
+</tr>
+<tr>
+<td>Month 6</td>
+<td>2,000</td>
+<td>100</td>
+<td>15</td>
+<td>₹137,385</td>
+</tr>
+<tr>
+<td>Month 12</td>
+<td>5,000</td>
+<td>300</td>
+<td>50</td>
+<td>₹424,500</td>
+</tr>
+</tbody></table>
+<h2>Key Metrics to Track</h2>
+<ul>
+<li><strong>MRR</strong> (Monthly Recurring Revenue)</li>
+<li><strong>Churn Rate</strong> (target: &lt;5% monthly)</li>
+<li><strong>CAC</strong> (Customer Acquisition Cost)</li>
+<li><strong>LTV</strong> (Lifetime Value, target: &gt;12x CAC)</li>
+<li><strong>Free-to-Pro Conversion</strong> (target: 5-8%)</li>
+<li><strong>AI Listings Generated/Month</strong></li>
+<li><strong>Lead Conversion Rate</strong></li>
+</ul>
+<hr>
+<h1>3. TECH STACK</h1>
+<h2>Frontend</h2>
+<table>
+<thead>
+<tr>
+<th>Technology</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Next.js 16</strong></td>
+<td>App Router, Server Components, API Routes</td>
+</tr>
+<tr>
+<td><strong>TypeScript</strong></td>
+<td>Type safety across the entire codebase</td>
+</tr>
+<tr>
+<td><strong>Tailwind CSS 4</strong></td>
+<td>Utility-first styling with custom design tokens</td>
+</tr>
+<tr>
+<td><strong>React Hook Form</strong></td>
+<td>Form management with validation</td>
+</tr>
+<tr>
+<td><strong>Zod</strong></td>
+<td>Schema validation (forms + API)</td>
+</tr>
+<tr>
+<td><strong>TanStack React Query</strong></td>
+<td>Server state management, caching, mutations</td>
+</tr>
+<tr>
+<td><strong>TanStack Table</strong></td>
+<td>Data tables with sorting, filtering, pagination</td>
+</tr>
+<tr>
+<td><strong>Zustand</strong></td>
+<td>Lightweight client state (auth, sidebar, notifications)</td>
+</tr>
+<tr>
+<td><strong>Recharts</strong></td>
+<td>Analytics charts and visualizations</td>
+</tr>
+<tr>
+<td><strong>lucide-react</strong></td>
+<td>Icon library</td>
+</tr>
+<tr>
+<td><strong>@dnd-kit/core</strong></td>
+<td>Drag-and-drop for Kanban board</td>
+</tr>
+</tbody></table>
+<h2>Backend</h2>
+<table>
+<thead>
+<tr>
+<th>Technology</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Supabase</strong></td>
+<td>Auth, PostgreSQL database, Storage (images), Realtime subscriptions</td>
+</tr>
+<tr>
+<td><strong>Google Gemini 2.5 Flash</strong></td>
+<td>AI listing generation, lead scoring, insights</td>
+</tr>
+<tr>
+<td><strong>Next.js API Routes</strong></td>
+<td>Server-side logic, webhooks</td>
+</tr>
+</tbody></table>
+<h2>Integrations</h2>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Razorpay</strong></td>
+<td>Subscription billing and payments</td>
+</tr>
+<tr>
+<td><strong>WhatsApp Business API</strong></td>
+<td>Customer messaging (via Twilio or Meta Cloud API)</td>
+</tr>
+<tr>
+<td><strong>Resend</strong></td>
+<td>Transactional emails (welcome, password reset, notifications)</td>
+</tr>
+<tr>
+<td><strong>Google Maps API</strong></td>
+<td>Location picker for property listings (optional)</td>
+</tr>
+<tr>
+<td><strong>Vercel</strong></td>
+<td>Deployment and hosting</td>
+</tr>
+<tr>
+<td><strong>GitHub Actions</strong></td>
+<td>CI/CD pipeline</td>
+</tr>
+</tbody></table>
+<hr>
+<h1>4. SYSTEM ARCHITECTURE</h1>
+<h2>High-Level Architecture</h2>
+<pre><code>                    ┌──────────────────────┐
+                    │    Users (Agents)     │
+                    │  Browser / Mobile     │
+                    └──────────┬───────────┘
+                               │
+                    ┌──────────▼───────────┐
+                    │     Vercel Edge       │
+                    │  (CDN + Middleware)    │
+                    └──────────┬───────────┘
+                               │
+         ┌─────────────────────┼─────────────────────┐
+         │                     │                      │
+┌────────▼────────┐  ┌────────▼────────┐  ┌─────────▼────────┐
+│  Next.js SSR    │  │  API Routes     │  │  Static Assets   │
+│  Pages          │  │  /api/*         │  │  /public         │
+│  (Dashboard,    │  │  (AI, Webhooks, │  │  (Images, Logo)  │
+│   Listings,     │  │   CRUD)         │  │                  │
+│   Leads)        │  │                 │  │                  │
+└────────┬────────┘  └────────┬────────┘  └──────────────────┘
+         │                    │
+         │     ┌──────────────┼──────────────┐
+         │     │              │              │
+         ▼     ▼              ▼              ▼
+┌──────────────────┐  ┌─────────────┐  ┌──────────────────┐
+│    Supabase      │  │  Gemini AI  │  │  External APIs   │
+│  ┌────────────┐  │  │             │  │  ┌────────────┐  │
+│  │ Auth       │  │  │ - Generate  │  │  │ Razorpay   │  │
+│  │ PostgreSQL │  │  │   Listings  │  │  │ WhatsApp   │  │
+│  │ Storage    │  │  │ - Score     │  │  │ Resend     │  │
+│  │ Realtime   │  │  │   Leads     │  │  │ Google Maps│  │
+│  └────────────┘  │  │ - Insights  │  │  └────────────┘  │
+└──────────────────┘  └─────────────┘  └──────────────────┘
+</code></pre>
+<h2>Data Flow: AI Listing Generation</h2>
+<pre><code>Agent fills form → POST /api/ai/generate-listing
+                        │
+                        ▼
+              Validate with Zod schema
+                        │
+                        ▼
+              Build Gemini AI prompt
+              (property details + context)
+                        │
+                        ▼
+              Gemini 2.5 Flash generates:
+              - Title
+              - Description (150-200 words)
+              - 5 Key Highlights
+              - Social Media Post
+              - SEO Meta Description
+                        │
+                        ▼
+              Return JSON to frontend
+                        │
+                        ▼
+              Agent reviews + edits
+                        │
+                        ▼
+              Save to Supabase (listings table)
+              Upload images to Supabase Storage
+</code></pre>
+<h2>Data Flow: Lead Scoring</h2>
+<pre><code>New lead created/updated → POST /api/ai/score-lead
+                                   │
+                                   ▼
+                         Collect lead data:
+                         - Budget vs listing price
+                         - Response time
+                         - Source quality
+                         - Engagement level
+                         - Number of inquiries
+                                   │
+                                   ▼
+                         Gemini AI analyzes and returns:
+                         - Score (0-100)
+                         - Reason (text explanation)
+                         - Recommended action
+                                   │
+                                   ▼
+                         Update lead record in Supabase
+                         Trigger notification if hot lead (&gt;80)
+</code></pre>
+<hr>
+<h1>5. DATABASE SCHEMA</h1>
+<h2>Entity Relationship Diagram</h2>
+<pre><code>organizations ─┬─&lt; profiles
+               ├─&lt; listings
+               ├─&lt; leads ──────&lt; lead_activities
+               ├─&lt; whatsapp_messages
+               └─&lt; subscriptions
+
+leads ──&lt; whatsapp_messages
+leads ──&lt; lead_activities
+listings ──&lt; leads (interested_in)
+profiles ──&lt; listings (created_by)
+profiles ──&lt; leads (assigned_to)
+profiles ──&lt; lead_activities (performed_by)
+</code></pre>
+<h2>Table Definitions</h2>
+<h3>organizations</h3>
+<pre><code class="language-sql">CREATE TABLE organizations (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  slug TEXT UNIQUE NOT NULL,
+  logo_url TEXT,
+  address TEXT,
+  city TEXT,
+  phone TEXT,
+  email TEXT,
+  plan TEXT NOT NULL DEFAULT &#39;free&#39;
+    CHECK (plan IN (&#39;free&#39;, &#39;pro&#39;, &#39;business&#39;, &#39;enterprise&#39;)),
+  razorpay_customer_id TEXT,
+  razorpay_subscription_id TEXT,
+  max_listings INT DEFAULT 5,
+  max_leads INT DEFAULT 50,
+  max_agents INT DEFAULT 1,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+</code></pre>
+<h3>profiles</h3>
+<pre><code class="language-sql">CREATE TABLE profiles (
+  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  organization_id UUID REFERENCES organizations(id) ON DELETE CASCADE,
+  full_name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  phone TEXT,
+  avatar_url TEXT,
+  role TEXT NOT NULL DEFAULT &#39;owner&#39;
+    CHECK (role IN (&#39;owner&#39;, &#39;admin&#39;, &#39;agent&#39;)),
+  monthly_listing_count INT DEFAULT 0,
+  is_active BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+</code></pre>
+<h3>listings</h3>
+<pre><code class="language-sql">CREATE TABLE listings (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  organization_id UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  created_by UUID NOT NULL REFERENCES profiles(id),
+  -- Property Details
+  title TEXT NOT NULL,
+  description TEXT,
+  property_type TEXT NOT NULL
+    CHECK (property_type IN (&#39;apartment&#39;, &#39;house&#39;, &#39;villa&#39;, &#39;plot&#39;, &#39;commercial&#39;, &#39;pg&#39;)),
+  transaction_type TEXT NOT NULL
+    CHECK (transaction_type IN (&#39;sale&#39;, &#39;rent&#39;, &#39;lease&#39;)),
+  price NUMERIC NOT NULL,
+  price_unit TEXT DEFAULT &#39;total&#39;
+    CHECK (price_unit IN (&#39;total&#39;, &#39;per_sqft&#39;, &#39;per_month&#39;)),
+  -- Location
+  address TEXT,
+  locality TEXT,
+  city TEXT NOT NULL,
+  state TEXT NOT NULL,
+  pincode TEXT,
+  latitude NUMERIC,
+  longitude NUMERIC,
+  -- Specifications
+  bedrooms INT,
+  bathrooms INT,
+  area_sqft NUMERIC,
+  carpet_area_sqft NUMERIC,
+  floor_number INT,
+  total_floors INT,
+  furnishing TEXT CHECK (furnishing IN (&#39;unfurnished&#39;, &#39;semi&#39;, &#39;fully&#39;)),
+  facing TEXT,
+  age_years INT,
+  parking INT DEFAULT 0,
+  -- Amenities
+  amenities JSONB DEFAULT &#39;[]&#39;,
+  -- Media
+  images TEXT[] DEFAULT &#39;{}&#39;,
+  floor_plan_url TEXT,
+  virtual_tour_url TEXT,
+  -- AI Generated
+  ai_description TEXT,
+  ai_social_post TEXT,
+  ai_seo_title TEXT,
+  ai_seo_description TEXT,
+  ai_highlights JSONB DEFAULT &#39;[]&#39;,
+  -- Status
+  status TEXT DEFAULT &#39;draft&#39;
+    CHECK (status IN (&#39;draft&#39;, &#39;active&#39;, &#39;sold&#39;, &#39;rented&#39;, &#39;archived&#39;)),
+  views_count INT DEFAULT 0,
+  inquiries_count INT DEFAULT 0,
+  -- External
+  published_platforms JSONB DEFAULT &#39;[]&#39;,
+  external_urls JSONB DEFAULT &#39;{}&#39;,
+  -- Timestamps
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+</code></pre>
+<h3>leads</h3>
+<pre><code class="language-sql">CREATE TABLE leads (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  organization_id UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  assigned_to UUID REFERENCES profiles(id),
+  -- Contact Info
+  name TEXT NOT NULL,
+  email TEXT,
+  phone TEXT,
+  whatsapp_number TEXT,
+  -- Lead Details
+  source TEXT DEFAULT &#39;website&#39;
+    CHECK (source IN (&#39;website&#39;, &#39;whatsapp&#39;, &#39;phone&#39;, &#39;walkin&#39;, &#39;referral&#39;,
+                       &#39;99acres&#39;, &#39;magicbricks&#39;, &#39;housing&#39;, &#39;other&#39;)),
+  interested_in UUID REFERENCES listings(id) ON DELETE SET NULL,
+  budget_min NUMERIC,
+  budget_max NUMERIC,
+  preferred_location TEXT,
+  preferred_property_type TEXT,
+  -- AI Scoring
+  ai_score INT DEFAULT 0,
+  ai_score_reason TEXT,
+  ai_recommended_action TEXT,
+  -- Status
+  status TEXT DEFAULT &#39;new&#39;
+    CHECK (status IN (&#39;new&#39;, &#39;contacted&#39;, &#39;interested&#39;, &#39;site_visit&#39;,
+                       &#39;negotiation&#39;, &#39;converted&#39;, &#39;lost&#39;)),
+  lost_reason TEXT,
+  -- Follow-up
+  last_contacted_at TIMESTAMPTZ,
+  next_followup_at TIMESTAMPTZ,
+  followup_notes TEXT,
+  -- Meta
+  notes TEXT,
+  tags TEXT[] DEFAULT &#39;{}&#39;,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+</code></pre>
+<h3>lead_activities</h3>
+<pre><code class="language-sql">CREATE TABLE lead_activities (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  lead_id UUID NOT NULL REFERENCES leads(id) ON DELETE CASCADE,
+  performed_by UUID REFERENCES profiles(id),
+  type TEXT NOT NULL
+    CHECK (type IN (&#39;call&#39;, &#39;email&#39;, &#39;whatsapp&#39;, &#39;site_visit&#39;,
+                     &#39;note&#39;, &#39;status_change&#39;, &#39;score_update&#39;)),
+  description TEXT NOT NULL,
+  old_value TEXT,
+  new_value TEXT,
+  metadata JSONB DEFAULT &#39;{}&#39;,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+</code></pre>
+<h3>whatsapp_messages</h3>
+<pre><code class="language-sql">CREATE TABLE whatsapp_messages (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  organization_id UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  lead_id UUID REFERENCES leads(id) ON DELETE SET NULL,
+  direction TEXT NOT NULL CHECK (direction IN (&#39;inbound&#39;, &#39;outbound&#39;)),
+  message_type TEXT DEFAULT &#39;text&#39;
+    CHECK (message_type IN (&#39;text&#39;, &#39;template&#39;, &#39;image&#39;, &#39;document&#39;)),
+  content TEXT,
+  template_name TEXT,
+  media_url TEXT,
+  status TEXT DEFAULT &#39;sent&#39;
+    CHECK (status IN (&#39;queued&#39;, &#39;sent&#39;, &#39;delivered&#39;, &#39;read&#39;, &#39;failed&#39;)),
+  whatsapp_message_id TEXT,
+  error_message TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+</code></pre>
+<h3>subscriptions</h3>
+<pre><code class="language-sql">CREATE TABLE subscriptions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  organization_id UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  razorpay_subscription_id TEXT UNIQUE,
+  razorpay_payment_id TEXT,
+  plan TEXT NOT NULL CHECK (plan IN (&#39;free&#39;, &#39;pro&#39;, &#39;business&#39;, &#39;enterprise&#39;)),
+  status TEXT DEFAULT &#39;active&#39;
+    CHECK (status IN (&#39;created&#39;, &#39;active&#39;, &#39;paused&#39;, &#39;cancelled&#39;, &#39;expired&#39;)),
+  amount NUMERIC,
+  currency TEXT DEFAULT &#39;INR&#39;,
+  current_period_start TIMESTAMPTZ,
+  current_period_end TIMESTAMPTZ,
+  cancelled_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+</code></pre>
+<h3>Row Level Security (RLS) Policies</h3>
+<pre><code class="language-sql">-- Enable RLS on all tables
+ALTER TABLE organizations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE listings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE leads ENABLE ROW LEVEL SECURITY;
+ALTER TABLE lead_activities ENABLE ROW LEVEL SECURITY;
+ALTER TABLE whatsapp_messages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE subscriptions ENABLE ROW LEVEL SECURITY;
+
+-- Users can only see their organization&#39;s data
+CREATE POLICY &quot;org_isolation&quot; ON listings
+  FOR ALL USING (
+    organization_id IN (
+      SELECT organization_id FROM profiles WHERE id = auth.uid()
+    )
+  );
+-- (Similar policies for leads, lead_activities, whatsapp_messages, subscriptions)
+</code></pre>
+<h3>Indexes</h3>
+<pre><code class="language-sql">CREATE INDEX idx_listings_org ON listings(organization_id);
+CREATE INDEX idx_listings_status ON listings(status);
+CREATE INDEX idx_listings_city ON listings(city);
+CREATE INDEX idx_leads_org ON leads(organization_id);
+CREATE INDEX idx_leads_status ON leads(status);
+CREATE INDEX idx_leads_score ON leads(ai_score DESC);
+CREATE INDEX idx_leads_followup ON leads(next_followup_at);
+CREATE INDEX idx_lead_activities_lead ON lead_activities(lead_id);
+CREATE INDEX idx_whatsapp_messages_lead ON whatsapp_messages(lead_id);
+</code></pre>
+<hr>
+<h1>6. DESIGN SYSTEM</h1>
+<h2>Color Palette</h2>
+<h3>Primary Colors</h3>
+<table>
+<thead>
+<tr>
+<th>Token</th>
+<th>Hex</th>
+<th>Usage</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>primary-50</code></td>
+<td><code>#EFF6FF</code></td>
+<td>Light blue backgrounds</td>
+</tr>
+<tr>
+<td><code>primary-100</code></td>
+<td><code>#DBEAFE</code></td>
+<td>Hover backgrounds</td>
+</tr>
+<tr>
+<td><code>primary-500</code></td>
+<td><code>#3B82F6</code></td>
+<td>Links, secondary buttons</td>
+</tr>
+<tr>
+<td><code>primary-600</code></td>
+<td><code>#2563EB</code></td>
+<td>Primary buttons, active states</td>
+</tr>
+<tr>
+<td><code>primary-700</code></td>
+<td><code>#1D4ED8</code></td>
+<td>Button hover</td>
+</tr>
+<tr>
+<td><code>primary-900</code></td>
+<td><code>#1E3A8A</code></td>
+<td>Dark accents</td>
+</tr>
+</tbody></table>
+<h3>Semantic Colors</h3>
+<table>
+<thead>
+<tr>
+<th>Token</th>
+<th>Hex</th>
+<th>Usage</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>success-500</code></td>
+<td><code>#10B981</code></td>
+<td>Converted, active, success</td>
+</tr>
+<tr>
+<td><code>warning-500</code></td>
+<td><code>#F59E0B</code></td>
+<td>Pending, scheduled, caution</td>
+</tr>
+<tr>
+<td><code>danger-500</code></td>
+<td><code>#EF4444</code></td>
+<td>Lost, errors, delete actions</td>
+</tr>
+<tr>
+<td><code>info-500</code></td>
+<td><code>#6366F1</code></td>
+<td>Information, AI-related</td>
+</tr>
+</tbody></table>
+<h3>Neutral Colors</h3>
+<table>
+<thead>
+<tr>
+<th>Token</th>
+<th>Hex</th>
+<th>Usage</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>white</code></td>
+<td><code>#FFFFFF</code></td>
+<td>Main background</td>
+</tr>
+<tr>
+<td><code>slate-50</code></td>
+<td><code>#F8FAFC</code></td>
+<td>Sidebar, card backgrounds</td>
+</tr>
+<tr>
+<td><code>slate-100</code></td>
+<td><code>#F1F5F9</code></td>
+<td>Input backgrounds, table rows</td>
+</tr>
+<tr>
+<td><code>slate-200</code></td>
+<td><code>#E2E8F0</code></td>
+<td>Borders, dividers</td>
+</tr>
+<tr>
+<td><code>slate-400</code></td>
+<td><code>#94A3B8</code></td>
+<td>Placeholder text</td>
+</tr>
+<tr>
+<td><code>slate-500</code></td>
+<td><code>#64748B</code></td>
+<td>Secondary text, labels</td>
+</tr>
+<tr>
+<td><code>slate-700</code></td>
+<td><code>#334155</code></td>
+<td>Body text</td>
+</tr>
+<tr>
+<td><code>slate-900</code></td>
+<td><code>#0F172A</code></td>
+<td>Headings, primary text</td>
+</tr>
+</tbody></table>
+<h2>Typography</h2>
+<table>
+<thead>
+<tr>
+<th>Element</th>
+<th>Font</th>
+<th>Size</th>
+<th>Weight</th>
+<th>Line Height</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Display</td>
+<td>Inter</td>
+<td>36px</td>
+<td>800</td>
+<td>1.2</td>
+</tr>
+<tr>
+<td>H1</td>
+<td>Inter</td>
+<td>30px</td>
+<td>700</td>
+<td>1.3</td>
+</tr>
+<tr>
+<td>H2</td>
+<td>Inter</td>
+<td>24px</td>
+<td>600</td>
+<td>1.35</td>
+</tr>
+<tr>
+<td>H3</td>
+<td>Inter</td>
+<td>20px</td>
+<td>600</td>
+<td>1.4</td>
+</tr>
+<tr>
+<td>H4</td>
+<td>Inter</td>
+<td>16px</td>
+<td>600</td>
+<td>1.4</td>
+</tr>
+<tr>
+<td>Body</td>
+<td>Inter</td>
+<td>14px</td>
+<td>400</td>
+<td>1.5</td>
+</tr>
+<tr>
+<td>Body Small</td>
+<td>Inter</td>
+<td>13px</td>
+<td>400</td>
+<td>1.5</td>
+</tr>
+<tr>
+<td>Caption</td>
+<td>Inter</td>
+<td>12px</td>
+<td>400</td>
+<td>1.4</td>
+</tr>
+<tr>
+<td>Button Large</td>
+<td>Inter</td>
+<td>16px</td>
+<td>500</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Button</td>
+<td>Inter</td>
+<td>14px</td>
+<td>500</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Button Small</td>
+<td>Inter</td>
+<td>12px</td>
+<td>500</td>
+<td>1</td>
+</tr>
+</tbody></table>
+<h2>Spacing Scale</h2>
+<table>
+<thead>
+<tr>
+<th>Token</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>xs</td>
+<td>4px</td>
+</tr>
+<tr>
+<td>sm</td>
+<td>8px</td>
+</tr>
+<tr>
+<td>md</td>
+<td>12px</td>
+</tr>
+<tr>
+<td>lg</td>
+<td>16px</td>
+</tr>
+<tr>
+<td>xl</td>
+<td>24px</td>
+</tr>
+<tr>
+<td>2xl</td>
+<td>32px</td>
+</tr>
+<tr>
+<td>3xl</td>
+<td>48px</td>
+</tr>
+<tr>
+<td>4xl</td>
+<td>64px</td>
+</tr>
+</tbody></table>
+<h2>Border Radius</h2>
+<table>
+<thead>
+<tr>
+<th>Token</th>
+<th>Value</th>
+<th>Usage</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>sm</td>
+<td>4px</td>
+<td>Badges, chips</td>
+</tr>
+<tr>
+<td>md</td>
+<td>6px</td>
+<td>Buttons, inputs</td>
+</tr>
+<tr>
+<td>lg</td>
+<td>8px</td>
+<td>Cards, modals</td>
+</tr>
+<tr>
+<td>xl</td>
+<td>12px</td>
+<td>Large cards</td>
+</tr>
+<tr>
+<td>full</td>
+<td>9999px</td>
+<td>Avatars, pills</td>
+</tr>
+</tbody></table>
+<h2>Shadows</h2>
+<table>
+<thead>
+<tr>
+<th>Token</th>
+<th>Value</th>
+<th>Usage</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>sm</td>
+<td>0 1px 2px rgba(0,0,0,0.05)</td>
+<td>Buttons, inputs</td>
+</tr>
+<tr>
+<td>md</td>
+<td>0 4px 6px rgba(0,0,0,0.07)</td>
+<td>Cards, dropdowns</td>
+</tr>
+<tr>
+<td>lg</td>
+<td>0 10px 15px rgba(0,0,0,0.1)</td>
+<td>Modals, popovers</td>
+</tr>
+<tr>
+<td>xl</td>
+<td>0 20px 25px rgba(0,0,0,0.1)</td>
+<td>Dialogs</td>
+</tr>
+</tbody></table>
+<h2>Component Specifications</h2>
+<h3>Button Variants</h3>
+<table>
+<thead>
+<tr>
+<th>Variant</th>
+<th>Background</th>
+<th>Text</th>
+<th>Border</th>
+<th>Hover</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Primary</td>
+<td>primary-600</td>
+<td>white</td>
+<td>none</td>
+<td>primary-700</td>
+</tr>
+<tr>
+<td>Secondary</td>
+<td>white</td>
+<td>slate-700</td>
+<td>slate-200</td>
+<td>slate-50</td>
+</tr>
+<tr>
+<td>Outline</td>
+<td>transparent</td>
+<td>primary-600</td>
+<td>primary-600</td>
+<td>primary-50</td>
+</tr>
+<tr>
+<td>Ghost</td>
+<td>transparent</td>
+<td>slate-600</td>
+<td>none</td>
+<td>slate-100</td>
+</tr>
+<tr>
+<td>Danger</td>
+<td>danger-500</td>
+<td>white</td>
+<td>none</td>
+<td>danger-600</td>
+</tr>
+</tbody></table>
+<h3>Button Sizes</h3>
+<table>
+<thead>
+<tr>
+<th>Size</th>
+<th>Height</th>
+<th>Padding X</th>
+<th>Font Size</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>sm</td>
+<td>32px</td>
+<td>12px</td>
+<td>12px</td>
+</tr>
+<tr>
+<td>md</td>
+<td>36px</td>
+<td>16px</td>
+<td>14px</td>
+</tr>
+<tr>
+<td>lg</td>
+<td>44px</td>
+<td>20px</td>
+<td>16px</td>
+</tr>
+</tbody></table>
+<h3>Input Specifications</h3>
+<table>
+<thead>
+<tr>
+<th>State</th>
+<th>Border</th>
+<th>Background</th>
+<th>Shadow</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Default</td>
+<td>slate-200</td>
+<td>white</td>
+<td>none</td>
+</tr>
+<tr>
+<td>Focus</td>
+<td>primary-500</td>
+<td>white</td>
+<td>ring primary-100</td>
+</tr>
+<tr>
+<td>Error</td>
+<td>danger-500</td>
+<td>danger-50</td>
+<td>ring danger-100</td>
+</tr>
+<tr>
+<td>Disabled</td>
+<td>slate-100</td>
+<td>slate-50</td>
+<td>none</td>
+</tr>
+</tbody></table>
+<h3>Lead Status Badges</h3>
+<table>
+<thead>
+<tr>
+<th>Status</th>
+<th>Background</th>
+<th>Text</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>New</td>
+<td>blue-100</td>
+<td>blue-700</td>
+</tr>
+<tr>
+<td>Contacted</td>
+<td>purple-100</td>
+<td>purple-700</td>
+</tr>
+<tr>
+<td>Interested</td>
+<td>amber-100</td>
+<td>amber-700</td>
+</tr>
+<tr>
+<td>Site Visit</td>
+<td>cyan-100</td>
+<td>cyan-700</td>
+</tr>
+<tr>
+<td>Negotiation</td>
+<td>orange-100</td>
+<td>orange-700</td>
+</tr>
+<tr>
+<td>Converted</td>
+<td>green-100</td>
+<td>green-700</td>
+</tr>
+<tr>
+<td>Lost</td>
+<td>red-100</td>
+<td>red-700</td>
+</tr>
+</tbody></table>
+<h3>Listing Status Badges</h3>
+<table>
+<thead>
+<tr>
+<th>Status</th>
+<th>Background</th>
+<th>Text</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Draft</td>
+<td>slate-100</td>
+<td>slate-600</td>
+</tr>
+<tr>
+<td>Active</td>
+<td>green-100</td>
+<td>green-700</td>
+</tr>
+<tr>
+<td>Sold</td>
+<td>blue-100</td>
+<td>blue-700</td>
+</tr>
+<tr>
+<td>Rented</td>
+<td>purple-100</td>
+<td>purple-700</td>
+</tr>
+<tr>
+<td>Archived</td>
+<td>slate-100</td>
+<td>slate-500</td>
+</tr>
+</tbody></table>
+<h2>Layout Specifications</h2>
+<h3>Sidebar</h3>
+<ul>
+<li>Width: 256px (expanded), 64px (collapsed)</li>
+<li>Background: white with right border (slate-200)</li>
+<li>Logo area height: 64px</li>
+<li>Nav item height: 40px</li>
+<li>Nav item padding: 8px 12px</li>
+<li>Active item: primary-50 background, primary-600 text</li>
+<li>Collapse breakpoint: 1024px (auto-collapse on tablet)</li>
+</ul>
+<h3>Topbar</h3>
+<ul>
+<li>Height: 64px</li>
+<li>Background: white with bottom border (slate-200)</li>
+<li>Contains: Search bar, Notifications bell, User avatar dropdown</li>
+</ul>
+<h3>Content Area</h3>
+<ul>
+<li>Max width: 1280px (centered)</li>
+<li>Padding: 24px (desktop), 16px (mobile)</li>
+<li>Page header height: ~80px (title + breadcrumb + actions)</li>
+</ul>
+<h3>Mobile Layout</h3>
+<ul>
+<li>Sidebar hidden, replaced by hamburger menu</li>
+<li>Bottom tab navigation: Dashboard, Listings, Leads, Messages, More</li>
+<li>Tab bar height: 60px</li>
+</ul>
+<h2>Design Inspirations</h2>
+<ul>
+<li><strong>Dashboard</strong>: Linear.app (clean, minimal), Notion (sidebar navigation)</li>
+<li><strong>Tables</strong>: Airtable (filter chips, views), Stripe Dashboard (clean data tables)</li>
+<li><strong>Forms</strong>: Typeform (multi-step), Stripe (clean inputs)</li>
+<li><strong>Kanban</strong>: Trello (drag-and-drop), Linear (status columns)</li>
+<li><strong>Cards</strong>: Airbnb (property cards), Zillow (listing cards)</li>
+<li><strong>Overall</strong>: Clean SaaS aesthetic with lots of whitespace</li>
+</ul>
+<hr>
+<h1>7. DIRECTORY STRUCTURE</h1>
+<pre><code>propgenius/
+├── .env.local                         # All environment variables
+├── .env.example                       # Template for team members
+├── .gitignore
+├── .github/
+│   └── workflows/
+│       └── ci.yml                     # CI/CD pipeline
+├── next.config.ts                     # Next.js configuration
+├── package.json
+├── tsconfig.json
+├── postcss.config.mjs
+│
+├── public/
+│   ├── logo.svg                       # PropGenius logo
+│   ├── logo-icon.svg                  # Small icon version
+│   ├── favicon.ico
+│   └── og-image.png                   # Social sharing image
+│
+└── src/
+    ├── middleware.ts                   # Auth guard + subscription check
+    │
+    ├── app/
+    │   ├── layout.tsx                 # Root layout (font, providers)
+    │   ├── globals.css                # Tailwind + design tokens
+    │   ├── loading.tsx                # Root loading state
+    │   ├── not-found.tsx              # 404 page
+    │   │
+    │   ├── (auth)/
+    │   │   ├── layout.tsx             # Centered auth layout
+    │   │   ├── login/
+    │   │   │   └── page.tsx           # Email/password + Google OAuth
+    │   │   ├── signup/
+    │   │   │   └── page.tsx           # Registration + org creation
+    │   │   └── forgot-password/
+    │   │       └── page.tsx           # Password reset
+    │   │
+    │   ├── (dashboard)/
+    │   │   ├── layout.tsx             # Sidebar + Topbar wrapper
+    │   │   ├── page.tsx               # Dashboard home
+    │   │   │
+    │   │   ├── listings/
+    │   │   │   ├── page.tsx           # All listings (table view)
+    │   │   │   ├── new/
+    │   │   │   │   └── page.tsx       # Multi-step create form
+    │   │   │   └── [id]/
+    │   │   │       ├── page.tsx       # Listing detail view
+    │   │   │       └── edit/
+    │   │   │           └── page.tsx   # Edit listing
+    │   │   │
+    │   │   ├── leads/
+    │   │   │   ├── page.tsx           # Leads (table + kanban toggle)
+    │   │   │   ├── new/
+    │   │   │   │   └── page.tsx       # Add lead form
+    │   │   │   └── [id]/
+    │   │   │       └── page.tsx       # Lead detail + timeline
+    │   │   │
+    │   │   ├── messages/
+    │   │   │   └── page.tsx           # WhatsApp conversations
+    │   │   │
+    │   │   ├── analytics/
+    │   │   │   └── page.tsx           # Charts and reports
+    │   │   │
+    │   │   └── settings/
+    │   │       ├── page.tsx           # General settings
+    │   │       ├── billing/
+    │   │       │   └── page.tsx       # Plan &amp; subscription
+    │   │       ├── team/
+    │   │       │   └── page.tsx       # Team management
+    │   │       └── integrations/
+    │   │           └── page.tsx       # WhatsApp, platform setup
+    │   │
+    │   └── api/
+    │       ├── auth/
+    │       │   └── callback/
+    │       │       └── route.ts       # Supabase OAuth callback
+    │       ├── ai/
+    │       │   ├── generate-listing/
+    │       │   │   └── route.ts       # AI listing generation
+    │       │   ├── score-lead/
+    │       │   │   └── route.ts       # AI lead scoring
+    │       │   └── social-post/
+    │       │       └── route.ts       # AI social media post
+    │       ├── webhooks/
+    │       │   ├── razorpay/
+    │       │   │   └── route.ts       # Payment webhooks
+    │       │   └── whatsapp/
+    │       │       └── route.ts       # WhatsApp webhooks
+    │       └── leads/
+    │           └── import/
+    │               └── route.ts       # CSV bulk import
+    │
+    ├── lib/
+    │   ├── constants.ts               # App config, enums, limits
+    │   ├── utils.ts                   # cn(), formatPrice(), formatDate()
+    │   ├── validations.ts             # Zod schemas for all forms/APIs
+    │   ├── gemini.ts                  # AI service class
+    │   ├── razorpay.ts                # Payment helpers
+    │   ├── whatsapp.ts                # WhatsApp API helpers
+    │   ├── resend.ts                  # Email service
+    │   └── supabase/
+    │       ├── client.ts              # Browser client
+    │       ├── server.ts              # Server client (cookies)
+    │       ├── middleware.ts           # Session refresh
+    │       └── admin.ts               # Service role client
+    │
+    ├── types/
+    │   ├── listing.ts                 # Property &amp; listing types
+    │   ├── lead.ts                    # Lead &amp; activity types
+    │   ├── user.ts                    # Profile &amp; organization types
+    │   ├── message.ts                 # WhatsApp message types
+    │   ├── subscription.ts            # Billing &amp; plan types
+    │   └── analytics.ts              # Chart data types
+    │
+    ├── stores/
+    │   ├── auth-store.ts              # User session &amp; profile
+    │   ├── sidebar-store.ts           # Sidebar collapsed state
+    │   └── notification-store.ts      # Toast notifications
+    │
+    ├── hooks/
+    │   ├── use-auth.ts                # Auth actions
+    │   ├── use-listings.ts            # Listing CRUD + queries
+    │   ├── use-leads.ts               # Lead CRUD + queries
+    │   ├── use-messages.ts            # WhatsApp messages
+    │   ├── use-analytics.ts           # Dashboard data
+    │   ├── use-subscription.ts        # Plan &amp; billing
+    │   └── use-debounce.ts            # Input debounce
+    │
+    └── components/
+        ├── providers.tsx              # QueryClient + Auth + Toast
+        ├── sidebar.tsx                # Collapsible sidebar nav
+        ├── topbar.tsx                 # Search, notifications, avatar
+        ├── mobile-nav.tsx             # Bottom tab bar (mobile)
+        │
+        ├── ui/                        # Design System Primitives
+        │   ├── button.tsx
+        │   ├── input.tsx
+        │   ├── textarea.tsx
+        │   ├── select.tsx
+        │   ├── badge.tsx
+        │   ├── modal.tsx
+        │   ├── toast.tsx
+        │   ├── avatar.tsx
+        │   ├── card.tsx
+        │   ├── dropdown.tsx
+        │   ├── tabs.tsx
+        │   ├── data-table.tsx
+        │   ├── skeleton.tsx
+        │   ├── empty-state.tsx
+        │   ├── spinner.tsx
+        │   ├── breadcrumb.tsx
+        │   └── page-header.tsx
+        │
+        ├── listings/                  # Listing Feature Components
+        │   ├── listing-card.tsx       # Property card with image
+        │   ├── listing-form.tsx       # Multi-step form
+        │   ├── listing-table.tsx      # Data table with filters
+        │   ├── ai-generator.tsx       # AI panel with preview
+        │   ├── image-uploader.tsx     # Drag-drop image upload
+        │   ├── amenity-picker.tsx     # Checkbox grid
+        │   └── platform-publisher.tsx # Publish to 99acres etc.
+        │
+        ├── leads/                     # Lead Feature Components
+        │   ├── lead-card.tsx          # Compact lead card
+        │   ├── lead-table.tsx         # Filterable data table
+        │   ├── lead-kanban.tsx        # Drag-drop board
+        │   ├── lead-form.tsx          # Add/edit lead form
+        │   ├── lead-timeline.tsx      # Activity history
+        │   ├── lead-score-badge.tsx   # AI score display
+        │   └── followup-scheduler.tsx # Date/time picker
+        │
+        ├── messages/                  # Messaging Components
+        │   ├── chat-list.tsx          # Conversation list
+        │   ├── chat-window.tsx        # Message thread
+        │   ├── message-bubble.tsx     # Individual message
+        │   └── template-picker.tsx    # Quick reply templates
+        │
+        ├── analytics/                 # Analytics Components
+        │   ├── stat-card.tsx          # KPI card
+        │   ├── revenue-chart.tsx      # Line/area chart
+        │   ├── leads-chart.tsx        # Bar chart
+        │   ├── conversion-funnel.tsx  # Funnel visualization
+        │   └── top-listings.tsx       # Top performing list
+        │
+        └── settings/                  # Settings Components
+            ├── plan-card.tsx          # Subscription plan card
+            ├── team-table.tsx         # Team members table
+            └── integration-card.tsx   # Integration toggle card
+</code></pre>
+<hr>
+<h1>8. FEATURE BREAKDOWN</h1>
+<h2>8.1 Authentication &amp; Onboarding</h2>
+<ul>
+<li>Email/password signup and login via Supabase Auth</li>
+<li>Google OAuth integration</li>
+<li>Forgot password with email reset link</li>
+<li><strong>Onboarding Wizard</strong> (shown on first login):<ul>
+<li>Step 1: Organization name and type</li>
+<li>Step 2: Select plan (can skip to free)</li>
+<li>Step 3: Create first listing (guided)</li>
+</ul>
+</li>
+</ul>
+<h2>8.2 Dashboard</h2>
+<ul>
+<li><strong>4 Stat Cards</strong>: Active Listings, Total Leads, Conversions This Month, AI Listings Generated</li>
+<li><strong>Leads Over Time Chart</strong>: Line chart showing last 30 days</li>
+<li><strong>Listings by Status</strong>: Donut/bar chart</li>
+<li><strong>Recent Activity Feed</strong>: Last 10 actions across leads and listings</li>
+<li><strong>Upcoming Follow-ups</strong>: Next 5 scheduled follow-ups with quick actions</li>
+<li><strong>Quick Actions Bar</strong>: &quot;New Listing&quot; and &quot;Add Lead&quot; buttons</li>
+</ul>
+<h2>8.3 AI Listing Generator (Core Feature)</h2>
+<h3>Multi-Step Form:</h3>
+<ul>
+<li><strong>Step 1 - Basics</strong>: Property type (dropdown), Transaction type (sale/rent/lease), Price (with unit selector)</li>
+<li><strong>Step 2 - Location</strong>: Address (text), City (autocomplete), State (dropdown), Pincode, Optional: Google Maps pin</li>
+<li><strong>Step 3 - Details</strong>: BHK config, Area (sqft), Floor, Furnishing, Facing, Age, Parking, Amenities (checkbox grid: Gym, Pool, Club, Garden, Power Backup, Lift, Security, etc.)</li>
+<li><strong>Step 4 - Images</strong>: Drag-and-drop upload (up to 20 images), Auto-thumbnail generation, Reorder by drag, Floor plan upload (optional)</li>
+<li><strong>Step 5 - AI Generation</strong>: Click &quot;Generate with AI&quot; button, Show loading state with animation, Display generated content in editable cards:<ul>
+<li>Property Title</li>
+<li>Full Description (150-200 words)</li>
+<li>5 Key Highlights (bullet points)</li>
+<li>Social Media Post (Instagram/Facebook ready)</li>
+<li>SEO Meta Title + Description</li>
+<li>Edit any field before saving</li>
+</ul>
+</li>
+</ul>
+<h3>AI Prompt Template:</h3>
+<pre><code>You are a professional Indian real estate copywriter. Generate a compelling
+property listing for the following property:
+
+Property Type: {type}
+Transaction: {transaction_type}
+Price: ₹{price}
+Location: {locality}, {city}, {state}
+Configuration: {bedrooms} BHK, {bathrooms} Bath
+Area: {area_sqft} sq.ft.
+Floor: {floor_number} of {total_floors}
+Furnishing: {furnishing}
+Amenities: {amenities_list}
+
+Generate a JSON response with:
+{
+  &quot;title&quot;: &quot;SEO-friendly title (max 80 chars)&quot;,
+  &quot;description&quot;: &quot;Professional description (150-200 words)&quot;,
+  &quot;highlights&quot;: [&quot;highlight1&quot;, &quot;highlight2&quot;, &quot;highlight3&quot;, &quot;highlight4&quot;, &quot;highlight5&quot;],
+  &quot;social_post&quot;: &quot;Instagram/Facebook post with emojis (max 300 chars)&quot;,
+  &quot;seo_title&quot;: &quot;Meta title for search engines (max 60 chars)&quot;,
+  &quot;seo_description&quot;: &quot;Meta description (max 160 chars)&quot;
+}
+
+Guidelines:
+- Use professional but approachable tone
+- Mention nearby landmarks if area is well-known
+- Highlight unique selling points
+- Use Indian real estate terminology (carpet area, super built-up, etc.)
+- Do NOT make up amenities or features not provided
+</code></pre>
+<h2>8.4 CRM / Lead Management</h2>
+<h3>Table View</h3>
+<ul>
+<li>Columns: Name, Phone, Source, Interested In, AI Score, Status, Assigned To, Next Follow-up, Created</li>
+<li>Sorting: Click column headers to sort</li>
+<li>Filtering: By status, source, score range, assigned agent, date range</li>
+<li>Search: By name, phone, email</li>
+<li>Bulk actions: Assign to agent, Change status, Export CSV</li>
+</ul>
+<h3>Kanban Board</h3>
+<ul>
+<li>Columns: New | Contacted | Interested | Site Visit | Negotiation | Converted | Lost</li>
+<li>Drag cards between columns to update status</li>
+<li>Cards show: Name, phone, score badge, interested property, days since last contact</li>
+<li>Color coding by AI score: Green (&gt;70), Yellow (40-70), Red (&lt;40)</li>
+</ul>
+<h3>Lead Detail Page</h3>
+<ul>
+<li>Contact information card</li>
+<li>Interested property link</li>
+<li>AI Score with explanation</li>
+<li>Activity timeline (calls, emails, WhatsApp, notes, status changes)</li>
+<li>Add note / Log call / Schedule follow-up actions</li>
+<li>Quick WhatsApp button</li>
+</ul>
+<h3>AI Lead Scoring</h3>
+<pre><code>Analyze this real estate lead and provide a score from 0-100:
+
+Lead Info:
+- Name: {name}
+- Source: {source}
+- Budget: ₹{budget_min} - ₹{budget_max}
+- Interested in: {listing_title} (₹{listing_price})
+- Preferred location: {preferred_location}
+- Created: {days_ago} days ago
+- Times contacted: {contact_count}
+- Last response: {days_since_response} days ago
+- Status: {current_status}
+
+Scoring factors:
+- Budget alignment with interested property (higher = better match)
+- Response recency (responded recently = higher score)
+- Source quality (referral &gt; website &gt; portal)
+- Engagement level (multiple inquiries = higher)
+- Timeline urgency (actively looking vs browsing)
+
+Return JSON:
+{
+  &quot;score&quot;: 0-100,
+  &quot;reason&quot;: &quot;Brief explanation of the score&quot;,
+  &quot;recommended_action&quot;: &quot;What the agent should do next&quot;
+}
+</code></pre>
+<h2>8.5 WhatsApp Integration</h2>
+<ul>
+<li><strong>Setup</strong>: Connect WhatsApp Business number via Twilio</li>
+<li><strong>Templates</strong>: Pre-approved message templates for:<ul>
+<li>New listing alert</li>
+<li>Follow-up reminder</li>
+<li>Site visit confirmation</li>
+<li>Price update notification</li>
+<li>Thank you after visit</li>
+</ul>
+</li>
+<li><strong>Chat Interface</strong>: WhatsApp-like UI within the app</li>
+<li><strong>Auto-logging</strong>: All messages logged to lead activity timeline</li>
+<li><strong>Notifications</strong>: Browser notifications for new messages</li>
+</ul>
+<h2>8.6 Analytics Dashboard</h2>
+<ul>
+<li><strong>KPIs</strong>: Total listings, Active leads, Conversion rate, Avg. response time</li>
+<li><strong>Charts</strong>:<ul>
+<li>Leads over time (line chart, 30/60/90 days)</li>
+<li>Listings by type (bar chart)</li>
+<li>Lead source breakdown (pie chart)</li>
+<li>Conversion funnel (funnel chart)</li>
+<li>Agent performance (if team plan)</li>
+</ul>
+</li>
+<li><strong>AI Insights</strong>: Natural language insights generated by Gemini:<ul>
+<li>&quot;Your 2BHK apartments in Whitefield get 3x more inquiries&quot;</li>
+<li>&quot;Leads from referrals convert 40% better than portal leads&quot;</li>
+<li>&quot;Response time to new leads averages 4 hours — try to reduce to under 1 hour&quot;</li>
+</ul>
+</li>
+<li><strong>Export</strong>: Download reports as CSV</li>
+</ul>
+<h2>8.7 Settings</h2>
+<ul>
+<li><strong>General</strong>: Organization name, logo, address, contact info</li>
+<li><strong>Profile</strong>: Name, avatar, phone, email, password change</li>
+<li><strong>Billing</strong>: Current plan, usage metrics, upgrade/downgrade, payment history</li>
+<li><strong>Team</strong> (Business plan): Invite agents, assign roles, deactivate accounts</li>
+<li><strong>Integrations</strong>: WhatsApp Business setup, platform API keys</li>
+</ul>
+<hr>
+<h1>9. AI INTEGRATION DETAILS</h1>
+<h2>Gemini AI Service Architecture</h2>
+<pre><code class="language-typescript">// lib/gemini.ts - Service class structure
+class GeminiService {
+  // Singleton pattern
+  private model: GenerativeModel;
+
+  // Methods:
+  generateListing(propertyData) → ListingAIContent
+  scoreLead(leadData) → LeadScore
+  generateSocialPost(listing) → string
+  generateInsights(analyticsData) → string[]
+  regenerateField(field, context) → string
+}
+</code></pre>
+<h2>AI Usage Limits by Plan</h2>
+<table>
+<thead>
+<tr>
+<th>Plan</th>
+<th>Listing Generations</th>
+<th>Lead Scores</th>
+<th>Social Posts</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Free</td>
+<td>5/month</td>
+<td>10/month</td>
+<td>5/month</td>
+</tr>
+<tr>
+<td>Pro</td>
+<td>Unlimited</td>
+<td>Unlimited</td>
+<td>Unlimited</td>
+</tr>
+<tr>
+<td>Business</td>
+<td>Unlimited</td>
+<td>Unlimited</td>
+<td>Unlimited</td>
+</tr>
+</tbody></table>
+<h2>AI Safety &amp; Quality</h2>
+<ul>
+<li>Input validation before sending to Gemini</li>
+<li>Output parsing with Zod schema validation</li>
+<li>Fallback to template-based generation if AI fails</li>
+<li>Content moderation (no discriminatory language)</li>
+<li>User can always edit AI-generated content before publishing</li>
+</ul>
+<hr>
+<h1>10. API ROUTES</h1>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Route</th>
+<th>Auth</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>POST</td>
+<td><code>/api/ai/generate-listing</code></td>
+<td>Required</td>
+<td>Generate AI listing content</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/ai/score-lead</code></td>
+<td>Required</td>
+<td>Score a lead with AI</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/ai/social-post</code></td>
+<td>Required</td>
+<td>Generate social media post</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/webhooks/razorpay</code></td>
+<td>Webhook Secret</td>
+<td>Handle payment events</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/webhooks/whatsapp</code></td>
+<td>Webhook Verify</td>
+<td>Handle incoming WhatsApp</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/leads/import</code></td>
+<td>Required</td>
+<td>Bulk CSV lead import</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/auth/callback</code></td>
+<td>Public</td>
+<td>Supabase OAuth callback</td>
+</tr>
+</tbody></table>
+<p>Note: CRUD operations for listings, leads, etc. are handled directly through Supabase client libraries (not custom API routes), leveraging RLS policies for security.</p>
+<hr>
+<h1>11. DEVELOPMENT PHASES</h1>
+<h2>Phase 1: Foundation (Week 1)</h2>
+<p><strong>Goal</strong>: Working auth, layout, and empty dashboard</p>
+<p>Tasks:</p>
+<ul>
+<li>Initialize Next.js project with TypeScript + Tailwind CSS</li>
+<li>Set up Supabase project (create tables, enable RLS)</li>
+<li>Configure environment variables</li>
+<li>Build design system: globals.css with CSS variables, all UI primitives</li>
+<li>Implement auth flow: signup, login, forgot password (Supabase Auth)</li>
+<li>Create dashboard layout: sidebar + topbar + content area</li>
+<li>Build dashboard page with static stat cards</li>
+<li>Set up CI/CD (GitHub Actions)</li>
+</ul>
+<p>Deliverables:</p>
+<ul>
+<li>User can sign up, log in, see dashboard shell</li>
+<li>Sidebar navigation works</li>
+<li>Responsive layout (desktop + mobile)</li>
+</ul>
+<h2>Phase 2: Listings + AI (Week 2-3)</h2>
+<p><strong>Goal</strong>: Full listing CRUD with AI generation</p>
+<p>Tasks:</p>
+<ul>
+<li>Create listing TypeScript types and Zod validations</li>
+<li>Build multi-step listing form (5 steps)</li>
+<li>Implement image upload to Supabase Storage</li>
+<li>Create Gemini AI service class</li>
+<li>Build AI listing generation API route</li>
+<li>Create AI generator panel (loading, preview, edit)</li>
+<li>Build listing table view (TanStack Table)</li>
+<li>Create listing detail page</li>
+<li>Create listing card component</li>
+<li>Add listing status management</li>
+</ul>
+<p>Deliverables:</p>
+<ul>
+<li>Agent can create a listing with AI-generated content</li>
+<li>View all listings in sortable/filterable table</li>
+<li>View individual listing details</li>
+<li>Upload and manage property images</li>
+</ul>
+<h2>Phase 3: CRM / Leads (Week 3-4)</h2>
+<p><strong>Goal</strong>: Full lead management with AI scoring</p>
+<p>Tasks:</p>
+<ul>
+<li>Create lead types and Zod validations</li>
+<li>Build lead table view with TanStack Table</li>
+<li>Build Kanban board with @dnd-kit</li>
+<li>Create lead detail page with activity timeline</li>
+<li>Implement AI lead scoring API route</li>
+<li>Build follow-up scheduler (date/time picker)</li>
+<li>Implement CSV lead import</li>
+<li>Build add/edit lead form</li>
+<li>Create lead score badge component</li>
+<li>Add activity logging system</li>
+</ul>
+<p>Deliverables:</p>
+<ul>
+<li>Agent can add leads manually or via CSV import</li>
+<li>View leads in table or Kanban view</li>
+<li>AI scores leads automatically</li>
+<li>Track all activities on lead timeline</li>
+<li>Schedule and manage follow-ups</li>
+</ul>
+<h2>Phase 4: Messaging + WhatsApp (Week 5)</h2>
+<p><strong>Goal</strong>: WhatsApp integration for lead communication</p>
+<p>Tasks:</p>
+<ul>
+<li>Set up Twilio WhatsApp sandbox (or Meta Cloud API)</li>
+<li>Create WhatsApp webhook endpoint</li>
+<li>Build message types and handlers</li>
+<li>Create chat list component</li>
+<li>Build chat window with message bubbles</li>
+<li>Implement template message sending</li>
+<li>Auto-log messages to lead activities</li>
+<li>Set up Resend for email notifications</li>
+<li>Build notification system</li>
+</ul>
+<p>Deliverables:</p>
+<ul>
+<li>Send WhatsApp messages to leads from the app</li>
+<li>Receive and view incoming messages</li>
+<li>Use pre-built templates for common messages</li>
+<li>All conversations logged to lead timeline</li>
+</ul>
+<h2>Phase 5: Analytics + Billing (Week 6)</h2>
+<p><strong>Goal</strong>: Razorpay subscriptions and analytics dashboard</p>
+<p>Tasks:</p>
+<ul>
+<li>Create Razorpay subscription plans</li>
+<li>Build plan selection UI</li>
+<li>Implement Razorpay checkout flow</li>
+<li>Create payment webhook handler</li>
+<li>Enforce plan limits (listings, leads, features)</li>
+<li>Build analytics dashboard with Recharts</li>
+<li>Create stat cards, charts, funnel</li>
+<li>Implement AI insights generation</li>
+<li>Add export to CSV functionality</li>
+<li>Build billing settings page with payment history</li>
+</ul>
+<p>Deliverables:</p>
+<ul>
+<li>Users can subscribe to Pro/Business plans</li>
+<li>Plan limits enforced throughout the app</li>
+<li>Analytics dashboard with charts and AI insights</li>
+<li>Billing management in settings</li>
+</ul>
+<h2>Phase 6: Polish + Launch (Week 7)</h2>
+<p><strong>Goal</strong>: Production-ready application</p>
+<p>Tasks:</p>
+<ul>
+<li>Responsive design audit (mobile, tablet, desktop)</li>
+<li>Error boundary and error handling</li>
+<li>Loading states and skeleton screens everywhere</li>
+<li>Empty states with helpful CTAs</li>
+<li>SEO optimization (meta tags, OG images)</li>
+<li>Performance optimization (lazy loading, image optimization)</li>
+<li>Create marketing landing page</li>
+<li>Write user documentation / help pages</li>
+<li>Deploy to Vercel (production)</li>
+<li>Configure custom domain</li>
+<li>Set up monitoring (Vercel Analytics)</li>
+<li>Final testing checklist</li>
+</ul>
+<p>Deliverables:</p>
+<ul>
+<li>Polished, production-ready SaaS application</li>
+<li>Landing page for marketing</li>
+<li>Deployed on custom domain</li>
+<li>CI/CD pipeline running</li>
+</ul>
+<hr>
+<h1>12. ENVIRONMENT VARIABLES</h1>
+<pre><code class="language-env"># ============================================
+# Supabase
+# ============================================
+NEXT_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGci...
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGci...     # Server-only! Never expose
+
+# ============================================
+# Google Gemini AI
+# ============================================
+GEMINI_API_KEY=AIzaSy...                   # Server-only (used in API routes)
+
+# ============================================
+# Razorpay Payments
+# ============================================
+NEXT_PUBLIC_RAZORPAY_KEY_ID=rzp_test_...   # Public (needed for checkout)
+RAZORPAY_KEY_SECRET=xxxxx                  # Server-only
+RAZORPAY_WEBHOOK_SECRET=xxxxx              # For webhook verification
+
+# ============================================
+# WhatsApp (Twilio)
+# ============================================
+TWILIO_ACCOUNT_SID=ACxxxxx
+TWILIO_AUTH_TOKEN=xxxxx
+TWILIO_WHATSAPP_NUMBER=+14155238886        # Twilio sandbox number
+
+# ============================================
+# Email (Resend)
+# ============================================
+RESEND_API_KEY=re_xxxxx
+
+# ============================================
+# Google Maps (Optional)
+# ============================================
+NEXT_PUBLIC_GOOGLE_MAPS_KEY=AIzaSy...
+
+# ============================================
+# App Configuration
+# ============================================
+NEXT_PUBLIC_APP_URL=http://localhost:3000   # Change for production
+</code></pre>
+<hr>
+<h1>13. DEPLOYMENT &amp; DEVOPS</h1>
+<h2>Vercel Deployment</h2>
+<ul>
+<li>Connect GitHub repo to Vercel</li>
+<li>Set root directory to <code>/</code> (since it&#39;s a standalone project)</li>
+<li>Add all environment variables in Vercel dashboard</li>
+<li>Configure custom domain (e.g., propgenius.in)</li>
+<li>Enable Vercel Analytics and Web Vitals</li>
+</ul>
+<h2>CI/CD Pipeline (GitHub Actions)</h2>
+<pre><code class="language-yaml">name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm }
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run type-check
+      - run: npm run build
+</code></pre>
+<h2>Branch Strategy</h2>
+<ul>
+<li><code>main</code> — Production (auto-deploys to Vercel)</li>
+<li><code>develop</code> — Staging</li>
+<li><code>feature/*</code> — Feature branches (PR to develop)</li>
+<li><code>fix/*</code> — Bug fix branches</li>
+</ul>
+<hr>
+<h1>14. TESTING STRATEGY</h1>
+<h2>Manual Testing Checklist</h2>
+<ol>
+<li>Auth: Signup → Login → Logout → Forgot Password → Reset</li>
+<li>Listing: Create (all steps) → AI Generate → Edit → Save → View → Delete</li>
+<li>Lead: Add → AI Score → Move Kanban → Log Activity → Schedule Follow-up</li>
+<li>WhatsApp: Send Template → Receive Reply → View Conversation</li>
+<li>Billing: Subscribe → Verify Limits → Upgrade → Cancel</li>
+<li>Analytics: Verify counts → Charts render → Export CSV</li>
+<li>Mobile: All pages responsive → Bottom nav works → Forms usable</li>
+<li>Edge Cases: Empty states → Error states → Loading states → Offline behavior</li>
+</ol>
+<h2>Build Verification</h2>
+<ul>
+<li><code>npm run lint</code> — No ESLint errors</li>
+<li><code>npm run type-check</code> — No TypeScript errors</li>
+<li><code>npm run build</code> — Successful production build</li>
+<li>Lighthouse score &gt; 90 on all pages</li>
+</ul>
+<hr>
+<h1>15. SECURITY CONSIDERATIONS</h1>
+<ul>
+<li><strong>Row Level Security (RLS)</strong>: All Supabase tables have RLS policies ensuring org-level data isolation</li>
+<li><strong>Server-only secrets</strong>: Razorpay secret, Supabase service role key, Twilio auth token never exposed to client</li>
+<li><strong>Webhook verification</strong>: Razorpay and WhatsApp webhooks verified with signatures</li>
+<li><strong>Input validation</strong>: All user inputs validated with Zod schemas (both client and server)</li>
+<li><strong>Rate limiting</strong>: AI generation endpoints rate-limited per plan</li>
+<li><strong>CSRF protection</strong>: Next.js built-in CSRF protection on API routes</li>
+<li><strong>XSS prevention</strong>: React&#39;s built-in escaping + sanitize user-generated content</li>
+<li><strong>Image upload</strong>: File type validation, size limits (5MB/image, 20 images max)</li>
+<li><strong>Auth tokens</strong>: Stored in HTTP-only cookies (Supabase SSR), not localStorage</li>
+</ul>
+<hr>
+<h1>16. FUTURE ROADMAP</h1>
+<h2>v1.1 (Month 2)</h2>
+<ul>
+<li>Virtual tour integration (Matterport)</li>
+<li>Automated property matching (lead preferences → matching listings)</li>
+<li>SMS integration (for non-WhatsApp users)</li>
+</ul>
+<h2>v1.2 (Month 3)</h2>
+<ul>
+<li>Mobile app (React Native, share code with web)</li>
+<li>Voice-to-listing (speak property details, AI transcribes)</li>
+<li>Multi-language support (Hindi, Marathi, Tamil, Telugu)</li>
+</ul>
+<h2>v2.0 (Month 6)</h2>
+<ul>
+<li>Marketplace: Public property listing portal</li>
+<li>Agent profile pages (shareable)</li>
+<li>Advanced analytics with predictive insights</li>
+<li>API for third-party integrations</li>
+<li>White-label solution for large brokerages</li>
+</ul>
+<h2>v3.0 (Year 1)</h2>
+<ul>
+<li>Document management (agreements, legal docs)</li>
+<li>Payment collection for rent/deposits</li>
+<li>Tenant management module</li>
+<li>Property valuation AI (using historical data)</li>
+</ul>
+<hr>
+<h1>APPENDIX: QUICK REFERENCE</h1>
+<h2>Key Commands</h2>
+<pre><code class="language-bash"># Development
+npm run dev           # Start dev server (localhost:3000)
+npm run build         # Production build
+npm run lint          # Run ESLint
+npm run type-check    # Run TypeScript check
+
+# Database
+# Run SQL migrations in Supabase Dashboard → SQL Editor
+
+# Deployment
+git push origin main  # Auto-deploys to Vercel
+</code></pre>
+<h2>Key URLs</h2>
+<ul>
+<li>App: <a href="https://propgenius.in">https://propgenius.in</a> (production)</li>
+<li>Supabase Dashboard: <a href="https://supabase.com/dashboard">https://supabase.com/dashboard</a></li>
+<li>Razorpay Dashboard: <a href="https://dashboard.razorpay.com">https://dashboard.razorpay.com</a></li>
+<li>Vercel Dashboard: <a href="https://vercel.com/dashboard">https://vercel.com/dashboard</a></li>
+<li>Twilio Console: <a href="https://console.twilio.com">https://console.twilio.com</a></li>
+</ul>
+<hr>
+<p><em>Document prepared for PropGenius AI project</em>
+<em>Tech Lead: Tarun</em>
+<em>Date: February 2026</em></p>

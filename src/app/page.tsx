@@ -25,7 +25,7 @@ const FEATURES = [
     icon: Users,
     title: "Smart CRM",
     description:
-      "Manage leads with AI scoring, Kanban board, activity timeline, and CSV import. Never miss a follow-up.",
+      "Manage leads with AI scoring, pipeline view, activity timeline, and CSV import. Never miss a follow-up.",
   },
   {
     icon: MessageSquare,

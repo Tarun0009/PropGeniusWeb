@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { Users, Upload } from "lucide-react";
+import { Users, Upload, Download } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,9 @@ import { Spinner } from "@/components/ui/spinner";
 import { LeadTable } from "@/components/leads/lead-table";
 import { CSVImportModal } from "@/components/leads/csv-import-modal";
 import { useLeads } from "@/hooks/use-leads";
+import { exportToCSV } from "@/lib/export-csv";
 import type { LeadFilters } from "@/lib/validations";
+import type { Lead } from "@/types/lead";
 
 const LeadKanban = dynamic(
   () => import("@/components/leads/lead-kanban").then((m) => ({ default: m.LeadKanban })),
@@ -27,7 +29,7 @@ const LeadKanban = dynamic(
 
 const VIEW_TABS = [
   { value: "table", label: "Table" },
-  { value: "kanban", label: "Kanban" },
+  { value: "kanban", label: "Pipeline" },
 ];
 
 export default function LeadsPage() {
@@ -44,6 +46,34 @@ export default function LeadsPage() {
         description="Manage and track your leads"
         actions={
           <div className="flex items-center gap-2">
+            {leads && leads.length > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  exportToCSV<Lead>(
+                    leads,
+                    [
+                      { key: "name", header: "Name" },
+                      { key: "email", header: "Email" },
+                      { key: "phone", header: "Phone" },
+                      { key: "whatsapp_number", header: "WhatsApp Number" },
+                      { key: "source", header: "Source" },
+                      { key: "status", header: "Status" },
+                      { key: "budget_min", header: "Budget Min" },
+                      { key: "budget_max", header: "Budget Max" },
+                      { key: "preferred_location", header: "Preferred Location" },
+                      { key: "ai_score", header: "AI Score" },
+                      { key: "created_at", header: "Created At" },
+                    ],
+                    "leads-export"
+                  )
+                }
+              >
+                <Download className="mr-1.5 h-3.5 w-3.5" />
+                Export CSV
+              </Button>
+            )}
             <Button variant="outline" size="sm" onClick={() => setShowImport(true)}>
               <Upload className="mr-1.5 h-3.5 w-3.5" />
               Import CSV

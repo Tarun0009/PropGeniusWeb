@@ -3,6 +3,7 @@
 import { Sidebar } from "@/components/sidebar";
 import { Topbar } from "@/components/topbar";
 import { MobileNav } from "@/components/mobile-nav";
+import { OnboardingTour } from "@/components/onboarding/onboarding-tour";
 import { useSidebarStore } from "@/stores/sidebar-store";
 import { cn } from "@/lib/utils";
 
@@ -24,6 +25,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       </main>
 
       <MobileNav />
+      <OnboardingTour />
     </div>
   );
 }

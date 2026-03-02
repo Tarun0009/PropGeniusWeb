@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PropGenius AI — CI/CD Setup Guide</title>
+<style>
+  body { font-family: 'Segoe UI', Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 0 20px; color: #1e293b; line-height: 1.7; }
+  h1 { color: #2563eb; border-bottom: 3px solid #2563eb; padding-bottom: 10px; }
+  h2 { color: #1e40af; margin-top: 36px; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px; }
+  h3 { color: #334155; margin-top: 24px; }
+  code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 0.9em; color: #dc2626; }
+  pre { background: #0f172a; color: #e2e8f0; padding: 16px 20px; border-radius: 8px; overflow-x: auto; font-size: 0.85em; line-height: 1.6; }
+  pre code { background: none; color: inherit; padding: 0; }
+  .badge { display: inline-block; background: #dbeafe; color: #1e40af; padding: 2px 10px; border-radius: 12px; font-size: 0.8em; font-weight: 600; }
+  .warning { background: #fef3c7; border-left: 4px solid #f59e0b; padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 16px 0; }
+  .info { background: #dbeafe; border-left: 4px solid #2563eb; padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 16px 0; }
+  .success { background: #dcfce7; border-left: 4px solid #16a34a; padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 16px 0; }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+  th, td { border: 1px solid #e2e8f0; padding: 10px 14px; text-align: left; }
+  th { background: #f1f5f9; font-weight: 600; }
+  ol li, ul li { margin: 6px 0; }
+  .step { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px 20px; margin: 16px 0; }
+  .step-number { background: #2563eb; color: white; width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85em; margin-right: 8px; }
+  .footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid #e2e8f0; color: #94a3b8; font-size: 0.85em; text-align: center; }
+  @media print { body { margin: 20px; } pre { font-size: 0.8em; } }
+</style>
+</head>
+<body>
+
+<h1>PropGenius AI — CI/CD Setup Guide</h1>
+<p><span class="badge">Next.js 16</span> <span class="badge">GitHub Actions</span> <span class="badge">Vercel</span></p>
+<p>This document covers the complete CI/CD pipeline setup for the PropGenius AI project, including GitHub Actions configuration and Vercel deployment.</p>
+
+<hr>
+
+<h2>1. Architecture Overview</h2>
+<p>The CI/CD pipeline has two layers that work independently:</p>
+<table>
+  <tr><th>Layer</th><th>Platform</th><th>Purpose</th><th>Trigger</th></tr>
+  <tr><td>CI (Code Quality)</td><td>GitHub Actions</td><td>Lint, type-check, build verification</td><td>Push / PR to <code>main</code></td></tr>
+  <tr><td>CD (Deployment)</td><td>Vercel</td><td>Build &amp; deploy to production</td><td>Push to <code>main</code></td></tr>
+</table>
+
+<div class="info">
+  <strong>How they interact:</strong> GitHub Actions validates your code quality. Vercel handles the actual deployment. Both run in parallel — they don't depend on each other.
+</div>
+
+<h2>2. GitHub Actions Pipeline</h2>
+
+<h3>2.1 Pipeline File</h3>
+<p>Location: <code>.github/workflows/ci.yml</code></p>
+<pre><code>name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run type-check
+      - run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}</code></pre>
+
+<h3>2.2 What Each Step Does</h3>
+<table>
+  <tr><th>Step</th><th>Command</th><th>Purpose</th></tr>
+  <tr><td>Checkout</td><td><code>actions/checkout@v4</code></td><td>Clones your repo code</td></tr>
+  <tr><td>Setup Node</td><td><code>actions/setup-node@v4</code></td><td>Installs Node.js 20 with npm cache</td></tr>
+  <tr><td>Install</td><td><code>npm ci</code></td><td>Clean install of dependencies from lockfile</td></tr>
+  <tr><td>Lint</td><td><code>npm run lint</code></td><td>Checks code style &amp; catches errors (ESLint)</td></tr>
+  <tr><td>Type Check</td><td><code>npm run type-check</code></td><td>Validates TypeScript types (<code>tsc --noEmit</code>)</td></tr>
+  <tr><td>Build</td><td><code>npm run build</code></td><td>Full Next.js production build</td></tr>
+</table>
+
+<h2>3. Setting Up GitHub Secrets</h2>
+
+<div class="warning">
+  <strong>Important:</strong> Use <strong>Secrets</strong> (not Variables) because these contain sensitive API keys. Secrets are encrypted and never shown in logs.
+</div>
+
+<div class="step">
+  <p><span class="step-number">1</span> Go to your GitHub repository</p>
+</div>
+<div class="step">
+  <p><span class="step-number">2</span> Navigate to <strong>Settings</strong> → <strong>Secrets and variables</strong> → <strong>Actions</strong></p>
+</div>
+<div class="step">
+  <p><span class="step-number">3</span> Click <strong>"New repository secret"</strong> and add each secret:</p>
+</div>
+
+<table>
+  <tr><th>Secret Name</th><th>Value (from your <code>.env.local</code>)</th></tr>
+  <tr><td><code>NEXT_PUBLIC_SUPABASE_URL</code></td><td>Your Supabase project URL (e.g., <code>https://xxx.supabase.co</code>)</td></tr>
+  <tr><td><code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code></td><td>Your Supabase anon/public key</td></tr>
+  <tr><td><code>NEXT_PUBLIC_APP_URL</code></td><td>Your app URL (e.g., <code>https://propgenius.vercel.app</code>)</td></tr>
+</table>
+
+<div class="info">
+  <strong>Why only <code>NEXT_PUBLIC_*</code> vars?</strong> These are inlined at build time by Next.js. Server-only secrets (like <code>SUPABASE_SERVICE_ROLE_KEY</code>, <code>TWILIO_AUTH_TOKEN</code>) are NOT needed for CI — they're only used at runtime.
+</div>
+
+<h2>4. Vercel Deployment Setup</h2>
+
+<div class="step">
+  <p><span class="step-number">1</span> Go to <a href="https://vercel.com">vercel.com</a> and import your GitHub repository</p>
+</div>
+<div class="step">
+  <p><span class="step-number">2</span> Vercel auto-detects Next.js — no build config needed</p>
+</div>
+<div class="step">
+  <p><span class="step-number">3</span> Add <strong>ALL</strong> environment variables in Vercel dashboard (Settings → Environment Variables):</p>
+</div>
+
+<table>
+  <tr><th>Variable</th><th>Required For</th></tr>
+  <tr><td><code>NEXT_PUBLIC_SUPABASE_URL</code></td><td>Supabase client (browser)</td></tr>
+  <tr><td><code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code></td><td>Supabase client (browser)</td></tr>
+  <tr><td><code>NEXT_PUBLIC_APP_URL</code></td><td>OAuth redirects, sitemap</td></tr>
+  <tr><td><code>SUPABASE_SERVICE_ROLE_KEY</code></td><td>Server-side admin operations</td></tr>
+  <tr><td><code>GOOGLE_GEMINI_API_KEY</code></td><td>AI listing generation</td></tr>
+  <tr><td><code>TWILIO_ACCOUNT_SID</code></td><td>WhatsApp messaging</td></tr>
+  <tr><td><code>TWILIO_AUTH_TOKEN</code></td><td>WhatsApp messaging</td></tr>
+  <tr><td><code>TWILIO_WHATSAPP_FROM</code></td><td>WhatsApp sender number</td></tr>
+  <tr><td><code>RESEND_API_KEY</code></td><td>Email notifications</td></tr>
+  <tr><td><code>RAZORPAY_KEY_ID</code></td><td>Payment checkout</td></tr>
+  <tr><td><code>RAZORPAY_KEY_SECRET</code></td><td>Payment verification</td></tr>
+  <tr><td><code>RAZORPAY_WEBHOOK_SECRET</code></td><td>Payment webhooks</td></tr>
+</table>
+
+<div class="step">
+  <p><span class="step-number">4</span> Click <strong>Deploy</strong>. Vercel will auto-deploy on every push to <code>main</code>.</p>
+</div>
+
+<h2>5. How the Full Flow Works</h2>
+<pre><code>Developer pushes code to main
+        │
+        ├──→ GitHub Actions (runs in ~1-2 min)
+        │      ├── npm ci
+        │      ├── npm run lint        → catches code errors
+        │      ├── npm run type-check  → catches type errors
+        │      └── npm run build       → catches build errors
+        │
+        └──→ Vercel (runs in ~1-2 min)
+               ├── Installs dependencies
+               ├── Builds the app
+               └── Deploys to production URL</code></pre>
+
+<div class="success">
+  <strong>Both pipelines run in parallel.</strong> If GitHub Actions fails, Vercel still deploys (and vice versa). To block deploys on CI failure, enable "Required status checks" in GitHub branch protection rules.
+</div>
+
+<h2>6. Optional: Branch Protection</h2>
+<p>To prevent broken code from reaching production, enable branch protection:</p>
+<ol>
+  <li>Go to GitHub → <strong>Settings</strong> → <strong>Branches</strong></li>
+  <li>Click <strong>"Add branch protection rule"</strong></li>
+  <li>Branch name pattern: <code>main</code></li>
+  <li>Enable: <strong>"Require status checks to pass before merging"</strong></li>
+  <li>Select the <strong>"build"</strong> check (from GitHub Actions)</li>
+  <li>Save changes</li>
+</ol>
+<p>This ensures no PR can be merged to <code>main</code> unless lint, type-check, and build all pass.</p>
+
+<h2>7. Troubleshooting</h2>
+
+<h3>CI build fails with "missing environment variable"</h3>
+<p>Make sure all 3 <code>NEXT_PUBLIC_*</code> secrets are added in GitHub (Settings → Secrets → Actions). Names must match exactly.</p>
+
+<h3>Vercel deploy fails</h3>
+<p>Check Vercel dashboard → Deployments → click the failed deploy → read the build logs. Most common cause: missing environment variables in Vercel settings.</p>
+
+<h3>CI passes but Vercel fails (or vice versa)</h3>
+<p>They use different environments. Ensure environment variables are set in <strong>both</strong> GitHub Secrets and Vercel dashboard.</p>
+
+<h3>Pipeline doesn't trigger</h3>
+<p>The CI only triggers on pushes and PRs to the <code>main</code> branch. If you're pushing to a different branch, it won't run.</p>
+
+<div class="footer">
+  <p>PropGenius AI — CI/CD Setup Guide | Generated March 2026</p>
+</div>
+
+</body>
+</html>

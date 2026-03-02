@@ -108,7 +108,7 @@ function DataTable<TData>({
 
       {/* Pagination */}
       {table.getPageCount() > 1 && (
-        <div className="mt-4 flex items-center justify-between">
+        <div className="mt-4 flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
           <p className="text-sm text-slate-500">
             Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
           </p>

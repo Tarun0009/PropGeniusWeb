@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useCallback, useRef, useState } from "react";
+import Image from "next/image";
 import { Upload, X, ImageIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
@@ -134,10 +135,12 @@ function ImageUploader({ value, onChange, floorPlanUrl, onFloorPlanChange }: Ima
                 key={url}
                 className="group relative aspect-square overflow-hidden rounded-lg border border-slate-200"
               >
-                <img
+                <Image
                   src={url}
                   alt={`Property image ${index + 1}`}
-                  className="h-full w-full object-cover"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 33vw, 16vw"
                 />
                 <button
                   type="button"
@@ -160,9 +163,11 @@ function ImageUploader({ value, onChange, floorPlanUrl, onFloorPlanChange }: Ima
           </label>
           {floorPlanUrl ? (
             <div className="group relative inline-block overflow-hidden rounded-lg border border-slate-200">
-              <img
+              <Image
                 src={floorPlanUrl}
                 alt="Floor plan"
+                width={200}
+                height={128}
                 className="h-32 w-auto object-contain"
               />
               <button

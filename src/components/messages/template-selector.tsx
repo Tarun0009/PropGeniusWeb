@@ -14,7 +14,7 @@ interface TemplateSelectorProps {
 function TemplateSelector({ isOpen, onClose, onSelect, leadName, orgName }: TemplateSelectorProps) {
   const handleSelect = (template: (typeof WHATSAPP_TEMPLATES)[number]) => {
     // Substitute variables
-    let content = template.content
+    const content = template.content
       .replace(/\{\{name\}\}/g, leadName)
       .replace(/\{\{org\}\}/g, orgName || "our team")
       .replace(/\{\{property\}\}/g, "the property")

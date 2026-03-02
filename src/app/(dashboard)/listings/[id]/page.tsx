@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import {
   MapPin,
   BedDouble,
@@ -121,20 +122,27 @@ export default function ListingDetailPage() {
           {/* Images */}
           {listing.images.length > 0 && (
             <div className="overflow-hidden rounded-lg border border-slate-200">
-              <img
-                src={listing.images[0]}
-                alt={listing.title}
-                className="aspect-video w-full object-cover"
-              />
+              <div className="relative aspect-video w-full">
+                <Image
+                  src={listing.images[0]}
+                  alt={listing.title}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 1024px) 100vw, 66vw"
+                />
+              </div>
               {listing.images.length > 1 && (
                 <div className="grid grid-cols-4 gap-1 p-1">
                   {listing.images.slice(1, 5).map((url, i) => (
-                    <img
-                      key={i}
-                      src={url}
-                      alt={`Photo ${i + 2}`}
-                      className="aspect-square w-full rounded object-cover"
-                    />
+                    <div key={i} className="relative aspect-square w-full">
+                      <Image
+                        src={url}
+                        alt={`Photo ${i + 2}`}
+                        fill
+                        className="rounded object-cover"
+                        sizes="(max-width: 1024px) 25vw, 16vw"
+                      />
+                    </div>
                   ))}
                 </div>
               )}

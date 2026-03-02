@@ -9,7 +9,7 @@ export default function NotFound() {
         <p className="text-lg text-slate-500 mt-2 mb-6">
           Page not found
         </p>
-        <Link href="/">
+        <Link href="/dashboard">
           <Button>Go to Dashboard</Button>
         </Link>
       </div>

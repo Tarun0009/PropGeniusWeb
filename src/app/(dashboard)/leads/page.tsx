@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { Users, Upload } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -9,10 +10,20 @@ import { Button } from "@/components/ui/button";
 import { Tabs } from "@/components/ui/tabs";
 import { Spinner } from "@/components/ui/spinner";
 import { LeadTable } from "@/components/leads/lead-table";
-import { LeadKanban } from "@/components/leads/lead-kanban";
 import { CSVImportModal } from "@/components/leads/csv-import-modal";
 import { useLeads } from "@/hooks/use-leads";
 import type { LeadFilters } from "@/lib/validations";
+
+const LeadKanban = dynamic(
+  () => import("@/components/leads/lead-kanban").then((m) => ({ default: m.LeadKanban })),
+  {
+    loading: () => (
+      <div className="flex min-h-75 items-center justify-center">
+        <Spinner size="lg" />
+      </div>
+    ),
+  }
+);
 
 const VIEW_TABS = [
   { value: "table", label: "Table" },

@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /dashboard/
+Disallow: /listings/
+Disallow: /leads/
+Disallow: /messages/
+Disallow: /analytics/
+Disallow: /settings/
+
+Sitemap: https://propgenius.in/sitemap.xml

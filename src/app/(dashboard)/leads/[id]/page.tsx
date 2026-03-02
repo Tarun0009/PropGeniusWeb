@@ -34,7 +34,7 @@ import {
 } from "@/hooks/use-leads";
 import { LEAD_STATUSES, LEAD_SOURCES } from "@/lib/constants";
 import { formatPrice, formatDate, formatRelativeTime } from "@/lib/utils";
-import type { LeadStatus, ActivityType } from "@/types/lead";
+import type { ActivityType } from "@/types/lead";
 
 const statusVariant: Record<string, "primary" | "purple" | "warning" | "cyan" | "orange" | "success" | "danger"> = {
   new: "primary",

@@ -16,7 +16,7 @@ import { cn } from "@/lib/utils";
 import { useSidebarStore } from "@/stores/sidebar-store";
 
 const navItems = [
-  { label: "Dashboard", href: "/", icon: LayoutDashboard },
+  { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { label: "Listings", href: "/listings", icon: Building2 },
   { label: "Leads", href: "/leads", icon: Users },
   { label: "Messages", href: "/messages", icon: MessageSquare },
@@ -29,7 +29,7 @@ export function Sidebar() {
   const { isCollapsed, toggle, isMobileOpen, closeMobile } = useSidebarStore();
 
   const isActive = (href: string) => {
-    if (href === "/") return pathname === "/";
+    if (href === "/dashboard") return pathname === "/dashboard";
     return pathname.startsWith(href);
   };
 
@@ -55,7 +55,7 @@ export function Sidebar() {
         {/* Logo */}
         <div className="h-16 flex items-center justify-between px-4 border-b border-slate-200 shrink-0">
           {!isCollapsed && (
-            <Link href="/" className="flex items-center gap-2">
+            <Link href="/dashboard" className="flex items-center gap-2">
               <Building2 className="h-7 w-7 text-primary-600 shrink-0" />
               <span className="text-lg font-bold text-slate-900">
                 PropGenius
@@ -63,7 +63,7 @@ export function Sidebar() {
             </Link>
           )}
           {isCollapsed && (
-            <Link href="/" className="mx-auto">
+            <Link href="/dashboard" className="mx-auto">
               <Building2 className="h-7 w-7 text-primary-600" />
             </Link>
           )}

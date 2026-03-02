@@ -17,7 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { LeadCard } from "./lead-card";
 import { useUpdateLeadStatus } from "@/hooks/use-leads";
 import { LEAD_STATUSES } from "@/lib/constants";
-import type { Lead, LeadStatus } from "@/types/lead";
+import type { Lead } from "@/types/lead";
 
 const statusVariant: Record<string, "primary" | "purple" | "warning" | "cyan" | "orange" | "success" | "danger"> = {
   new: "primary",

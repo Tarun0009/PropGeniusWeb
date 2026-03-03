@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PropGenius AI — Pending Items</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: #1e293b;
+      line-height: 1.6;
+      background: #fff;
+      padding: 48px;
+    }
+
+    @media print {
+      body { padding: 24px; }
+      .no-print { display: none !important; }
+      .item-card { break-inside: avoid; }
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      padding-bottom: 32px;
+      border-bottom: 2px solid #2563eb;
+      margin-bottom: 40px;
+    }
+    .header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 4px;
+    }
+    .header .subtitle {
+      font-size: 14px;
+      color: #64748b;
+      margin-bottom: 12px;
+    }
+    .header .date {
+      font-size: 12px;
+      color: #94a3b8;
+    }
+
+    /* Summary box */
+    .summary {
+      background: #f0f9ff;
+      border: 1px solid #bae6fd;
+      border-radius: 8px;
+      padding: 20px 24px;
+      margin-bottom: 36px;
+    }
+    .summary h2 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #0369a1;
+      margin-bottom: 8px;
+    }
+    .summary p {
+      font-size: 13px;
+      color: #475569;
+    }
+    .summary .stats {
+      display: flex;
+      gap: 32px;
+      margin-top: 12px;
+    }
+    .summary .stat {
+      text-align: center;
+    }
+    .summary .stat-number {
+      font-size: 24px;
+      font-weight: 700;
+      color: #2563eb;
+    }
+    .summary .stat-label {
+      font-size: 11px;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Section */
+    .section {
+      margin-bottom: 36px;
+    }
+    .section-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    /* Item card */
+    .item-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 16px;
+      background: #fafbfc;
+    }
+    .item-card .item-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .item-card .item-number {
+      background: #2563eb;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .item-card .item-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1e293b;
+    }
+    .item-card .item-description {
+      font-size: 13px;
+      color: #475569;
+      margin-bottom: 12px;
+      padding-left: 36px;
+    }
+    .item-card .item-meta {
+      display: flex;
+      gap: 12px;
+      padding-left: 36px;
+      flex-wrap: wrap;
+    }
+    .tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 2px 10px;
+      border-radius: 12px;
+    }
+    .tag-phase {
+      background: #ede9fe;
+      color: #6d28d9;
+    }
+    .tag-priority-high {
+      background: #fef2f2;
+      color: #dc2626;
+    }
+    .tag-priority-medium {
+      background: #fff7ed;
+      color: #ea580c;
+    }
+    .tag-priority-low {
+      background: #f0fdf4;
+      color: #16a34a;
+    }
+    .tag-effort-small {
+      background: #f0f9ff;
+      color: #0284c7;
+    }
+    .tag-effort-medium {
+      background: #fefce8;
+      color: #ca8a04;
+    }
+    .tag-effort-large {
+      background: #fff1f2;
+      color: #e11d48;
+    }
+
+    /* Sub-tasks */
+    .subtasks {
+      padding-left: 36px;
+      margin-top: 10px;
+    }
+    .subtasks h4 {
+      font-size: 12px;
+      font-weight: 600;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+    .subtasks ul {
+      list-style: none;
+      padding: 0;
+    }
+    .subtasks li {
+      font-size: 13px;
+      color: #475569;
+      padding: 3px 0;
+      padding-left: 18px;
+      position: relative;
+    }
+    .subtasks li::before {
+      content: "☐";
+      position: absolute;
+      left: 0;
+      color: #94a3b8;
+    }
+
+    /* Completed section */
+    .completed-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .completed-item {
+      font-size: 13px;
+      color: #64748b;
+      padding: 6px 0;
+      padding-left: 22px;
+      position: relative;
+    }
+    .completed-item::before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: #16a34a;
+      font-weight: 700;
+    }
+
+    /* Footer */
+    .footer {
+      margin-top: 48px;
+      padding-top: 20px;
+      border-top: 1px solid #e2e8f0;
+      text-align: center;
+      font-size: 11px;
+      color: #94a3b8;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <h1>PropGenius AI — Pending Items</h1>
+    <p class="subtitle">Remaining tasks for production readiness</p>
+    <p class="date">Generated: March 2, 2026</p>
+  </div>
+
+  <!-- Summary -->
+  <div class="summary">
+    <h2>Project Status Overview</h2>
+    <p>All 6 development phases are substantially complete. The items below represent remaining tasks from the original plan that are not yet implemented. These are non-blocking — the app is functional without them — but completing them will bring the project to full plan parity.</p>
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-number">6</div>
+        <div class="stat-label">Phases Done</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">5</div>
+        <div class="stat-label">Pending Items</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">~95%</div>
+        <div class="stat-label">Plan Complete</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pending Items -->
+  <div class="section">
+    <h2 class="section-title">Pending Items</h2>
+
+    <!-- Item 1 -->
+    <div class="item-card">
+      <div class="item-header">
+        <span class="item-number">1</span>
+        <span class="item-title">Enforce Plan-Based Feature Limits</span>
+      </div>
+      <p class="item-description">
+        Currently, all users have unrestricted access to all features regardless of their subscription plan (Free, Pro, Business). The plan constants define limits (e.g., Free = 10 listings, Pro = 100, Business = unlimited), but these limits are not enforced in the UI or API routes.
+      </p>
+      <div class="item-meta">
+        <span class="tag tag-phase">Phase 5 — Billing</span>
+        <span class="tag tag-priority-high">High Priority</span>
+        <span class="tag tag-effort-medium">Medium Effort</span>
+      </div>
+      <div class="subtasks">
+        <h4>Sub-tasks</h4>
+        <ul>
+          <li>Create a <code>usePlanLimits</code> hook that reads subscription from auth store and returns current limits</li>
+          <li>Add limit checks in API routes: <code>/api/ai/generate-listing</code>, <code>/api/leads/import</code>, <code>/api/whatsapp/send</code></li>
+          <li>Show upgrade prompts in UI when user hits a limit (e.g., "You've used 10/10 listings. Upgrade to Pro.")</li>
+          <li>Gate AI features (AI scoring, AI insights) behind Pro/Business plans</li>
+          <li>Gate WhatsApp messaging behind Pro/Business plans</li>
+          <li>Add limit indicators on dashboard stat cards (e.g., "7 / 10 listings used")</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Item 2 -->
+    <div class="item-card">
+      <div class="item-header">
+        <span class="item-number">2</span>
+        <span class="item-title">Follow-Up Scheduler for Leads</span>
+      </div>
+      <p class="item-description">
+        The plan specifies a follow-up scheduling system with date/time picker where agents can schedule reminders to contact leads. Currently, activities can be logged manually, but there is no scheduling or reminder functionality.
+      </p>
+      <div class="item-meta">
+        <span class="tag tag-phase">Phase 3 — CRM</span>
+        <span class="tag tag-priority-medium">Medium Priority</span>
+        <span class="tag tag-effort-medium">Medium Effort</span>
+      </div>
+      <div class="subtasks">
+        <h4>Sub-tasks</h4>
+        <ul>
+          <li>Add <code>follow_up_date</code> and <code>follow_up_note</code> columns to leads table (or a separate <code>follow_ups</code> table)</li>
+          <li>Build a date/time picker component for scheduling follow-ups on the lead detail page</li>
+          <li>Create a "Pending Follow-Ups" widget on the dashboard showing upcoming follow-ups</li>
+          <li>Add visual indicator on lead cards (table + pipeline) when a follow-up is due/overdue</li>
+          <li>Optional: Send email/push notification when a follow-up is due (using Resend)</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Item 3 -->
+    <div class="item-card">
+      <div class="item-header">
+        <span class="item-number">3</span>
+        <span class="item-title">Set Up Vercel Analytics &amp; Web Vitals</span>
+      </div>
+      <p class="item-description">
+        The plan mentions enabling Vercel Analytics and Web Vitals monitoring for production performance tracking. This is a Vercel dashboard + package integration, not a code-heavy task.
+      </p>
+      <div class="item-meta">
+        <span class="tag tag-phase">Phase 6 — Polish</span>
+        <span class="tag tag-priority-low">Low Priority</span>
+        <span class="tag tag-effort-small">Small Effort</span>
+      </div>
+      <div class="subtasks">
+        <h4>Sub-tasks</h4>
+        <ul>
+          <li>Install <code>@vercel/analytics</code> and <code>@vercel/speed-insights</code> packages</li>
+          <li>Add <code>&lt;Analytics /&gt;</code> and <code>&lt;SpeedInsights /&gt;</code> components to the root layout</li>
+          <li>Enable Analytics in Vercel dashboard (Project Settings → Analytics)</li>
+          <li>Verify data is flowing in Vercel dashboard after deployment</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Item 4 -->
+    <div class="item-card">
+      <div class="item-header">
+        <span class="item-number">4</span>
+        <span class="item-title">Configure Custom Domain</span>
+      </div>
+      <p class="item-description">
+        The plan references deploying to a custom domain (e.g., propgenius.in). This involves DNS configuration in the domain registrar and Vercel dashboard settings.
+      </p>
+      <div class="item-meta">
+        <span class="tag tag-phase">Phase 6 — Polish</span>
+        <span class="tag tag-priority-medium">Medium Priority</span>
+        <span class="tag tag-effort-small">Small Effort</span>
+      </div>
+      <div class="subtasks">
+        <h4>Sub-tasks</h4>
+        <ul>
+          <li>Purchase domain (e.g., propgenius.in) from a registrar (GoDaddy, Namecheap, etc.)</li>
+          <li>Add domain in Vercel dashboard (Project → Settings → Domains)</li>
+          <li>Update DNS records: A record → 76.76.21.21, CNAME www → cname.vercel-dns.com</li>
+          <li>Update <code>NEXT_PUBLIC_APP_URL</code> env variable in Vercel to the custom domain</li>
+          <li>Update Supabase auth redirect URLs to include the custom domain</li>
+          <li>Verify SSL certificate is auto-provisioned by Vercel</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Item 5 -->
+    <div class="item-card">
+      <div class="item-header">
+        <span class="item-number">5</span>
+        <span class="item-title">Final Testing Checklist Execution</span>
+      </div>
+      <p class="item-description">
+        The plan includes a comprehensive manual testing checklist covering all features end-to-end. This should be run against the production deployment to catch any issues before public launch.
+      </p>
+      <div class="item-meta">
+        <span class="tag tag-phase">Phase 6 — Polish</span>
+        <span class="tag tag-priority-high">High Priority</span>
+        <span class="tag tag-effort-medium">Medium Effort</span>
+      </div>
+      <div class="subtasks">
+        <h4>Checklist</h4>
+        <ul>
+          <li><strong>Auth:</strong> Signup → Login → Logout → Forgot Password → Reset</li>
+          <li><strong>Listings:</strong> Create (all 5 steps) → AI Generate → Edit → Save → View → Delete</li>
+          <li><strong>Leads:</strong> Add → AI Score → Drag in Pipeline → Log Activity → CSV Import/Export</li>
+          <li><strong>WhatsApp:</strong> Send Template → Receive Reply → View Conversation</li>
+          <li><strong>Billing:</strong> Subscribe → Verify Limits → Upgrade → Cancel</li>
+          <li><strong>Analytics:</strong> Verify counts → Charts render → AI Insights → Export CSV</li>
+          <li><strong>Mobile:</strong> All pages responsive → Sidebar collapses → Forms usable on phone</li>
+          <li><strong>Edge Cases:</strong> Empty states → Error states → Loading states → Onboarding tour</li>
+          <li><strong>Build:</strong> <code>npm run lint</code> passes → <code>npm run build</code> passes → Lighthouse &gt; 90</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Completed Reference -->
+  <div class="section">
+    <h2 class="section-title">Completed Features (Reference)</h2>
+    <div class="completed-grid">
+      <div class="completed-item">Auth system (Signup, Login, Forgot Password)</div>
+      <div class="completed-item">Dashboard shell with sidebar + topbar</div>
+      <div class="completed-item">Multi-step listing creation form (5 steps)</div>
+      <div class="completed-item">AI listing generation (Gemini 2.5 Flash)</div>
+      <div class="completed-item">Listing CRUD + table + detail page</div>
+      <div class="completed-item">Image upload to Supabase Storage</div>
+      <div class="completed-item">Lead management (table + pipeline views)</div>
+      <div class="completed-item">AI lead scoring</div>
+      <div class="completed-item">Lead activity timeline</div>
+      <div class="completed-item">CSV import &amp; export for leads</div>
+      <div class="completed-item">CSV export for listings</div>
+      <div class="completed-item">WhatsApp messaging (Twilio)</div>
+      <div class="completed-item">Message templates</div>
+      <div class="completed-item">Email notifications (Resend)</div>
+      <div class="completed-item">Analytics dashboard (Recharts)</div>
+      <div class="completed-item">AI-powered insights on analytics</div>
+      <div class="completed-item">Razorpay billing + subscriptions</div>
+      <div class="completed-item">Settings &amp; billing management page</div>
+      <div class="completed-item">Responsive design (mobile + tablet)</div>
+      <div class="completed-item">Error boundaries &amp; loading states</div>
+      <div class="completed-item">Marketing landing page</div>
+      <div class="completed-item">SEO metadata &amp; sitemap</div>
+      <div class="completed-item">Security headers</div>
+      <div class="completed-item">Dynamic imports &amp; code splitting</div>
+      <div class="completed-item">In-app onboarding tour</div>
+      <div class="completed-item">User documentation (PDF guide)</div>
+      <div class="completed-item">CI/CD pipeline (GitHub Actions)</div>
+      <div class="completed-item">Database schema + RLS policies</div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    PropGenius AI — Pending Items Document &nbsp;|&nbsp; Generated March 2, 2026 &nbsp;|&nbsp; Confidential
+  </div>
+
+</body>
+</html>

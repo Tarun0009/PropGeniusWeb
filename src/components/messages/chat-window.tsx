@@ -85,7 +85,7 @@ function ChatWindow({ lead, orgName }: ChatWindowProps) {
       </div>
 
       {/* Input */}
-      <MessageInput leadId={lead.id} leadName={lead.name} orgName={orgName} />
+      <MessageInput leadId={lead.id} leadName={lead.name} orgName={orgName} lead={lead} recentMessages={messages} />
     </div>
   );
 }

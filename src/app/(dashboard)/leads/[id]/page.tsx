@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   Phone,
   Mail,
@@ -13,7 +14,14 @@ import {
   Pencil,
   Trash2,
   ArrowRight,
+  Lightbulb,
+  Clock,
+  Send,
+  Bell,
+  X,
+  AlertTriangle,
 } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -23,6 +31,7 @@ import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { LeadScoreBadge } from "@/components/leads/lead-score-badge";
 import { LeadTimeline } from "@/components/leads/lead-timeline";
+import { RecommendedListings } from "@/components/leads/recommended-listings";
 import {
   useLead,
   useDeleteLead,
@@ -31,10 +40,13 @@ import {
   useLeadActivities,
   useCreateActivity,
   useUpdateLead,
+  useFollowUpSuggestions,
 } from "@/hooks/use-leads";
+import { useTeamMembers } from "@/hooks/use-team";
 import { LEAD_STATUSES, LEAD_SOURCES } from "@/lib/constants";
 import { formatPrice, formatDate, formatRelativeTime } from "@/lib/utils";
 import type { ActivityType } from "@/types/lead";
+import type { FollowUpResponse } from "@/lib/validations";
 
 const statusVariant: Record<string, "primary" | "purple" | "warning" | "cyan" | "orange" | "success" | "danger"> = {
   new: "primary",
@@ -61,16 +73,23 @@ export default function LeadDetailPage() {
 
   const { data: lead, isLoading } = useLead(id);
   const { data: activities = [] } = useLeadActivities(id);
+  const { data: teamMembers = [] } = useTeamMembers();
   const deleteMutation = useDeleteLead();
   const updateStatusMutation = useUpdateLeadStatus();
   const scoreMutation = useScoreLead();
   const updateMutation = useUpdateLead();
   const createActivityMutation = useCreateActivity();
+  const followUpMutation = useFollowUpSuggestions();
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showActivityModal, setShowActivityModal] = useState(false);
   const [activityType, setActivityType] = useState<ActivityType>("call");
   const [activityDescription, setActivityDescription] = useState("");
+  const [followUpData, setFollowUpData] = useState<FollowUpResponse | null>(null);
+  const [showFollowUpForm, setShowFollowUpForm] = useState(false);
+  const [followUpDate, setFollowUpDate] = useState("");
+  const [followUpTime, setFollowUpTime] = useState("10:00");
+  const [followUpNotes, setFollowUpNotes] = useState("");
 
   if (isLoading) {
     return (
@@ -142,6 +161,32 @@ export default function LeadDetailPage() {
     setShowActivityModal(false);
   };
 
+  const handleFollowUp = async () => {
+    const daysAgo = Math.floor((Date.now() - new Date(lead.created_at).getTime()) / (1000 * 60 * 60 * 24));
+    const lastContactDays = lead.last_contacted_at
+      ? Math.floor((Date.now() - new Date(lead.last_contacted_at).getTime()) / (1000 * 60 * 60 * 24))
+      : undefined;
+    const contactCount = activities.filter((a) => ["call", "email", "whatsapp"].includes(a.type)).length;
+
+    const budgetParts = [];
+    if (lead.budget_min) budgetParts.push(formatPrice(lead.budget_min));
+    if (lead.budget_max) budgetParts.push(formatPrice(lead.budget_max));
+
+    const result = await followUpMutation.mutateAsync({
+      lead_name: lead.name,
+      status: lead.status,
+      days_since_creation: daysAgo,
+      last_contacted_days_ago: lastContactDays,
+      contact_count: contactCount,
+      has_whatsapp: !!lead.whatsapp_number,
+      budget_range: budgetParts.length > 0 ? budgetParts.join(" – ") : undefined,
+      ai_score: lead.ai_score > 0 ? lead.ai_score : undefined,
+      notes: lead.notes ?? undefined,
+    });
+
+    setFollowUpData(result);
+  };
+
   const sourceLabel = LEAD_SOURCES.find((s) => s.value === lead.source)?.label || lead.source;
   const statusLabel = LEAD_STATUSES.find((s) => s.value === lead.status)?.label || lead.status;
 
@@ -156,6 +201,14 @@ export default function LeadDetailPage() {
         ]}
         actions={
           <div className="flex items-center gap-2">
+            {lead.whatsapp_number && (
+              <Link href={`/messages?lead=${lead.id}`}>
+                <Button variant="outline" size="sm">
+                  <Send className="mr-1.5 h-3.5 w-3.5" />
+                  WhatsApp
+                </Button>
+              </Link>
+            )}
             <Button
               variant="outline"
               size="sm"
@@ -272,6 +325,9 @@ export default function LeadDetailPage() {
             </div>
           )}
 
+          {/* Recommended Listings */}
+          <RecommendedListings lead={lead} />
+
           {/* Activity Timeline */}
           <div className="rounded-lg border border-slate-200 bg-white p-6">
             <div className="mb-4 flex items-center justify-between">
@@ -305,6 +361,26 @@ export default function LeadDetailPage() {
               </p>
             )}
           </div>
+
+          {/* Assigned To */}
+          {teamMembers.length > 1 && (
+            <div className="rounded-lg border border-slate-200 bg-white p-5">
+              <h3 className="mb-3 text-sm font-semibold text-slate-900">Assigned To</h3>
+              <Select
+                options={[
+                  { value: "", label: "Unassigned" },
+                  ...teamMembers.map((m) => ({ value: m.id, label: m.full_name })),
+                ]}
+                value={lead.assigned_to || ""}
+                onChange={(e) =>
+                  updateMutation.mutate({
+                    id: lead.id,
+                    data: { assigned_to: e.target.value || null } as Record<string, unknown>,
+                  })
+                }
+              />
+            </div>
+          )}
 
           {/* AI Score */}
           <div className="rounded-lg border border-slate-200 bg-white p-5">
@@ -341,11 +417,163 @@ export default function LeadDetailPage() {
             )}
           </div>
 
-          {/* Follow-up */}
+          {/* AI Follow-Up Suggestions */}
           <div className="rounded-lg border border-slate-200 bg-white p-5">
-            <h3 className="mb-3 text-sm font-semibold text-slate-900">Follow-up</h3>
-            {lead.next_followup_at ? (
+            <div className="mb-3 flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-slate-900">AI Suggestions</h3>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleFollowUp}
+                isLoading={followUpMutation.isPending}
+                disabled={followUpMutation.isPending}
+              >
+                <Lightbulb className="mr-1 h-3.5 w-3.5" />
+                {followUpData ? "Refresh" : "Generate"}
+              </Button>
+            </div>
+            {followUpData ? (
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <span className={`h-2 w-2 rounded-full ${
+                    followUpData.urgency === "high" ? "bg-red-500" :
+                    followUpData.urgency === "medium" ? "bg-yellow-500" :
+                    "bg-green-500"
+                  }`} />
+                  <span className="text-xs font-medium capitalize text-slate-700">
+                    {followUpData.urgency} urgency
+                  </span>
+                </div>
+                <div className="flex items-start gap-2 text-xs text-slate-600">
+                  <Clock className="mt-0.5 h-3 w-3 shrink-0 text-slate-400" />
+                  <span>{followUpData.best_time}</span>
+                </div>
+                <div className="flex items-start gap-2 text-xs text-slate-600">
+                  <MessageSquare className="mt-0.5 h-3 w-3 shrink-0 text-slate-400" />
+                  <span>Via {followUpData.channel}</span>
+                </div>
+                <div>
+                  <p className="mb-1 text-xs font-medium text-slate-500">Talking Points:</p>
+                  <ul className="space-y-1">
+                    {followUpData.talking_points.map((point, i) => (
+                      <li key={i} className="flex items-start gap-1.5 text-xs text-slate-600">
+                        <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-primary-400" />
+                        {point}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            ) : (
+              <p className="text-sm text-slate-400">Get AI-powered follow-up advice</p>
+            )}
+          </div>
+
+          {/* Follow-up Reminder */}
+          <div className="rounded-lg border border-slate-200 bg-white p-5">
+            <div className="mb-3 flex items-center justify-between">
+              <h3 className="flex items-center gap-1.5 text-sm font-semibold text-slate-900">
+                <Bell className="h-4 w-4 text-slate-400" /> Follow-up
+              </h3>
+              {!showFollowUpForm && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    if (lead.next_followup_at) {
+                      const d = new Date(lead.next_followup_at);
+                      setFollowUpDate(d.toISOString().slice(0, 10));
+                      setFollowUpTime(d.toTimeString().slice(0, 5));
+                    } else {
+                      const tomorrow = new Date();
+                      tomorrow.setDate(tomorrow.getDate() + 1);
+                      setFollowUpDate(tomorrow.toISOString().slice(0, 10));
+                      setFollowUpTime("10:00");
+                    }
+                    setFollowUpNotes(lead.followup_notes || "");
+                    setShowFollowUpForm(true);
+                  }}
+                >
+                  {lead.next_followup_at ? "Edit" : "Schedule"}
+                </Button>
+              )}
+            </div>
+
+            {showFollowUpForm ? (
+              <div className="space-y-2">
+                <Input
+                  label="Date"
+                  type="date"
+                  value={followUpDate}
+                  onChange={(e) => setFollowUpDate(e.target.value)}
+                />
+                <Input
+                  label="Time"
+                  type="time"
+                  value={followUpTime}
+                  onChange={(e) => setFollowUpTime(e.target.value)}
+                />
+                <Textarea
+                  label="Notes"
+                  placeholder="What to follow up about..."
+                  rows={2}
+                  value={followUpNotes}
+                  onChange={(e) => setFollowUpNotes(e.target.value)}
+                />
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    onClick={async () => {
+                      const dateTime = new Date(`${followUpDate}T${followUpTime}`).toISOString();
+                      await updateMutation.mutateAsync({
+                        id: lead.id,
+                        data: {
+                          next_followup_at: dateTime,
+                          followup_notes: followUpNotes.trim() || null,
+                        } as Record<string, unknown>,
+                      });
+                      setShowFollowUpForm(false);
+                    }}
+                    disabled={!followUpDate || updateMutation.isPending}
+                    isLoading={updateMutation.isPending}
+                  >
+                    Save
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setShowFollowUpForm(false)}
+                  >
+                    Cancel
+                  </Button>
+                  {lead.next_followup_at && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="ml-auto text-red-500"
+                      onClick={async () => {
+                        await updateMutation.mutateAsync({
+                          id: lead.id,
+                          data: {
+                            next_followup_at: null,
+                            followup_notes: null,
+                          } as Record<string, unknown>,
+                        });
+                        setShowFollowUpForm(false);
+                      }}
+                    >
+                      <X className="mr-1 h-3.5 w-3.5" /> Remove
+                    </Button>
+                  )}
+                </div>
+              </div>
+            ) : lead.next_followup_at ? (
               <div>
+                {new Date(lead.next_followup_at) < new Date() && (
+                  <div className="mb-2 flex items-center gap-1.5 rounded-md bg-red-50 px-2.5 py-1.5 text-xs font-medium text-red-600">
+                    <AlertTriangle className="h-3.5 w-3.5" /> Overdue
+                  </div>
+                )}
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4 text-slate-400" />
                   <span className="text-sm text-slate-700">

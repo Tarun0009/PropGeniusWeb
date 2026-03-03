@@ -49,7 +49,7 @@ export async function updateSession(request: NextRequest) {
   }
 
   // Protected routes — redirect to login if not logged in
-  const publicRoutes = ["/", "/login", "/signup", "/forgot-password", "/api/"];
+  const publicRoutes = ["/", "/login", "/signup", "/forgot-password", "/api/", "/p/"];
   const isPublicRoute = publicRoutes.some((route) =>
     route === "/"
       ? request.nextUrl.pathname === "/"

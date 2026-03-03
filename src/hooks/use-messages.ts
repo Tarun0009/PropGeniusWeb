@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useNotificationStore } from "@/stores/notification-store";
 import type { WhatsAppMessage, Conversation } from "@/types/message";
 import type { Lead } from "@/types/lead";
-import type { SendMessageFormData } from "@/lib/validations";
+import type { SendMessageFormData, SmartReplyRequest, SmartReplyResponse } from "@/lib/validations";
 
 const MESSAGES_KEY = ["messages"];
 const CONVERSATIONS_KEY = ["conversations"];
@@ -119,6 +119,30 @@ export function useMarkAsRead() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: CONVERSATIONS_KEY });
+    },
+  });
+}
+
+export function useSmartReply() {
+  const addToast = useNotificationStore((s) => s.addToast);
+
+  return useMutation({
+    mutationFn: async (data: SmartReplyRequest): Promise<SmartReplyResponse> => {
+      const response = await fetch("/api/ai/smart-reply", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to generate suggestions");
+      }
+
+      return response.json();
+    },
+    onError: (error) => {
+      addToast({ type: "error", title: "AI suggestion failed", description: error.message });
     },
   });
 }

@@ -1,14 +1,16 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useCreateLead, useUpdateLead } from "@/hooks/use-leads";
+import { createClient } from "@/lib/supabase/client";
 import { leadFormSchema, type LeadFormData } from "@/lib/validations";
 import { LEAD_STATUSES, LEAD_SOURCES, PROPERTY_TYPES } from "@/lib/constants";
 import type { Lead } from "@/types/lead";
@@ -22,6 +24,8 @@ function LeadForm({ lead }: LeadFormProps) {
   const createMutation = useCreateLead();
   const updateMutation = useUpdateLead();
   const isEditing = !!lead;
+  const [duplicateWarning, setDuplicateWarning] = useState<string | null>(null);
+  const [skipDuplicateCheck, setSkipDuplicateCheck] = useState(false);
 
   const {
     register,
@@ -49,7 +53,39 @@ function LeadForm({ lead }: LeadFormProps) {
     },
   });
 
+  const checkDuplicate = async (data: LeadFormData): Promise<string | null> => {
+    const supabase = createClient();
+    const conditions: string[] = [];
+    if (data.phone) conditions.push(`phone.eq.${data.phone}`);
+    if (data.email) conditions.push(`email.eq.${data.email}`);
+    if (data.whatsapp_number) conditions.push(`whatsapp_number.eq.${data.whatsapp_number}`);
+
+    if (conditions.length === 0) return null;
+
+    let query = supabase.from("leads").select("id, name, phone, email").or(conditions.join(",")).limit(1);
+    if (isEditing) query = query.neq("id", lead.id);
+
+    const { data: duplicates } = await query;
+    if (duplicates && duplicates.length > 0) {
+      const dup = duplicates[0];
+      return `A lead "${dup.name}" already exists with matching ${dup.phone === data.phone ? "phone" : dup.email === data.email ? "email" : "WhatsApp number"}`;
+    }
+    return null;
+  };
+
   const onSubmit = async (data: LeadFormData) => {
+    // Check for duplicates (only on create or if not skipped)
+    if (!isEditing && !skipDuplicateCheck) {
+      const warning = await checkDuplicate(data);
+      if (warning) {
+        setDuplicateWarning(warning);
+        return;
+      }
+    }
+
+    setDuplicateWarning(null);
+    setSkipDuplicateCheck(false);
+
     // Clean empty strings to null for optional fields
     const cleaned = {
       ...data,
@@ -182,6 +218,39 @@ function LeadForm({ lead }: LeadFormProps) {
           />
         </div>
       </div>
+
+      {/* Duplicate Warning */}
+      {duplicateWarning && (
+        <div className="flex items-start gap-3 rounded-lg border border-warning-200 bg-warning-50 p-4">
+          <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-warning-600" />
+          <div className="flex-1">
+            <p className="text-sm font-medium text-warning-800">Possible duplicate detected</p>
+            <p className="mt-1 text-sm text-warning-700">{duplicateWarning}</p>
+            <div className="mt-3 flex items-center gap-2">
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  setSkipDuplicateCheck(true);
+                  setDuplicateWarning(null);
+                  handleSubmit(onSubmit)();
+                }}
+              >
+                Create Anyway
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => setDuplicateWarning(null)}
+              >
+                Go Back & Edit
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Actions */}
       <div className="flex items-center justify-end gap-3">

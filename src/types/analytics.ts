@@ -17,3 +17,25 @@ export interface LeadFunnelData {
   count: number;
   percentage: number;
 }
+
+export interface PipelineValue {
+  status: string;
+  label: string;
+  count: number;
+  totalValue: number;
+}
+
+export interface SourceROI {
+  source: string;
+  totalLeads: number;
+  convertedLeads: number;
+  conversionRate: number;
+}
+
+export interface ListingPerformance {
+  avgDaysOnMarket: number;
+  avgViewsPerListing: number;
+  avgInquiriesPerListing: number;
+  totalViews: number;
+  totalInquiries: number;
+}

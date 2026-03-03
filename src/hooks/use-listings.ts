@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import { useNotificationStore } from "@/stores/notification-store";
 import type { Listing } from "@/types/listing";
-import type { ListingFilters, ListingFormData, AIListingContent, GenerateListingRequest } from "@/lib/validations";
+import type { ListingFilters, ListingFormData, AIListingContent, GenerateListingRequest, OptimizeListingRequest, OptimizeListingResponse } from "@/lib/validations";
 
 const LISTINGS_KEY = ["listings"];
 
@@ -160,6 +160,30 @@ export function useGenerateAIContent() {
     },
     onError: (error) => {
       addToast({ type: "error", title: "AI generation failed", description: error.message });
+    },
+  });
+}
+
+export function useOptimizeListing() {
+  const addToast = useNotificationStore((s) => s.addToast);
+
+  return useMutation({
+    mutationFn: async (data: OptimizeListingRequest): Promise<OptimizeListingResponse> => {
+      const response = await fetch("/api/ai/optimize-listing", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to optimize listing");
+      }
+
+      return response.json();
+    },
+    onError: (error) => {
+      addToast({ type: "error", title: "AI optimization failed", description: error.message });
     },
   });
 }

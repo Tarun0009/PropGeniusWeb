@@ -9,11 +9,17 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { ListingTable } from "@/components/listings/listing-table";
 import { useListings } from "@/hooks/use-listings";
+<<<<<<< Updated upstream
+=======
+import { useQuota } from "@/hooks/use-quota";
+import { exportToCSV } from "@/lib/export-csv";
+>>>>>>> Stashed changes
 import type { ListingFilters } from "@/lib/validations";
 
 export default function ListingsPage() {
   const [filters, setFilters] = useState<ListingFilters>({});
   const { data: listings, isLoading } = useListings(filters);
+  const { data: quota } = useQuota();
 
   return (
     <div>
@@ -21,9 +27,53 @@ export default function ListingsPage() {
         title="Listings"
         description="Manage your property listings"
         actions={
+<<<<<<< Updated upstream
           <Link href="/listings/new">
             <Button>+ New Listing</Button>
           </Link>
+=======
+          <div className="flex items-center gap-2">
+            {listings && listings.length > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  exportToCSV<Listing>(
+                    listings,
+                    [
+                      { key: "title", header: "Title" },
+                      { key: "property_type", header: "Property Type" },
+                      { key: "transaction_type", header: "Transaction Type" },
+                      { key: "price", header: "Price" },
+                      { key: "city", header: "City" },
+                      { key: "state", header: "State" },
+                      { key: "status", header: "Status" },
+                      { key: "bedrooms", header: "Bedrooms" },
+                      { key: "bathrooms", header: "Bathrooms" },
+                      { key: "area_sqft", header: "Area (sqft)" },
+                      { key: "created_at", header: "Created At" },
+                    ],
+                    "listings-export"
+                  )
+                }
+              >
+                <Download className="mr-1.5 h-3.5 w-3.5" />
+                Export CSV
+              </Button>
+            )}
+            {quota && !quota.listings.canCreate ? (
+              <Link href="/settings">
+                <Button size="sm" variant="outline">
+                  {quota.listings.current}/{quota.listings.max} Listings — Upgrade
+                </Button>
+              </Link>
+            ) : (
+              <Link href="/listings/new">
+                <Button size="sm">+ New Listing</Button>
+              </Link>
+            )}
+          </div>
+>>>>>>> Stashed changes
         }
       />
 

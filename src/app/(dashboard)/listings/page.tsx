@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { ListingTable } from "@/components/listings/listing-table";
 import { useListings } from "@/hooks/use-listings";
+import { useQuota } from "@/hooks/use-quota";
 import { exportToCSV } from "@/lib/export-csv";
 import type { ListingFilters } from "@/lib/validations";
 import type { Listing } from "@/types/listing";
@@ -16,6 +17,7 @@ import type { Listing } from "@/types/listing";
 export default function ListingsPage() {
   const [filters, setFilters] = useState<ListingFilters>({});
   const { data: listings, isLoading } = useListings(filters);
+  const { data: quota } = useQuota();
 
   return (
     <div>
@@ -52,9 +54,17 @@ export default function ListingsPage() {
                 Export CSV
               </Button>
             )}
-            <Link href="/listings/new">
-              <Button size="sm">+ New Listing</Button>
-            </Link>
+            {quota && !quota.listings.canCreate ? (
+              <Link href="/settings">
+                <Button size="sm" variant="outline">
+                  {quota.listings.current}/{quota.listings.max} Listings — Upgrade
+                </Button>
+              </Link>
+            ) : (
+              <Link href="/listings/new">
+                <Button size="sm">+ New Listing</Button>
+              </Link>
+            )}
           </div>
         }
       />

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { Users, Upload, Download } from "lucide-react";
+import { Users, Upload, Download, Sparkles } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,9 @@ import { Tabs } from "@/components/ui/tabs";
 import { Spinner } from "@/components/ui/spinner";
 import { LeadTable } from "@/components/leads/lead-table";
 import { CSVImportModal } from "@/components/leads/csv-import-modal";
-import { useLeads } from "@/hooks/use-leads";
+import { useLeads, useScoreLead, useUpdateLead } from "@/hooks/use-leads";
+import { useQuota } from "@/hooks/use-quota";
+import { useNotificationStore } from "@/stores/notification-store";
 import { exportToCSV } from "@/lib/export-csv";
 import type { LeadFilters } from "@/lib/validations";
 import type { Lead } from "@/types/lead";
@@ -36,8 +38,53 @@ export default function LeadsPage() {
   const [view, setView] = useState("table");
   const [filters, setFilters] = useState<LeadFilters>({});
   const [showImport, setShowImport] = useState(false);
+  const [scoringProgress, setScoringProgress] = useState<{ current: number; total: number } | null>(null);
 
   const { data: leads, isLoading } = useLeads(filters);
+  const { data: quota } = useQuota();
+  const scoreMutation = useScoreLead();
+  const updateMutation = useUpdateLead();
+  const addToast = useNotificationStore((s) => s.addToast);
+
+  const unscoredLeads = leads?.filter((l) => l.ai_score === 0) || [];
+
+  const handleBulkScore = async () => {
+    if (unscoredLeads.length === 0) return;
+    setScoringProgress({ current: 0, total: unscoredLeads.length });
+
+    let scored = 0;
+    for (const lead of unscoredLeads) {
+      try {
+        const daysAgo = Math.floor((Date.now() - new Date(lead.created_at).getTime()) / (1000 * 60 * 60 * 24));
+        const result = await scoreMutation.mutateAsync({
+          name: lead.name,
+          source: lead.source,
+          budget_min: lead.budget_min ?? undefined,
+          budget_max: lead.budget_max ?? undefined,
+          preferred_location: lead.preferred_location ?? undefined,
+          days_ago: daysAgo,
+          contact_count: 0,
+          current_status: lead.status,
+        });
+
+        await updateMutation.mutateAsync({
+          id: lead.id,
+          data: {
+            ai_score: result.score,
+            ai_score_reason: result.reason,
+            ai_recommended_action: result.recommended_action,
+          } as Record<string, unknown>,
+        });
+        scored++;
+      } catch {
+        // Continue scoring remaining leads
+      }
+      setScoringProgress({ current: scored, total: unscoredLeads.length });
+    }
+
+    setScoringProgress(null);
+    addToast({ type: "success", title: `Scored ${scored} of ${unscoredLeads.length} leads` });
+  };
 
   return (
     <div>
@@ -74,13 +121,34 @@ export default function LeadsPage() {
                 Export CSV
               </Button>
             )}
+            {unscoredLeads.length > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleBulkScore}
+                disabled={scoringProgress !== null}
+              >
+                <Sparkles className="mr-1.5 h-3.5 w-3.5" />
+                {scoringProgress
+                  ? `Scoring ${scoringProgress.current}/${scoringProgress.total}...`
+                  : `AI Score (${unscoredLeads.length})`}
+              </Button>
+            )}
             <Button variant="outline" size="sm" onClick={() => setShowImport(true)}>
               <Upload className="mr-1.5 h-3.5 w-3.5" />
               Import CSV
             </Button>
-            <Link href="/leads/new">
-              <Button size="sm">+ Add Lead</Button>
-            </Link>
+            {quota && !quota.leads.canCreate ? (
+              <Link href="/settings">
+                <Button size="sm" variant="outline">
+                  {quota.leads.current}/{quota.leads.max} Leads — Upgrade
+                </Button>
+              </Link>
+            ) : (
+              <Link href="/leads/new">
+                <Button size="sm">+ Add Lead</Button>
+              </Link>
+            )}
           </div>
         }
       />

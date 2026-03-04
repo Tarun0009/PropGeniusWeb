@@ -84,6 +84,19 @@ export const INDIAN_STATES = [
   "West Bengal", "Delhi", "Chandigarh",
 ] as const;
 
+// ─── External Platforms ────────────────────────────────────────────
+
+export const LISTING_PLATFORMS = [
+  { value: "99acres", label: "99acres" },
+  { value: "magicbricks", label: "MagicBricks" },
+  { value: "housing", label: "Housing.com" },
+  { value: "nobroker", label: "NoBroker" },
+  { value: "olx", label: "OLX" },
+  { value: "facebook", label: "Facebook Marketplace" },
+  { value: "instagram", label: "Instagram" },
+  { value: "other", label: "Other" },
+] as const;
+
 // ─── WhatsApp Templates ────────────────────────────────────────────
 
 export const WHATSAPP_TEMPLATES = [

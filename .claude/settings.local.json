@@ -20,7 +20,14 @@
       "Bash(npx next build)",
       "Bash(\"/c/Program Files \\(x86\\)/Microsoft/Edge/Application/msedge.exe\" --headless --disable-gpu --print-to-pdf=\"/c/Users/Tarun/Documents/propgenius/PropGenius-User-Guide.pdf\" \"file:///C:/Users/Tarun/Documents/propgenius/PropGenius-User-Guide.html\")",
       "Bash(npx tsc --noEmit --pretty src/components/analytics/ai-insights.tsx)",
-      "Bash(npx tsc --noEmit)"
+      "Bash(npx tsc --noEmit)",
+      "Bash(\"/c/Program Files \\(x86\\)/Microsoft/Edge/Application/msedge.exe\" --headless --disable-gpu --print-to-pdf=\"PropGenius-Pending-Items.pdf\" --no-margins \"file:///C:/Users/Tarun/Documents/propgenius/PropGenius-Pending-Items.html\")",
+      "Bash(\"/c/Program Files \\(x86\\)/Microsoft/Edge/Application/msedge.exe\" --headless --disable-gpu --print-to-pdf=\"C:/Users/Tarun/Documents/propgenius/PropGenius-Pending-Items.pdf\" --no-margins \"file:///C:/Users/Tarun/Documents/propgenius/PropGenius-Pending-Items.html\")",
+      "Bash(ls -la /c/Users/Tarun/Documents/propgenius/*.md)",
+      "Bash(timeout 8 npm run dev)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\Tarun\\Documents\\propgenius\\src\\app\\p"
     ]
   }
 }

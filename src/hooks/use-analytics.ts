@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
-import type { DashboardStats, ChartDataPoint, LeadFunnelData } from "@/types/analytics";
+import type { DashboardStats, ChartDataPoint, LeadFunnelData, PipelineValue, SourceROI, ListingPerformance } from "@/types/analytics";
 import { LEAD_STATUSES, LEAD_SOURCES, PROPERTY_TYPES } from "@/lib/constants";
 
 const ANALYTICS_KEY = ["analytics"];
@@ -174,6 +174,140 @@ export function useRecentListings(limit = 5) {
 
       if (error) throw error;
       return data;
+    },
+  });
+}
+
+export function usePendingFollowUps(limit = 5) {
+  const supabase = createClient();
+
+  return useQuery({
+    queryKey: [...ANALYTICS_KEY, "pending-followups", limit],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("leads")
+        .select("id, name, phone, status, next_followup_at, followup_notes")
+        .not("next_followup_at", "is", null)
+        .lte("next_followup_at", new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString())
+        .order("next_followup_at", { ascending: true })
+        .limit(limit);
+
+      if (error) throw error;
+      return data;
+    },
+  });
+}
+
+export function useSalesFunnel() {
+  const supabase = createClient();
+
+  return useQuery({
+    queryKey: [...ANALYTICS_KEY, "sales-funnel"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("leads").select("status");
+      if (error) throw error;
+
+      const total = data.length;
+      const stages = [
+        { status: "new", label: "New", color: "bg-blue-500" },
+        { status: "contacted", label: "Contacted", color: "bg-purple-500" },
+        { status: "interested", label: "Interested", color: "bg-yellow-500" },
+        { status: "site_visit", label: "Site Visit", color: "bg-cyan-500" },
+        { status: "negotiation", label: "Negotiation", color: "bg-orange-500" },
+        { status: "converted", label: "Converted", color: "bg-green-500" },
+      ];
+
+      return stages.map((s) => {
+        const count = data.filter((l) => l.status === s.status).length;
+        return {
+          ...s,
+          count,
+          percentage: total > 0 ? Math.round((count / total) * 100) : 0,
+        };
+      });
+    },
+  });
+}
+
+export function usePipelineValue() {
+  const supabase = createClient();
+
+  return useQuery({
+    queryKey: [...ANALYTICS_KEY, "pipeline-value"],
+    queryFn: async (): Promise<PipelineValue[]> => {
+      const { data, error } = await supabase
+        .from("leads")
+        .select("status, budget_max");
+      if (error) throw error;
+
+      const stages = LEAD_STATUSES.filter((s) => s.value !== "lost");
+      return stages.map((s) => {
+        const leadsInStage = data.filter((l) => l.status === s.value);
+        const totalValue = leadsInStage.reduce((sum, l) => sum + (l.budget_max || 0), 0);
+        return {
+          status: s.value,
+          label: s.label,
+          count: leadsInStage.length,
+          totalValue,
+        };
+      });
+    },
+  });
+}
+
+export function useSourceROI() {
+  const supabase = createClient();
+
+  return useQuery({
+    queryKey: [...ANALYTICS_KEY, "source-roi"],
+    queryFn: async (): Promise<SourceROI[]> => {
+      const { data, error } = await supabase
+        .from("leads")
+        .select("source, status");
+      if (error) throw error;
+
+      return LEAD_SOURCES.map((s) => {
+        const sourceLeads = data.filter((l) => l.source === s.value);
+        const converted = sourceLeads.filter((l) => l.status === "converted").length;
+        return {
+          source: s.label,
+          totalLeads: sourceLeads.length,
+          convertedLeads: converted,
+          conversionRate: sourceLeads.length > 0 ? Math.round((converted / sourceLeads.length) * 100) : 0,
+        };
+      }).filter((s) => s.totalLeads > 0);
+    },
+  });
+}
+
+export function useListingPerformance() {
+  const supabase = createClient();
+
+  return useQuery({
+    queryKey: [...ANALYTICS_KEY, "listing-performance"],
+    queryFn: async (): Promise<ListingPerformance> => {
+      const { data, error } = await supabase
+        .from("listings")
+        .select("views_count, inquiries_count, created_at, status");
+      if (error) throw error;
+
+      const activeListings = data.filter((l) => l.status === "active");
+      const count = activeListings.length || 1;
+      const totalViews = data.reduce((sum, l) => sum + (l.views_count || 0), 0);
+      const totalInquiries = data.reduce((sum, l) => sum + (l.inquiries_count || 0), 0);
+
+      const daysOnMarket = activeListings.map((l) =>
+        Math.floor((Date.now() - new Date(l.created_at).getTime()) / (1000 * 60 * 60 * 24))
+      );
+      const avgDays = daysOnMarket.length > 0 ? Math.round(daysOnMarket.reduce((a, b) => a + b, 0) / daysOnMarket.length) : 0;
+
+      return {
+        avgDaysOnMarket: avgDays,
+        avgViewsPerListing: Math.round(totalViews / count),
+        avgInquiriesPerListing: Math.round((totalInquiries / count) * 10) / 10,
+        totalViews,
+        totalInquiries,
+      };
     },
   });
 }

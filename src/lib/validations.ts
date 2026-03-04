@@ -241,3 +241,111 @@ export const analyticsFilterSchema = z.object({
 });
 
 export type AnalyticsFilters = z.infer<typeof analyticsFilterSchema>;
+
+// ─── AI Smart Reply Schemas ──────────────────────────────────────
+
+export const smartReplyRequestSchema = z.object({
+  lead_name: z.string(),
+  lead_status: z.string(),
+  lead_budget: z.string().optional(),
+  lead_preferences: z.string().optional(),
+  recent_messages: z.array(z.object({
+    direction: z.enum(["inbound", "outbound"]),
+    content: z.string(),
+  })),
+});
+
+export type SmartReplyRequest = z.infer<typeof smartReplyRequestSchema>;
+
+export const smartReplyResponseSchema = z.object({
+  suggestions: z.array(z.string()).min(1).max(3),
+});
+
+export type SmartReplyResponse = z.infer<typeof smartReplyResponseSchema>;
+
+// ─── AI Property Matcher Schemas ─────────────────────────────────
+
+export const matchListingsRequestSchema = z.object({
+  lead_budget_min: z.number().optional(),
+  lead_budget_max: z.number().optional(),
+  lead_location: z.string().optional(),
+  lead_property_type: z.string().optional(),
+  lead_notes: z.string().optional(),
+  listings: z.array(z.object({
+    id: z.string(),
+    title: z.string(),
+    price: z.number(),
+    city: z.string(),
+    property_type: z.string(),
+    bedrooms: z.number().nullable(),
+    area_sqft: z.number().nullable(),
+    transaction_type: z.string(),
+  })),
+});
+
+export type MatchListingsRequest = z.infer<typeof matchListingsRequestSchema>;
+
+export const matchListingsResponseSchema = z.object({
+  matches: z.array(z.object({
+    listing_id: z.string(),
+    match_score: z.number().min(0).max(100),
+    reason: z.string(),
+  })),
+});
+
+export type MatchListingsResponse = z.infer<typeof matchListingsResponseSchema>;
+
+// ─── AI Follow-Up Suggestions Schemas ────────────────────────────
+
+export const followUpRequestSchema = z.object({
+  lead_name: z.string(),
+  status: z.string(),
+  days_since_creation: z.number(),
+  last_contacted_days_ago: z.number().optional(),
+  contact_count: z.number(),
+  has_whatsapp: z.boolean(),
+  budget_range: z.string().optional(),
+  ai_score: z.number().optional(),
+  notes: z.string().optional(),
+});
+
+export type FollowUpRequest = z.infer<typeof followUpRequestSchema>;
+
+export const followUpResponseSchema = z.object({
+  best_time: z.string(),
+  channel: z.string(),
+  talking_points: z.array(z.string()),
+  urgency: z.enum(["high", "medium", "low"]),
+});
+
+export type FollowUpResponse = z.infer<typeof followUpResponseSchema>;
+
+// ─── AI Listing Optimizer Schemas ────────────────────────────────
+
+export const optimizeListingRequestSchema = z.object({
+  title: z.string(),
+  description: z.string().optional(),
+  price: z.number(),
+  property_type: z.string(),
+  city: z.string(),
+  bedrooms: z.number().optional(),
+  area_sqft: z.number().optional(),
+  views_count: z.number(),
+  inquiries_count: z.number(),
+  days_active: z.number(),
+  amenities: z.array(z.string()).optional(),
+});
+
+export type OptimizeListingRequest = z.infer<typeof optimizeListingRequestSchema>;
+
+export const optimizeListingResponseSchema = z.object({
+  score: z.number().min(1).max(10),
+  suggestions: z.array(z.object({
+    area: z.string(),
+    current: z.string(),
+    suggested: z.string(),
+    impact: z.enum(["high", "medium", "low"]),
+  })),
+});
+
+export type OptimizeListingResponse = z.infer<typeof optimizeListingResponseSchema>;

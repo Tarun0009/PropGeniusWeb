@@ -4,7 +4,10 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import { useNotificationStore } from "@/stores/notification-store";
 import type { Lead, LeadActivity } from "@/types/lead";
-import type { LeadFormData, LeadFilters, ScoreLeadRequest, AILeadScore, LeadActivityFormData } from "@/lib/validations";
+import type {
+  LeadFormData, LeadFilters, ScoreLeadRequest, AILeadScore, LeadActivityFormData,
+  MatchListingsRequest, MatchListingsResponse, FollowUpRequest, FollowUpResponse,
+} from "@/lib/validations";
 
 const LEADS_KEY = ["leads"];
 const ACTIVITIES_KEY = ["lead-activities"];
@@ -253,6 +256,54 @@ export function useImportLeads() {
     },
     onError: (error) => {
       addToast({ type: "error", title: "Import failed", description: error.message });
+    },
+  });
+}
+
+export function useMatchListings() {
+  const addToast = useNotificationStore((s) => s.addToast);
+
+  return useMutation({
+    mutationFn: async (data: MatchListingsRequest): Promise<MatchListingsResponse> => {
+      const response = await fetch("/api/ai/match-listings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to match listings");
+      }
+
+      return response.json();
+    },
+    onError: (error) => {
+      addToast({ type: "error", title: "AI matching failed", description: error.message });
+    },
+  });
+}
+
+export function useFollowUpSuggestions() {
+  const addToast = useNotificationStore((s) => s.addToast);
+
+  return useMutation({
+    mutationFn: async (data: FollowUpRequest): Promise<FollowUpResponse> => {
+      const response = await fetch("/api/ai/follow-up", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to generate suggestions");
+      }
+
+      return response.json();
+    },
+    onError: (error) => {
+      addToast({ type: "error", title: "AI suggestion failed", description: error.message });
     },
   });
 }

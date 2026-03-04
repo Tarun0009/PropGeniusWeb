@@ -14,6 +14,9 @@ import {
   useLeadsBySource,
   useListingsByType,
   useLeadsOverTime,
+  usePipelineValue,
+  useSourceROI,
+  useListingPerformance,
 } from "@/hooks/use-analytics";
 
 const ChartSkeleton = () => (
@@ -38,6 +41,18 @@ const ConversionFunnel = dynamic(
   () => import("@/components/analytics/conversion-funnel").then((m) => ({ default: m.ConversionFunnel })),
   { loading: ChartSkeleton }
 );
+const PipelineValueChart = dynamic(
+  () => import("@/components/analytics/pipeline-value-chart").then((m) => ({ default: m.PipelineValueChart })),
+  { loading: ChartSkeleton }
+);
+const SourceROITable = dynamic(
+  () => import("@/components/analytics/source-roi-table").then((m) => ({ default: m.SourceROITable })),
+  { loading: ChartSkeleton }
+);
+const ListingPerformanceCard = dynamic(
+  () => import("@/components/analytics/listing-performance-card").then((m) => ({ default: m.ListingPerformanceCard })),
+  { loading: ChartSkeleton }
+);
 
 const PERIOD_TABS = [
   { value: "7d", label: "7 Days" },
@@ -53,6 +68,9 @@ export default function AnalyticsPage() {
   const { data: sourceData = [], isLoading: sourceLoading } = useLeadsBySource();
   const { data: typeData = [], isLoading: typeLoading } = useListingsByType();
   const { data: timeData = [], isLoading: timeLoading } = useLeadsOverTime(period);
+  const { data: pipelineData = [], isLoading: pipelineLoading } = usePipelineValue();
+  const { data: roiData = [], isLoading: roiLoading } = useSourceROI();
+  const { data: listingPerf, isLoading: perfLoading } = useListingPerformance();
 
   return (
     <div>
@@ -126,6 +144,13 @@ export default function AnalyticsPage() {
         <LeadSourceChart data={sourceData} isLoading={sourceLoading} />
         <ListingsByTypeChart data={typeData} isLoading={typeLoading} />
         <ConversionFunnel data={funnelData} isLoading={funnelLoading} />
+      </div>
+
+      {/* Advanced Analytics */}
+      <div className="mt-6 grid gap-6 lg:grid-cols-2">
+        <PipelineValueChart data={pipelineData} isLoading={pipelineLoading} />
+        <SourceROITable data={roiData} isLoading={roiLoading} />
+        <ListingPerformanceCard data={listingPerf} isLoading={perfLoading} />
       </div>
     </div>
   );

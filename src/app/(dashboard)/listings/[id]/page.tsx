@@ -75,6 +75,32 @@ export default function ListingDetailPage() {
     setTimeout(() => setCopiedField(null), 2000);
   };
 
+  const handleAddPlatform = useCallback(async () => {
+    if (!newPlatform || !listing) return;
+    const platforms = [...(listing.published_platforms || [])];
+    if (!platforms.includes(newPlatform)) platforms.push(newPlatform);
+    const urls = { ...(listing.external_urls || {}) };
+    if (newPlatformUrl.trim()) urls[newPlatform] = newPlatformUrl.trim();
+    await updateMutation.mutateAsync({
+      id,
+      data: { published_platforms: platforms, external_urls: urls } as Record<string, unknown>,
+    });
+    setNewPlatform("");
+    setNewPlatformUrl("");
+    setShowAddPlatform(false);
+  }, [newPlatform, newPlatformUrl, listing, updateMutation, id]);
+
+  const handleRemovePlatform = useCallback(async (platform: string) => {
+    if (!listing) return;
+    const platforms = (listing.published_platforms || []).filter((p) => p !== platform);
+    const urls = { ...(listing.external_urls || {}) };
+    delete urls[platform];
+    await updateMutation.mutateAsync({
+      id,
+      data: { published_platforms: platforms, external_urls: urls } as Record<string, unknown>,
+    });
+  }, [listing, updateMutation, id]);
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-24">
@@ -121,32 +147,6 @@ export default function ListingDetailPage() {
     await updateMutation.mutateAsync({ id, data: { status: newStatus } as Record<string, unknown> });
     setShowStatusModal(false);
   };
-
-  const handleAddPlatform = useCallback(async () => {
-    if (!newPlatform || !listing) return;
-    const platforms = [...(listing.published_platforms || [])];
-    if (!platforms.includes(newPlatform)) platforms.push(newPlatform);
-    const urls = { ...(listing.external_urls || {}) };
-    if (newPlatformUrl.trim()) urls[newPlatform] = newPlatformUrl.trim();
-    await updateMutation.mutateAsync({
-      id,
-      data: { published_platforms: platforms, external_urls: urls } as Record<string, unknown>,
-    });
-    setNewPlatform("");
-    setNewPlatformUrl("");
-    setShowAddPlatform(false);
-  }, [newPlatform, newPlatformUrl, listing, updateMutation, id]);
-
-  const handleRemovePlatform = useCallback(async (platform: string) => {
-    if (!listing) return;
-    const platforms = (listing.published_platforms || []).filter((p) => p !== platform);
-    const urls = { ...(listing.external_urls || {}) };
-    delete urls[platform];
-    await updateMutation.mutateAsync({
-      id,
-      data: { published_platforms: platforms, external_urls: urls } as Record<string, unknown>,
-    });
-  }, [listing, updateMutation, id]);
 
   return (
     <div>

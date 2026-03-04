@@ -18,7 +18,6 @@ import {
   Star,
   Heart,
   Quote,
-  Shield,
   Zap,
   Globe,
 } from "lucide-react";

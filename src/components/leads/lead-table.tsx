@@ -3,8 +3,6 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Trash2, ArrowRight } from "lucide-react";
-import { createColumnHelper } from "@tanstack/react-table";
-import { DataTable } from "@/components/ui/data-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,75 +25,6 @@ const statusVariant: Record<string, "primary" | "purple" | "warning" | "cyan" | 
   converted: "success",
   lost: "danger",
 };
-
-const columnHelper = createColumnHelper<Lead>();
-
-const columns = [
-  columnHelper.accessor("name", {
-    header: "Name",
-    cell: (info) => {
-      const lead = info.row.original;
-      return (
-        <div>
-          <p className="font-medium text-slate-900">{info.getValue()}</p>
-          {lead.phone && (
-            <p className="text-xs text-slate-500">{lead.phone}</p>
-          )}
-        </div>
-      );
-    },
-  }),
-  columnHelper.accessor("source", {
-    header: "Source",
-    cell: (info) => (
-      <span className="text-sm capitalize text-slate-600">
-        {LEAD_SOURCES.find((s) => s.value === info.getValue())?.label || info.getValue()}
-      </span>
-    ),
-  }),
-  columnHelper.accessor("ai_score", {
-    header: "AI Score",
-    cell: (info) => {
-      const score = info.getValue();
-      return score > 0 ? (
-        <LeadScoreBadge score={score} size="sm" />
-      ) : (
-        <span className="text-xs text-slate-400">-</span>
-      );
-    },
-  }),
-  columnHelper.accessor("status", {
-    header: "Status",
-    cell: (info) => {
-      const status = info.getValue();
-      const label = LEAD_STATUSES.find((s) => s.value === status)?.label || status;
-      return (
-        <Badge variant={statusVariant[status] || "default"} size="sm">
-          {label}
-        </Badge>
-      );
-    },
-  }),
-  columnHelper.accessor("next_followup_at", {
-    header: "Next Follow-up",
-    cell: (info) => {
-      const date = info.getValue();
-      if (!date) return <span className="text-xs text-slate-400">-</span>;
-      const isPast = new Date(date) < new Date();
-      return (
-        <span className={isPast ? "text-sm text-danger-600 font-medium" : "text-sm text-slate-600"}>
-          {formatRelativeTime(date)}
-        </span>
-      );
-    },
-  }),
-  columnHelper.accessor("created_at", {
-    header: "Created",
-    cell: (info) => (
-      <span className="text-sm text-slate-500">{formatRelativeTime(info.getValue())}</span>
-    ),
-  }),
-];
 
 interface LeadTableProps {
   data: Lead[];

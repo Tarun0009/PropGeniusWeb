@@ -16,9 +16,6 @@
       "Bash(find \"C:\\\\Users\\\\Tarun\\\\Documents\\\\propgenius\\\\src\\\\app\\\\\\(auth\\)\" -name \"page.tsx\" -type f)",
       "Bash(npx eslint src/components/billing/ src/app/api/billing/ src/lib/razorpay.ts src/hooks/use-billing.ts)",
       "Bash(npx eslint src/components/billing/)",
-<<<<<<< Updated upstream
-      "Bash(npx eslint src/)"
-=======
       "Bash(npx eslint src/)",
       "Bash(npx next build)",
       "Bash(\"/c/Program Files \\(x86\\)/Microsoft/Edge/Application/msedge.exe\" --headless --disable-gpu --print-to-pdf=\"/c/Users/Tarun/Documents/propgenius/PropGenius-User-Guide.pdf\" \"file:///C:/Users/Tarun/Documents/propgenius/PropGenius-User-Guide.html\")",
@@ -31,7 +28,6 @@
     ],
     "additionalDirectories": [
       "c:\\Users\\Tarun\\Documents\\propgenius\\src\\app\\p"
->>>>>>> Stashed changes
     ]
   }
 }

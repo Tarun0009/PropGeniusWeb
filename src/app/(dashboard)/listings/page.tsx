@@ -2,19 +2,17 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Building2 } from "lucide-react";
+import { Building2, Download } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { ListingTable } from "@/components/listings/listing-table";
 import { useListings } from "@/hooks/use-listings";
-<<<<<<< Updated upstream
-=======
 import { useQuota } from "@/hooks/use-quota";
 import { exportToCSV } from "@/lib/export-csv";
->>>>>>> Stashed changes
 import type { ListingFilters } from "@/lib/validations";
+import type { Listing } from "@/types/listing";
 
 export default function ListingsPage() {
   const [filters, setFilters] = useState<ListingFilters>({});
@@ -27,11 +25,6 @@ export default function ListingsPage() {
         title="Listings"
         description="Manage your property listings"
         actions={
-<<<<<<< Updated upstream
-          <Link href="/listings/new">
-            <Button>+ New Listing</Button>
-          </Link>
-=======
           <div className="flex items-center gap-2">
             {listings && listings.length > 0 && (
               <Button
@@ -73,7 +66,6 @@ export default function ListingsPage() {
               </Link>
             )}
           </div>
->>>>>>> Stashed changes
         }
       />
 

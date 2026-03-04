@@ -7,6 +7,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Tabs } from "@/components/ui/tabs";
 import { Spinner } from "@/components/ui/spinner";
 import { StatCard } from "@/components/analytics/stat-card";
+import { AIInsights } from "@/components/analytics/ai-insights";
 import {
   useDashboardStats,
   useLeadsByStatus,
@@ -125,6 +126,16 @@ export default function AnalyticsPage() {
             />
           </>
         )}
+      </div>
+
+      {/* AI Insights */}
+      <div className="mt-6">
+        <AIInsights
+          stats={stats}
+          sourceData={sourceData}
+          funnelData={funnelData}
+          isLoading={statsLoading || sourceLoading || funnelLoading}
+        />
       </div>
 
       {/* Charts Grid */}

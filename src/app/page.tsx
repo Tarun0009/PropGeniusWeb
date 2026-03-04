@@ -72,17 +72,10 @@ const AI_FEATURES = [
     accent: "bg-primary-50 text-primary-600",
   },
   {
-<<<<<<< Updated upstream
     icon: Users,
     title: "Smart CRM",
     description:
-      "Manage leads with AI scoring, Kanban board, activity timeline, and CSV import. Never miss a follow-up.",
-=======
-    icon: Brain,
-    title: "AI Lead Scoring",
-    description: "Every lead gets an intelligence score from 0-100 based on budget match, engagement history, source quality, and responsiveness. Focus on leads that convert.",
-    accent: "bg-info-50 text-info-600",
->>>>>>> Stashed changes
+      "Manage leads with AI scoring, pipeline view, activity timeline, and CSV import. Never miss a follow-up.",
   },
   {
     icon: MessageSquareText,

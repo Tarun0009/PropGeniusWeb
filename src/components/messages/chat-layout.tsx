@@ -27,8 +27,8 @@ function ChatLayout() {
     <div className="flex overflow-hidden rounded-lg border border-slate-200 bg-white" style={{ height: "calc(100vh - 200px)" }}>
       {/* Left Panel — Conversation List */}
       <div
-        className={`w-80 shrink-0 border-r border-slate-200 ${
-          activeLeadId ? "hidden lg:flex lg:flex-col" : "flex flex-col"
+        className={`w-full sm:w-80 shrink-0 border-r border-slate-200 ${
+          activeLeadId ? "hidden md:flex md:flex-col" : "flex flex-col"
         }`}
       >
         <ConversationList
@@ -42,13 +42,13 @@ function ChatLayout() {
       {/* Right Panel — Chat Window */}
       <div
         className={`flex-1 ${
-          activeLeadId ? "flex flex-col" : "hidden lg:flex lg:flex-col"
+          activeLeadId ? "flex flex-col" : "hidden md:flex md:flex-col"
         }`}
       >
         {activeLead ? (
           <>
             {/* Mobile back button */}
-            <div className="border-b border-slate-200 p-2 lg:hidden">
+            <div className="border-b border-slate-200 p-2 md:hidden">
               <Button
                 variant="ghost"
                 size="sm"

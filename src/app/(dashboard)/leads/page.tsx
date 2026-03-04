@@ -3,11 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-<<<<<<< Updated upstream
-import { Users, Upload } from "lucide-react";
-=======
 import { Users, Upload, Download, Sparkles } from "lucide-react";
->>>>>>> Stashed changes
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Button } from "@/components/ui/button";
@@ -15,15 +11,12 @@ import { Tabs } from "@/components/ui/tabs";
 import { Spinner } from "@/components/ui/spinner";
 import { LeadTable } from "@/components/leads/lead-table";
 import { CSVImportModal } from "@/components/leads/csv-import-modal";
-<<<<<<< Updated upstream
-import { useLeads } from "@/hooks/use-leads";
-=======
 import { useLeads, useScoreLead, useUpdateLead } from "@/hooks/use-leads";
 import { useQuota } from "@/hooks/use-quota";
 import { useNotificationStore } from "@/stores/notification-store";
 import { exportToCSV } from "@/lib/export-csv";
->>>>>>> Stashed changes
 import type { LeadFilters } from "@/lib/validations";
+import type { Lead } from "@/types/lead";
 
 const LeadKanban = dynamic(
   () => import("@/components/leads/lead-kanban").then((m) => ({ default: m.LeadKanban })),
@@ -38,7 +31,7 @@ const LeadKanban = dynamic(
 
 const VIEW_TABS = [
   { value: "table", label: "Table" },
-  { value: "kanban", label: "Kanban" },
+  { value: "kanban", label: "Pipeline" },
 ];
 
 export default function LeadsPage() {
@@ -100,8 +93,6 @@ export default function LeadsPage() {
         description="Manage and track your leads"
         actions={
           <div className="flex items-center gap-2">
-<<<<<<< Updated upstream
-=======
             {leads && leads.length > 0 && (
               <Button
                 variant="outline"
@@ -143,7 +134,6 @@ export default function LeadsPage() {
                   : `AI Score (${unscoredLeads.length})`}
               </Button>
             )}
->>>>>>> Stashed changes
             <Button variant="outline" size="sm" onClick={() => setShowImport(true)}>
               <Upload className="mr-1.5 h-3.5 w-3.5" />
               Import CSV

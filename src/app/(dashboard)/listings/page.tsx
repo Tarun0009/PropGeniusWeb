@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Building2, Download } from "lucide-react";
+import { Landmark, Download, Plus } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { ListingTable } from "@/components/listings/listing-table";
 import { useListings } from "@/hooks/use-listings";
 import { useQuota } from "@/hooks/use-quota";
+import { useTeamMemberLookup } from "@/hooks/use-team-lookup";
 import { exportToCSV } from "@/lib/export-csv";
 import type { ListingFilters } from "@/lib/validations";
 import type { Listing } from "@/types/listing";
@@ -18,6 +19,7 @@ export default function ListingsPage() {
   const [filters, setFilters] = useState<ListingFilters>({});
   const { data: listings, isLoading } = useListings(filters);
   const { data: quota } = useQuota();
+  const memberLookup = useTeamMemberLookup();
 
   return (
     <div>
@@ -62,7 +64,7 @@ export default function ListingsPage() {
               </Link>
             ) : (
               <Link href="/listings/new">
-                <Button size="sm">+ New Listing</Button>
+                <Button size="sm"><Plus className="mr-1.5 h-3.5 w-3.5" />New Listing</Button>
               </Link>
             )}
           </div>
@@ -79,11 +81,12 @@ export default function ListingsPage() {
             data={listings}
             filters={filters}
             onFiltersChange={setFilters}
+            memberLookup={memberLookup}
           />
         ) : (
           <div className="mt-6">
             <EmptyState
-              icon={Building2}
+              icon={Landmark}
               title="No listings yet"
               description="Create your first AI-powered property listing to get started."
               action={

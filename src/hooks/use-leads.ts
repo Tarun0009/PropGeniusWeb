@@ -25,6 +25,7 @@ export function useLeads(filters?: LeadFilters) {
 
       if (filters?.status) query = query.eq("status", filters.status);
       if (filters?.source) query = query.eq("source", filters.source);
+      if (filters?.assigned_to) query = query.eq("assigned_to", filters.assigned_to);
       if (filters?.search) query = query.or(`name.ilike.%${filters.search}%,phone.ilike.%${filters.search}%,email.ilike.%${filters.search}%`);
 
       const { data, error } = await query;

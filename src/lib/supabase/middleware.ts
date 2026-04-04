@@ -33,13 +33,6 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Logged-in user visiting landing page → redirect to dashboard
-  if (user && request.nextUrl.pathname === "/") {
-    const url = request.nextUrl.clone();
-    url.pathname = "/dashboard";
-    return NextResponse.redirect(url);
-  }
-
   // Auth routes — redirect to dashboard if already logged in
   const authRoutes = ["/login", "/signup", "/forgot-password"];
   if (user && authRoutes.some((route) => request.nextUrl.pathname.startsWith(route))) {

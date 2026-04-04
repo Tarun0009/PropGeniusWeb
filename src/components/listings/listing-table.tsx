@@ -1,17 +1,19 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { createColumnHelper } from "@tanstack/react-table";
+import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
 import { Building2, Home, Building, Landmark, Store, Users } from "lucide-react";
 import { DataTable } from "@/components/ui/data-table";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
+import { Avatar } from "@/components/ui/avatar";
 import { formatPrice, formatRelativeTime } from "@/lib/utils";
 import { PROPERTY_TYPES, LISTING_STATUSES } from "@/lib/constants";
 import type { Listing } from "@/types/listing";
 import type { ListingFilters } from "@/lib/validations";
+import type { MemberLookup } from "@/hooks/use-team-lookup";
 
 const statusVariant: Record<string, "default" | "success" | "primary" | "purple" | "warning"> = {
   draft: "default",
@@ -32,73 +34,103 @@ const propertyIcons: Record<string, React.ElementType> = {
 
 const columnHelper = createColumnHelper<Listing>();
 
-const columns = [
-  columnHelper.accessor("title", {
-    header: "Property",
-    cell: (info) => {
-      const listing = info.row.original;
-      const Icon = propertyIcons[listing.property_type] || Building2;
-      return (
-        <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100">
-            <Icon className="h-4 w-4 text-slate-500" />
+function getColumns(memberLookup?: MemberLookup) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const cols: ColumnDef<Listing, any>[] = [
+    columnHelper.accessor("title", {
+      header: "Property",
+      cell: (info) => {
+        const listing = info.row.original;
+        const Icon = propertyIcons[listing.property_type] || Building2;
+        return (
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100">
+              <Icon className="h-4 w-4 text-slate-500" />
+            </div>
+            <div className="min-w-0">
+              <p className="truncate font-medium text-slate-900">{info.getValue()}</p>
+              <p className="truncate text-xs text-slate-500 capitalize">{listing.property_type} &middot; {listing.transaction_type}</p>
+            </div>
           </div>
-          <div className="min-w-0">
-            <p className="truncate font-medium text-slate-900">{info.getValue()}</p>
-            <p className="truncate text-xs text-slate-500 capitalize">{listing.property_type} &middot; {listing.transaction_type}</p>
-          </div>
-        </div>
-      );
-    },
-  }),
-  columnHelper.accessor("price", {
-    header: "Price",
-    cell: (info) => (
-      <span className="font-medium text-slate-900">{formatPrice(info.getValue())}</span>
-    ),
-  }),
-  columnHelper.accessor("city", {
-    header: "Location",
-    cell: (info) => (
-      <span className="text-slate-600">{info.getValue()}</span>
-    ),
-  }),
-  columnHelper.accessor("status", {
-    header: "Status",
-    cell: (info) => {
-      const status = info.getValue();
-      return (
-        <Badge variant={statusVariant[status] || "default"} size="sm">
-          {status.charAt(0).toUpperCase() + status.slice(1)}
-        </Badge>
-      );
-    },
-  }),
-  columnHelper.accessor("views_count", {
-    header: "Views",
-    cell: (info) => <span className="text-slate-600">{info.getValue()}</span>,
-  }),
-  columnHelper.accessor("inquiries_count", {
-    header: "Inquiries",
-    cell: (info) => <span className="text-slate-600">{info.getValue()}</span>,
-  }),
-  columnHelper.accessor("created_at", {
-    header: "Created",
-    cell: (info) => (
-      <span className="text-slate-500">{formatRelativeTime(info.getValue())}</span>
-    ),
-  }),
-];
+        );
+      },
+    }),
+    columnHelper.accessor("price", {
+      header: "Price",
+      cell: (info) => (
+        <span className="font-medium text-slate-900">{formatPrice(info.getValue())}</span>
+      ),
+    }),
+    columnHelper.accessor("city", {
+      header: "Location",
+      cell: (info) => (
+        <span className="text-slate-600">{info.getValue()}</span>
+      ),
+    }),
+    columnHelper.accessor("status", {
+      header: "Status",
+      cell: (info) => {
+        const status = info.getValue();
+        return (
+          <Badge variant={statusVariant[status] || "default"} size="sm">
+            {status.charAt(0).toUpperCase() + status.slice(1)}
+          </Badge>
+        );
+      },
+    }),
+    columnHelper.accessor("views_count", {
+      header: "Views",
+      cell: (info) => <span className="text-slate-600">{info.getValue()}</span>,
+    }),
+    columnHelper.accessor("inquiries_count", {
+      header: "Inquiries",
+      cell: (info) => <span className="text-slate-600">{info.getValue()}</span>,
+    }),
+  ];
+
+  // "Created By" column for multi-member orgs
+  if (memberLookup && memberLookup.size > 1) {
+    cols.push(
+      columnHelper.accessor("created_by", {
+        header: "Created By",
+        cell: (info) => {
+          const member = memberLookup.get(info.getValue());
+          if (!member) return <span className="text-xs text-slate-400">-</span>;
+          return (
+            <div className="flex items-center gap-2">
+              <Avatar name={member.name} src={member.avatar_url} size="sm" className="h-6 w-6 text-[10px]" />
+              <span className="text-sm text-slate-600 truncate max-w-[120px]">{member.name}</span>
+            </div>
+          );
+        },
+      })
+    );
+  }
+
+  cols.push(
+    columnHelper.accessor("created_at", {
+      header: "Created",
+      cell: (info) => (
+        <span className="text-slate-500">{formatRelativeTime(info.getValue())}</span>
+      ),
+    })
+  );
+
+  return cols;
+}
 
 interface ListingTableProps {
   data: Listing[];
   filters: ListingFilters;
   onFiltersChange: (filters: ListingFilters) => void;
+  memberLookup?: MemberLookup;
 }
 
-function ListingTable({ data, filters, onFiltersChange }: ListingTableProps) {
+function ListingTable({ data, filters, onFiltersChange, memberLookup }: ListingTableProps) {
   const router = useRouter();
   const [search, setSearch] = useState(filters.search || "");
+  const showAgentFilter = memberLookup && memberLookup.size > 1;
+  const columns = useMemo(() => getColumns(memberLookup), [memberLookup]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -140,6 +172,26 @@ function ListingTable({ data, filters, onFiltersChange }: ListingTableProps) {
             }
           />
         </div>
+        {showAgentFilter && (
+          <div className="w-40">
+            <Select
+              options={[
+                { value: "", label: "All Agents" },
+                ...Array.from(memberLookup.entries()).map(([id, m]) => ({
+                  value: id,
+                  label: m.name,
+                })),
+              ]}
+              value={filters.created_by || ""}
+              onChange={(e) =>
+                onFiltersChange({
+                  ...filters,
+                  created_by: e.target.value || undefined,
+                })
+              }
+            />
+          </div>
+        )}
       </div>
 
       {/* Table */}

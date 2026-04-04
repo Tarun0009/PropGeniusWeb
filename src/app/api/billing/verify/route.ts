@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { verifyPaymentSchema } from "@/lib/validations";
 import { verifyRazorpayPayment } from "@/lib/razorpay";
-import { SUBSCRIPTION_PLANS } from "@/lib/constants";
+import { SUBSCRIPTION_PLANS, PLAN_LIMITS } from "@/lib/constants";
 
 export async function POST(request: NextRequest) {
   try {
@@ -85,9 +85,9 @@ export async function POST(request: NextRequest) {
       .update({
         plan,
         razorpay_subscription_id: parsed.data.razorpay_subscription_id,
-        max_listings: planConfig?.limits.maxListings ?? 5,
-        max_leads: planConfig?.limits.maxLeads ?? 50,
-        max_agents: planConfig?.limits.maxAgents ?? 1,
+        max_listings: PLAN_LIMITS[plan as keyof typeof PLAN_LIMITS]?.maxListings ?? PLAN_LIMITS.free.maxListings,
+        max_leads: PLAN_LIMITS[plan as keyof typeof PLAN_LIMITS]?.maxLeads ?? PLAN_LIMITS.free.maxLeads,
+        max_agents: PLAN_LIMITS[plan as keyof typeof PLAN_LIMITS]?.maxAgents ?? PLAN_LIMITS.free.maxAgents,
         updated_at: now.toISOString(),
       })
       .eq("id", profile.organization_id);

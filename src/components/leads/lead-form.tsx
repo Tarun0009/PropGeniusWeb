@@ -4,12 +4,15 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { Avatar } from "@/components/ui/avatar";
 import { useCreateLead, useUpdateLead } from "@/hooks/use-leads";
+import { useTeamMembers } from "@/hooks/use-team";
+import { useAuthStore } from "@/stores/auth-store";
 import { createClient } from "@/lib/supabase/client";
 import { leadFormSchema, type LeadFormData } from "@/lib/validations";
 import { LEAD_STATUSES, LEAD_SOURCES, PROPERTY_TYPES } from "@/lib/constants";
@@ -26,6 +29,10 @@ function LeadForm({ lead }: LeadFormProps) {
   const isEditing = !!lead;
   const [duplicateWarning, setDuplicateWarning] = useState<string | null>(null);
   const [skipDuplicateCheck, setSkipDuplicateCheck] = useState(false);
+
+  const profile = useAuthStore((s) => s.profile);
+  const { data: teamMembers = [] } = useTeamMembers();
+  const showAssignment = teamMembers.length > 1;
 
   const {
     register,
@@ -45,6 +52,7 @@ function LeadForm({ lead }: LeadFormProps) {
       preferred_location: lead?.preferred_location || "",
       preferred_property_type: lead?.preferred_property_type || "",
       status: lead?.status || "new",
+      assigned_to: lead?.assigned_to || profile?.id || "",
       notes: lead?.notes || "",
       tags: lead?.tags || [],
       next_followup_at: lead?.next_followup_at?.slice(0, 16) || "",
@@ -74,7 +82,6 @@ function LeadForm({ lead }: LeadFormProps) {
   };
 
   const onSubmit = async (data: LeadFormData) => {
-    // Check for duplicates (only on create or if not skipped)
     if (!isEditing && !skipDuplicateCheck) {
       const warning = await checkDuplicate(data);
       if (warning) {
@@ -86,7 +93,6 @@ function LeadForm({ lead }: LeadFormProps) {
     setDuplicateWarning(null);
     setSkipDuplicateCheck(false);
 
-    // Clean empty strings to null for optional fields
     const cleaned = {
       ...data,
       email: data.email || undefined,
@@ -94,6 +100,7 @@ function LeadForm({ lead }: LeadFormProps) {
       whatsapp_number: data.whatsapp_number || undefined,
       preferred_location: data.preferred_location || undefined,
       preferred_property_type: data.preferred_property_type || undefined,
+      assigned_to: data.assigned_to || undefined,
       notes: data.notes || undefined,
       next_followup_at: data.next_followup_at || undefined,
       followup_notes: data.followup_notes || undefined,
@@ -116,12 +123,15 @@ function LeadForm({ lead }: LeadFormProps) {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {/* Contact Information */}
       <div className="rounded-lg border border-slate-200 bg-white p-6">
-        <h2 className="mb-4 text-lg font-semibold text-slate-900">
-          Contact Information
-        </h2>
+        <div className="mb-4 flex items-center gap-2">
+          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary-50">
+            <User className="h-4 w-4 text-primary-600" />
+          </div>
+          <h2 className="text-base font-semibold text-slate-900">Contact Information</h2>
+        </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <Input
-            label="Full Name"
+            label="Full Name *"
             placeholder="e.g. Rajesh Kumar"
             error={errors.name?.message}
             {...register("name")}
@@ -148,18 +158,16 @@ function LeadForm({ lead }: LeadFormProps) {
 
       {/* Lead Details */}
       <div className="rounded-lg border border-slate-200 bg-white p-6">
-        <h2 className="mb-4 text-lg font-semibold text-slate-900">
-          Lead Details
-        </h2>
+        <h2 className="mb-4 text-base font-semibold text-slate-900">Lead Details</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           <Select
-            label="Source"
+            label="Source *"
             options={LEAD_SOURCES.map((s) => ({ value: s.value, label: s.label }))}
             error={errors.source?.message}
             {...register("source")}
           />
           <Select
-            label="Status"
+            label="Status *"
             options={LEAD_STATUSES.map((s) => ({ value: s.value, label: s.label }))}
             error={errors.status?.message}
             {...register("status")}
@@ -189,14 +197,51 @@ function LeadForm({ lead }: LeadFormProps) {
             ]}
             {...register("preferred_property_type")}
           />
+          {showAssignment && (
+            <div className="sm:col-span-2">
+              <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                Assign To
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {teamMembers.map((member) => {
+                  const isSelected = false; // handled by register
+                  return (
+                    <label
+                      key={member.id}
+                      className="flex cursor-pointer items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 transition-colors has-checked:border-primary-400 has-checked:bg-primary-50"
+                    >
+                      <input
+                        type="radio"
+                        value={member.id}
+                        {...register("assigned_to")}
+                        className="sr-only"
+                      />
+                      <Avatar name={member.full_name} src={member.avatar_url} size="sm" className="h-6 w-6 text-[10px]" />
+                      <span className="text-sm text-slate-700">{member.full_name}</span>
+                      {member.id === profile?.id && (
+                        <span className="text-[10px] text-slate-400">(you)</span>
+                      )}
+                    </label>
+                  );
+                })}
+                <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 transition-colors has-checked:border-slate-400 has-checked:bg-slate-50">
+                  <input
+                    type="radio"
+                    value=""
+                    {...register("assigned_to")}
+                    className="sr-only"
+                  />
+                  <span className="text-sm text-slate-500">Unassigned</span>
+                </label>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
       {/* Follow-up */}
       <div className="rounded-lg border border-slate-200 bg-white p-6">
-        <h2 className="mb-4 text-lg font-semibold text-slate-900">
-          Follow-up & Notes
-        </h2>
+        <h2 className="mb-4 text-base font-semibold text-slate-900">Follow-up & Notes</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           <Input
             label="Next Follow-up"

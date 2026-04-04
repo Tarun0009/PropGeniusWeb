@@ -24,10 +24,17 @@
       "Bash(\"/c/Program Files \\(x86\\)/Microsoft/Edge/Application/msedge.exe\" --headless --disable-gpu --print-to-pdf=\"PropGenius-Pending-Items.pdf\" --no-margins \"file:///C:/Users/Tarun/Documents/propgenius/PropGenius-Pending-Items.html\")",
       "Bash(\"/c/Program Files \\(x86\\)/Microsoft/Edge/Application/msedge.exe\" --headless --disable-gpu --print-to-pdf=\"C:/Users/Tarun/Documents/propgenius/PropGenius-Pending-Items.pdf\" --no-margins \"file:///C:/Users/Tarun/Documents/propgenius/PropGenius-Pending-Items.html\")",
       "Bash(ls -la /c/Users/Tarun/Documents/propgenius/*.md)",
-      "Bash(timeout 8 npm run dev)"
+      "Bash(timeout 8 npm run dev)",
+      "Bash(npm run lint)",
+      "Bash(pandoc --version)",
+      "Bash(npx md-to-pdf --version)",
+      "Read(//c/Program Files/Google/Chrome/Application/**)",
+      "Bash(ls -la /c/Users/Tarun/Documents/propgenius/src/app/\\\\\\(dashboard\\\\\\)/listings/)",
+      "Read(//c/Users/Tarun/.claude/plans/**)"
     ],
     "additionalDirectories": [
-      "c:\\Users\\Tarun\\Documents\\propgenius\\src\\app\\p"
+      "c:\\Users\\Tarun\\Documents\\propgenius\\src\\app\\p",
+      "c:\\Users\\Tarun\\.claude\\plans"
     ]
   }
 }

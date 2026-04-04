@@ -1,4 +1,4 @@
-export type Plan = "free" | "pro" | "business" | "enterprise";
+export type Plan = "free" | "pro" | "business";
 export type UserRole = "owner" | "admin" | "agent";
 
 export interface Organization {

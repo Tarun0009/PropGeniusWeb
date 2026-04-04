@@ -43,7 +43,7 @@ function Modal({ isOpen, onClose, title, children, size = "md" }: ModalProps) {
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/50 transition-opacity"
+        className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
         onClick={onClose}
         aria-hidden="true"
       />
@@ -54,7 +54,7 @@ function Modal({ isOpen, onClose, title, children, size = "md" }: ModalProps) {
         aria-modal="true"
         aria-labelledby={title ? "modal-title" : undefined}
         className={cn(
-          "relative z-10 w-full rounded-lg border border-slate-200 bg-white shadow-lg",
+          "relative z-10 w-full rounded-2xl border border-slate-200/60 bg-white shadow-2xl",
           "mx-4 max-h-[85vh] overflow-y-auto",
           sizeStyles[size]
         )}

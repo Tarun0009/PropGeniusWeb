@@ -56,7 +56,7 @@ export function useQuota() {
         agents: {
           current: agentCount,
           max: limits.maxAgents,
-          canAdd: limits.maxAgents === -1 || agentCount < limits.maxAgents,
+          canAdd: (limits.maxAgents as number) === -1 || agentCount < limits.maxAgents,
         },
         plan,
       };

@@ -1,45 +1,49 @@
 @import "tailwindcss";
 
 @theme {
-  /* Primary Colors */
-  --color-primary-50: #EFF6FF;
-  --color-primary-100: #DBEAFE;
-  --color-primary-200: #BFDBFE;
-  --color-primary-300: #93C5FD;
-  --color-primary-400: #60A5FA;
-  --color-primary-500: #3B82F6;
-  --color-primary-600: #2563EB;
-  --color-primary-700: #1D4ED8;
-  --color-primary-800: #1E40AF;
-  --color-primary-900: #1E3A8A;
+  /* Primary — Violet (premium, AI-forward, unique in Indian RE market) */
+  --color-primary-50: #F5F3FF;
+  --color-primary-100: #EDE9FE;
+  --color-primary-200: #DDD6FE;
+  --color-primary-300: #C4B5FD;
+  --color-primary-400: #A78BFA;
+  --color-primary-500: #8B5CF6;
+  --color-primary-600: #7C3AED;
+  --color-primary-700: #6D28D9;
+  --color-primary-800: #5B21B6;
+  --color-primary-900: #4C1D95;
 
-  /* Success */
+  /* Success — Emerald */
   --color-success-50: #ECFDF5;
   --color-success-100: #D1FAE5;
+  --color-success-200: #A7F3D0;
   --color-success-500: #10B981;
   --color-success-600: #059669;
   --color-success-700: #047857;
 
-  /* Warning */
+  /* Warning — Amber */
   --color-warning-50: #FFFBEB;
   --color-warning-100: #FEF3C7;
+  --color-warning-200: #FDE68A;
   --color-warning-500: #F59E0B;
   --color-warning-600: #D97706;
   --color-warning-700: #B45309;
 
-  /* Danger */
-  --color-danger-50: #FEF2F2;
-  --color-danger-100: #FEE2E2;
-  --color-danger-500: #EF4444;
-  --color-danger-600: #DC2626;
-  --color-danger-700: #B91C1C;
+  /* Danger — Rose */
+  --color-danger-50: #FFF1F2;
+  --color-danger-100: #FFE4E6;
+  --color-danger-200: #FECDD3;
+  --color-danger-500: #F43F5E;
+  --color-danger-600: #E11D48;
+  --color-danger-700: #BE123C;
 
-  /* Info */
-  --color-info-50: #EEF2FF;
-  --color-info-100: #E0E7FF;
-  --color-info-500: #6366F1;
-  --color-info-600: #4F46E5;
-  --color-info-700: #4338CA;
+  /* Info — Sky */
+  --color-info-50: #F0F9FF;
+  --color-info-100: #E0F2FE;
+  --color-info-200: #BAE6FD;
+  --color-info-500: #0EA5E9;
+  --color-info-600: #0284C7;
+  --color-info-700: #0369A1;
 
   /* Layout */
   --sidebar-width: 256px;
@@ -55,34 +59,41 @@
   body {
     @apply bg-white text-slate-700 antialiased;
     font-family: var(--font-sans);
+    font-size: 15px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   h1 {
-    @apply text-3xl font-bold text-slate-900 leading-tight;
+    @apply text-3xl font-bold text-slate-900 leading-tight tracking-tight;
   }
   h2 {
-    @apply text-2xl font-semibold text-slate-900 leading-snug;
+    @apply text-2xl font-semibold text-slate-900 leading-snug tracking-tight;
   }
   h3 {
-    @apply text-xl font-semibold text-slate-900;
+    @apply text-xl font-semibold text-slate-900 tracking-tight;
   }
   h4 {
     @apply text-base font-semibold text-slate-900;
+  }
+
+  ::selection {
+    @apply bg-primary-100 text-primary-900;
   }
 }
 
 /* Custom scrollbar */
 @layer base {
   ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 5px;
+    height: 5px;
   }
   ::-webkit-scrollbar-track {
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
     background: #CBD5E1;
-    border-radius: 3px;
+    border-radius: 100px;
   }
   ::-webkit-scrollbar-thumb:hover {
     background: #94A3B8;
@@ -92,7 +103,7 @@
 /* Focus ring utility */
 @layer utilities {
   .focus-ring {
-    @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+    @apply focus:outline-none focus:ring-2 focus:ring-primary-500/40 focus:ring-offset-2;
   }
 }
 
@@ -169,13 +180,45 @@
     -webkit-text-fill-color: transparent;
   }
 
+  /* Dot grid background */
+  .bg-grid-dots {
+    background-image: radial-gradient(circle, rgba(0, 0, 0, 0.035) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+  .bg-grid-dots-light {
+    background-image: radial-gradient(circle, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+
+  /* Shine sweep for premium buttons */
+  @keyframes shine {
+    0%   { left: -75%; }
+    100% { left: 125%; }
+  }
+  .btn-shine {
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-shine::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -75%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+    transform: skewX(-20deg);
+    animation: shine 4s ease-in-out infinite;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .animate-fade-in-up,
     .animate-float,
     .animate-pulse-glow,
     .animate-count-up,
     .animate-slide-left,
-    .animate-gradient-text {
+    .animate-gradient-text,
+    .btn-shine::after {
       animation: none !important;
     }
   }

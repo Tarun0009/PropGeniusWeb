@@ -8,11 +8,13 @@ import { SUBSCRIPTION_PLANS } from "@/lib/constants";
 
 function PricingSection() {
   const [isAnnual, setIsAnnual] = useState(false);
+  const [currency, setCurrency] = useState<"inr" | "usd">("inr");
 
   return (
     <div>
-      {/* Toggle */}
-      <div className="flex items-center justify-center gap-3">
+      {/* Toggle row */}
+      <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center sm:gap-6">
+        {/* Billing cycle */}
         <div className="inline-flex items-center rounded-full bg-slate-100 p-1">
           <button
             onClick={() => setIsAnnual(false)}
@@ -31,19 +33,59 @@ function PricingSection() {
             Annual
           </button>
         </div>
+
         {isAnnual && (
-          <Badge variant="success" size="sm">Save 20%</Badge>
+          <Badge variant="success" size="sm">
+            Save 20%
+          </Badge>
         )}
+
+        {/* Currency toggle */}
+        <div className="inline-flex items-center rounded-full bg-slate-100 p-1">
+          <button
+            onClick={() => setCurrency("inr")}
+            className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+              currency === "inr"
+                ? "bg-white text-slate-900 shadow-sm"
+                : "text-slate-500"
+            }`}
+          >
+            ₹ INR
+          </button>
+          <button
+            onClick={() => setCurrency("usd")}
+            className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+              currency === "usd"
+                ? "bg-white text-slate-900 shadow-sm"
+                : "text-slate-500"
+            }`}
+          >
+            $ USD
+          </button>
+        </div>
       </div>
 
-      {/* Plan Cards */}
-      <div className="mx-auto mt-12 grid max-w-6xl gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      {/* Plan cards */}
+      <div className="mx-auto mt-12 grid max-w-5xl gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {SUBSCRIPTION_PLANS.map((plan) => {
           const isPopular = "popular" in plan && plan.popular;
-          const isEnterprise = plan.price_monthly === -1;
-          const monthlyPrice = isAnnual
-            ? Math.round(plan.price_annual / 12)
-            : plan.price_monthly;
+          const isFree = plan.price_monthly === 0;
+
+          const monthlyPrice =
+            currency === "inr"
+              ? isAnnual
+                ? Math.round(plan.price_annual / 12)
+                : plan.price_monthly
+              : isAnnual
+                ? Math.round(plan.price_usd_annual / 12)
+                : plan.price_usd_monthly;
+
+          const symbol = currency === "inr" ? "₹" : "$";
+
+          const originalMonthly =
+            currency === "inr"
+              ? plan.price_monthly
+              : plan.price_usd_monthly;
 
           return (
             <div
@@ -62,26 +104,35 @@ function PricingSection() {
                 </div>
               )}
 
-              <h3 className="text-lg font-semibold text-slate-900">{plan.name}</h3>
+              <h3 className="text-lg font-semibold text-slate-900">
+                {plan.name}
+              </h3>
               <p className="mt-1 text-sm text-slate-500">{plan.description}</p>
 
               <div className="mt-6">
-                {isEnterprise ? (
-                  <p className="text-3xl font-extrabold text-slate-900">Custom</p>
-                ) : monthlyPrice === 0 ? (
-                  <p className="text-3xl font-extrabold text-slate-900">
-                    Free
-                  </p>
+                {isFree ? (
+                  <p className="text-3xl font-extrabold text-slate-900">Free</p>
                 ) : (
                   <div>
                     <p className="text-3xl font-extrabold text-slate-900">
-                      ₹{monthlyPrice.toLocaleString("en-IN")}
-                      <span className="text-base font-normal text-slate-500">/mo</span>
+                      {symbol}
+                      {monthlyPrice.toLocaleString(
+                        currency === "inr" ? "en-IN" : "en-US"
+                      )}
+                      <span className="text-base font-normal text-slate-500">
+                        /mo
+                      </span>
                     </p>
                     {isAnnual && (
                       <p className="mt-1 text-xs text-slate-400">
-                        <span className="line-through">₹{plan.price_monthly.toLocaleString("en-IN")}/mo</span>
-                        {" "}billed annually
+                        <span className="line-through">
+                          {symbol}
+                          {originalMonthly.toLocaleString(
+                            currency === "inr" ? "en-IN" : "en-US"
+                          )}
+                          /mo
+                        </span>{" "}
+                        billed annually
                       </p>
                     )}
                   </div>
@@ -99,18 +150,14 @@ function PricingSection() {
 
               <div className="mt-8">
                 <Link
-                  href={isEnterprise ? "#" : "/signup"}
+                  href="/signup"
                   className={`block w-full rounded-xl px-4 py-3 text-center text-sm font-semibold transition-colors ${
                     isPopular
                       ? "bg-primary-600 text-white hover:bg-primary-700 shadow-lg shadow-primary-600/25"
                       : "border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 hover:border-slate-400"
                   }`}
                 >
-                  {isEnterprise
-                    ? "Contact Sales"
-                    : monthlyPrice === 0
-                      ? "Get Started Free"
-                      : `Start with ${plan.name}`}
+                  {isFree ? "Get Started Free" : `Start with ${plan.name}`}
                 </Link>
               </div>
             </div>

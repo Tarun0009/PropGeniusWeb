@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PropGenius AI — Feature Roadmap & Implementation Plan</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #1e1b2e;
+    background: #fff;
+  }
+
+  /* ── Cover Page ── */
+  .cover {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0F0B1E 0%, #1e1060 50%, #2d1b69 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 60px 40px;
+    page-break-after: always;
+    position: relative;
+    overflow: hidden;
+  }
+  .cover::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% 40%, rgba(124,58,237,0.35) 0%, transparent 70%);
+  }
+  .cover-content { position: relative; z-index: 1; }
+  .cover-badge {
+    display: inline-block;
+    background: rgba(124,58,237,0.3);
+    border: 1px solid rgba(139,92,246,0.5);
+    color: #c4b5fd;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 6px 18px;
+    border-radius: 100px;
+    margin-bottom: 28px;
+  }
+  .cover h1 {
+    font-size: 48px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    margin-bottom: 16px;
+  }
+  .cover h1 span { color: #a78bfa; }
+  .cover-sub {
+    font-size: 18px;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 48px;
+    font-weight: 400;
+  }
+  .cover-stats {
+    display: flex;
+    gap: 48px;
+    justify-content: center;
+    margin-bottom: 56px;
+  }
+  .cover-stat-num {
+    font-size: 36px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.02em;
+  }
+  .cover-stat-label {
+    font-size: 12px;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-top: 4px;
+  }
+  .cover-meta {
+    font-size: 12px;
+    color: rgba(255,255,255,0.35);
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: 24px;
+    width: 100%;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  /* ── Page Layout ── */
+  .page {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 48px 48px;
+  }
+
+  .page-break { page-break-before: always; }
+
+  /* ── Section Headers ── */
+  .section-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #7c3aed;
+    margin-bottom: 8px;
+  }
+  .section-title {
+    font-size: 26px;
+    font-weight: 800;
+    color: #1e1b2e;
+    letter-spacing: -0.02em;
+    margin-bottom: 6px;
+  }
+  .section-desc {
+    font-size: 13px;
+    color: #64748b;
+    margin-bottom: 28px;
+    line-height: 1.6;
+  }
+  .divider {
+    height: 1px;
+    background: #e2e8f0;
+    margin: 32px 0;
+  }
+
+  /* ── Priority Banner ── */
+  .priority-banner {
+    background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+    border-radius: 14px;
+    padding: 28px 32px;
+    margin-bottom: 32px;
+    color: #fff;
+  }
+  .priority-banner h2 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .priority-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+  .priority-item:last-child { margin-bottom: 0; }
+  .priority-num {
+    width: 26px;
+    height: 26px;
+    min-width: 26px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    margin-top: 1px;
+  }
+  .priority-text strong {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .priority-text span {
+    font-size: 12px;
+    color: rgba(255,255,255,0.7);
+    line-height: 1.4;
+  }
+
+  /* ── Feature Cards ── */
+  .category-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    margin-top: 28px;
+  }
+  .category-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+  .category-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1e1b2e;
+  }
+  .category-count {
+    font-size: 11px;
+    color: #94a3b8;
+    font-weight: 500;
+  }
+
+  .feature-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .feature-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 16px;
+    background: #fafafa;
+    break-inside: avoid;
+  }
+  .feature-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    gap: 8px;
+  }
+  .feature-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1e1b2e;
+    line-height: 1.3;
+  }
+  .feature-tag {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 100px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .tag-high { background: #fef3c7; color: #92400e; }
+  .tag-medium { background: #dbeafe; color: #1e40af; }
+  .tag-low { background: #f1f5f9; color: #475569; }
+  .tag-revenue { background: #d1fae5; color: #065f46; }
+
+  .feature-desc {
+    font-size: 12px;
+    color: #64748b;
+    line-height: 1.5;
+  }
+
+  /* ── Monetization Table ── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 12px;
+  }
+  thead tr {
+    background: #f8f7fc;
+  }
+  th {
+    text-align: left;
+    padding: 10px 14px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #7c3aed;
+    border-bottom: 2px solid #e2e8f0;
+  }
+  td {
+    padding: 10px 14px;
+    border-bottom: 1px solid #f1f5f9;
+    color: #374151;
+    vertical-align: top;
+  }
+  tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: #f8f7fc; }
+  .model-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 100px;
+    font-size: 10px;
+    font-weight: 600;
+  }
+  .model-addon { background: #ede9fe; color: #5b21b6; }
+  .model-payper { background: #fef3c7; color: #92400e; }
+  .model-included { background: #d1fae5; color: #065f46; }
+
+  /* ── Implementation Timeline ── */
+  .timeline {
+    position: relative;
+    padding-left: 28px;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 9px;
+    top: 8px;
+    bottom: 8px;
+    width: 2px;
+    background: #e2e8f0;
+  }
+  .timeline-item {
+    position: relative;
+    margin-bottom: 24px;
+    break-inside: avoid;
+  }
+  .timeline-dot {
+    position: absolute;
+    left: -24px;
+    top: 4px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 2px #7c3aed;
+    background: #7c3aed;
+  }
+  .timeline-phase {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #7c3aed;
+    margin-bottom: 4px;
+  }
+  .timeline-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1e1b2e;
+    margin-bottom: 6px;
+  }
+  .timeline-features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 6px;
+  }
+  .timeline-feature-chip {
+    font-size: 11px;
+    background: #f1f5f9;
+    color: #475569;
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-weight: 500;
+  }
+  .timeline-outcome {
+    font-size: 12px;
+    color: #64748b;
+    font-style: italic;
+  }
+
+  /* ── Footer ── */
+  .doc-footer {
+    margin-top: 48px;
+    padding-top: 20px;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .doc-footer-brand {
+    font-size: 13px;
+    font-weight: 700;
+    color: #7c3aed;
+  }
+  .doc-footer-date {
+    font-size: 11px;
+    color: #94a3b8;
+  }
+
+  /* ── Print ── */
+  @media print {
+    body { font-size: 12px; }
+    .cover { min-height: 100vh; }
+    .page { padding: 36px 40px; }
+    .feature-grid { grid-template-columns: 1fr 1fr; }
+    .no-break { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+     COVER PAGE
+════════════════════════════════════════ -->
+<div class="cover">
+  <div class="cover-content">
+    <div class="cover-badge">Product Roadmap · Confidential</div>
+    <h1>PropGenius <span>AI</span><br/>Feature Roadmap</h1>
+    <p class="cover-sub">Brainstormed features to implement one by one<br/>for Indian real estate brokers & agencies</p>
+
+    <div class="cover-stats">
+      <div>
+        <div class="cover-stat-num">28</div>
+        <div class="cover-stat-label">Feature Ideas</div>
+      </div>
+      <div>
+        <div class="cover-stat-num">5</div>
+        <div class="cover-stat-label">Build Phases</div>
+      </div>
+      <div>
+        <div class="cover-stat-num">6</div>
+        <div class="cover-stat-label">Revenue Models</div>
+      </div>
+    </div>
+
+    <div class="cover-meta">
+      PropGenius AI &nbsp;·&nbsp; Prepared April 2026 &nbsp;·&nbsp; Internal Use Only
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+     PAGE 1 — PRIORITY & OVERVIEW
+════════════════════════════════════════ -->
+<div class="page">
+  <div class="section-label">Build First</div>
+  <div class="section-title">Top 5 Priority Features</div>
+  <div class="section-desc">These five features together close the biggest gaps in a broker's daily workflow. Build these before anything else — they create immediate, visible ROI that drives retention and upgrades.</div>
+
+  <div class="priority-banner">
+    <h2>🚀 Implementation Order</h2>
+
+    <div class="priority-item">
+      <div class="priority-num">1</div>
+      <div class="priority-text">
+        <strong>Lead Capture Forms (Embeddable)</strong>
+        <span>Brings new leads directly into the CRM from Instagram bio, WhatsApp status, website. Brokers see immediate ROI — new leads arriving automatically.</span>
+      </div>
+    </div>
+
+    <div class="priority-item">
+      <div class="priority-num">2</div>
+      <div class="priority-text">
+        <strong>Property Match Engine</strong>
+        <span>When a listing is added, AI scans all existing leads and notifies matches. Activates existing listings × existing leads with one click.</span>
+      </div>
+    </div>
+
+    <div class="priority-item">
+      <div class="priority-num">3</div>
+      <div class="priority-text">
+        <strong>AI Follow-up Autopilot</strong>
+        <span>Auto-sends WhatsApp when a lead goes silent for X days. Recovers lost deals passively — broker sets rules once, system runs forever.</span>
+      </div>
+    </div>
+
+    <div class="priority-item">
+      <div class="priority-num">4</div>
+      <div class="priority-text">
+        <strong>Shareable Buyer Portal Page</strong>
+        <span>Each listing gets a clean branded page with photos, map, AI description, WhatsApp button. Broker shares a link instead of a WhatsApp photo dump.</span>
+      </div>
+    </div>
+
+    <div class="priority-item">
+      <div class="priority-num">5</div>
+      <div class="priority-text">
+        <strong>Multi-Portal Auto-Publish</strong>
+        <span>One click publishes to 99acres, MagicBricks, Housing.com. Eliminates the biggest time sink in a broker's day. Highest willingness to pay.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="doc-footer">
+    <div class="doc-footer-brand">PropGenius AI</div>
+    <div class="doc-footer-date">Feature Roadmap · April 2026</div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+     PAGE 2 — HIGH IMPACT FEATURES
+════════════════════════════════════════ -->
+<div class="page page-break">
+  <div class="section-label">Category 1</div>
+  <div class="section-title">🔥 High Impact — Build Next</div>
+  <div class="section-desc">Core features that directly replace manual work brokers do every day. Each one has a clear before/after that brokers immediately understand.</div>
+
+  <div class="category-header">
+    <div class="category-icon" style="background:#fef3c7;">🤖</div>
+    <div>
+      <div class="category-title">AI & Automation</div>
+      <div class="category-count">4 features</div>
+    </div>
+  </div>
+
+  <div class="feature-grid">
+    <div class="feature-card">
+      <div class="feature-card-header">
+        <div class="feature-name">AI Follow-up Autopilot</div>
+        <span class="feature-tag tag-high">Priority 3</span>
+      </div>
+      <div class="feature-desc">Automatically sends a WhatsApp message when a lead hasn't been contacted in X days. Broker sets rules once ("If no contact for 3 days, send follow-up template"). System runs it silently. Biggest deal-saver for Indian brokers who forget.</div>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-card-header">
+        <div class="feature-name">Property Match Engine</div>
+        <span class="feature-tag tag-high">Priority 2</span>
+      </div>
+      <div class="feature-desc">When a new listing is added, AI scans all existing leads and finds matches by budget, location, and property type. Shows "12 leads match this listing — notify them?" One click sends WhatsApp to all matches.</div>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-card-header">
+        <div class="feature-name">AI Negotiation Coach</div>
+        <span class="feature-tag tag-medium">Phase 3</span>
+      </div>
+      <div class="feature-desc">When a lead enters "Negotiation" status, AI suggests what counter-offer to make based on listing price, buyer budget, days on market, and area comps. Not automation — smart advice shown in the sidebar panel.</div>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-card-header">
+        <div class="feature-name">Deal Probability Score</div>
+        <span class="feature-tag tag-medium">Phase 3</span>
+      </div>
+      <div class="feature-desc">Live % probability a deal will close. Calculated from: days in pipeline, number of contacts made, site visit done, budget match, lead score. Updates automatically as status changes. Shows as a progress bar on each lead.</div>
+    </div>
+  </div>
+
+  <div class="category-header" style="margin-top: 24px;">
+    <div class="category-icon" style="background:#ede9fe;">📋</div>
+    <div>
+      <div class="category-title">Lead Generation</div>
+      <div class="category-count">2 features</div>
+    </div>
+  </div>
+
+  <div class="feature-grid">
+    <div class="feature-card">
+      <div class="feature-card-header">
+        <div class="feature-name">Lead Capture Forms</div>
+        <span class="feature-tag tag-high">Priority 1</span>
+      </div>
+      <div class="feature-desc">Generate a unique URL or embeddable widget. Broker shares on Instagram bio, WhatsApp status, or their website. Form submissions go directly into the CRM as new leads — automatically. Closes the loop from social → CRM.</div>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-card-header">
+        <div class="feature-name">AI Chat Widget</div>
+        <span class="feature-tag tag-medium">Phase 3</span>
+      </div>
+      <div class="feature-desc">Embeddable WhatsApp-style chatbot that qualifies leads before handing off to broker. Asks: budget, location preference, timeline, property type. Leads arrive pre-qualified, saving broker 10–15 min per conversation.</div>
+    </div>
+  </div>
+
+  <div class="doc-footer">
+    <div class="doc-footer-brand">PropGenius AI</div>
+    <div class="doc-footer-date">Feature Roadmap · April 2026 · Page 2</div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+     PAGE 3 — LISTING SUPERPOWERS
+════════════════════════════════════════ -->
+<div class="page page-break">
+  <div class="section-label">Category 2</div>
+  <div class="section-title">🏠 Listing Superpowers</div>
+  <div class="section-desc">Make listings do more work for the broker — better quality, wider reach, smarter pricing, professional presentation.</div>
+
+  <div class="feature-grid">
+    <div class="feature-card">
+      <div class="feature-card-header">
+        <div class="feature-name">Shareable Buyer Portal Page</div>
+        <span class="feature-tag tag-high">Priority 4</span>
+      </div>
+      <div class="feature-desc">Each listing gets a clean branded public page: photos, floor plan, map, AI description, WhatsApp CTA button. Broker shares a link instead of a messy WhatsApp gallery. Tracks who viewed it and for how long.</div>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-card-header">
+        <div class="feature-name">Multi-Portal Auto-Publish</div>
+        <span class="feature-tag tag-high">Priority 5</span>
+      </div>
+      <div class="feature-desc">One click publishes to 99acres, MagicBricks, Housing.com via their APIs. Currently brokers manually copy-paste to each portal — 30–45 min per listing. This alone could justify the Pro subscription for most brokers.</div>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-card-header">
+        <div class="feature-name">Virtual Staging AI</div>
+        <span class="feature-tag tag-revenue">Revenue</span>
+      </div>
+      <div class="feature-desc">Upload a photo of an empty room → AI furnishes it with realistic furniture. Huge for new constructions and plots. Brokers in India constantly struggle with empty-room photos that fail to sell the lifestyle. Pay-per-image model.</div>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-card-header">
+        <div class="feature-name">Listing Health Score</div>
+        <span class="feature-tag tag-medium">Phase 2</span>
+      </div>
+      <div class="feature-desc">Every listing gets an actionable score: "Missing photos (-20pts), no floor plan (-15pts), price 12% above market average (-10pts). Fix these to rank higher on portals." Tells broker exactly what to improve, not just a number.</div>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-card-header">
+        <div class="feature-name">Price Trend Alerts</div>
+        <span class="feature-tag tag-medium">Phase 3</span>
+      </div>
+      <div class="feature-desc">"3 similar listings in your area dropped price by 8% this week. Consider revising." Pulls from public portal data. Keeps broker competitive without them having to manually monitor the market daily.</div>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-card-header">
+        <div class="feature-name">Video Script Generator</div>
+        <span class="feature-tag tag-medium">Phase 3</span>
+      </div>
+      <div class="feature-desc">AI writes a 60-second script for Instagram Reels/YouTube Shorts based on the listing details. "Start with the balcony view, mention 3BHK, price, location, end with WhatsApp CTA." Brokers doing video get 3x more inquiries.</div>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-card-header">
+        <div class="feature-name">Multilingual Listings</div>
+        <span class="feature-tag tag-medium">Phase 3</span>
+      </div>
+      <div class="feature-desc">One click translates listing to Hindi, Marathi, Tamil, Telugu, Kannada. Massive for Tier 2 cities and NRI buyers who prefer regional language. Gemini already supports all Indian languages natively.</div>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-card-header">
+        <div class="feature-name">RERA Compliance Checker</div>
+        <span class="feature-tag tag-high">Phase 2</span>
+      </div>
+      <div class="feature-desc">Before publishing, AI checks if listing has all RERA-required disclosures: carpet area, RERA registration number, possession date, project status. Auto-flags missing info. Brokers get fined for non-compliance — this protects them.</div>
+    </div>
+  </div>
+
+  <div class="doc-footer">
+    <div class="doc-footer-brand">PropGenius AI</div>
+    <div class="doc-footer-date">Feature Roadmap · April 2026 · Page 3</div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+     PAGE 4 — COMMUNICATION & CLIENT EX
+════════════════════════════════════════ -->
+<div class="page page-break">
+  <div class="section-label">Category 3 & 4</div>
+  <div class="section-title">💬 Communication & Client Experience</div>
+  <div class="section-desc">Indian real estate runs on WhatsApp. These features make communication faster, smarter, and more professional — turning conversations into closed deals.</div>
+
+  <div class="category-header">
+    <div class="category-icon" style="background:#d1fae5;">💬</div>
+    <div>
+      <div class="category-title">Communication Tools</div>
+      <div class="category-count">4 features</div>
+    </div>
+  </div>
+
+  <div class="feature-grid">
+    <div class="feature-card">
+      <div class="feature-card-header">
+        <div class="feature-name">WhatsApp Broadcast Campaigns</div>
+        <span class="feature-tag tag-revenue">Revenue</span>
+      </div>
+      <div class="feature-desc">Send a listing to a curated segment of leads: "All leads with budget ₹80L–₹1.2Cr interested in 3BHK in Andheri." Like email marketing but on WhatsApp. Pay-per-message above a monthly quota.</div>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-card-header">
+        <div class="feature-name">Voice Note Transcription</div>
+        <span class="feature-tag tag-medium">Phase 3</span>
+      </div>
+      <div class="feature-desc">Broker receives a WhatsApp voice note from a client. AI transcribes it, extracts key info (budget, location, timeline), and auto-creates a lead or updates an existing one. Voice is the dominant communication mode in India.</div>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-card-header">
+        <div class="feature-name">Document Manager</div>
+        <span class="feature-tag tag-high">Phase 2</span>
+      </div>
+      <div class="feature-desc">Store property documents per listing: sale deed, EC, approved plan, occupancy certificate. Share a clean link with the buyer instead of sending 10 WhatsApp photos. Critical for closing deals faster and looking professional.</div>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-card-header">
+        <div class="feature-name">Site Visit Scheduler</div>
+        <span class="feature-tag tag-high">Phase 2</span>
+      </div>
+      <div class="feature-desc">Integrated calendar — broker sets available slots, buyer picks one from a link. Auto-sends WhatsApp reminder 1 hour before the visit. Eliminates the endless "when are you free?" back and forth on WhatsApp.</div>
+    </div>
+  </div>
+
+  <div class="category-header" style="margin-top: 24px;">
+    <div class="category-icon" style="background:#dbeafe;">🤝</div>
+    <div>
+      <div class="category-title">Client Experience</div>
+      <div class="category-count">3 features</div>
+    </div>
+  </div>
+
+  <div class="feature-grid">
+    <div class="feature-card">
+      <div class="feature-card-header">
+        <div class="feature-name">Post-Sale Follow-up System</div>
+        <span class="feature-tag tag-high">Phase 2</span>
+      </div>
+      <div class="feature-desc">After a deal closes (lead marked "Converted"), system schedules a check-in at 30, 90, and 180 days. "How's the new home? Know anyone looking?" Referrals are the #1 source for Indian brokers but they never nurture them systematically.</div>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-card-header">
+        <div class="feature-name">NRI Client Mode</div>
+        <span class="feature-tag tag-revenue">Revenue</span>
+      </div>
+      <div class="feature-desc">Special flow for NRI buyers: currency conversion display, video call scheduling with timezone awareness, digital document signing, FEMA/NRI property buying guide embedded. Huge underserved segment — NRIs buy premium properties.</div>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-card-header">
+        <div class="feature-name">Referral Partner Network</div>
+        <span class="feature-tag tag-medium">Phase 4</span>
+      </div>
+      <div class="feature-desc">Broker A refers a lead to Broker B (different city or specialization). System tracks the referral, the deal outcome, and the commission owed between brokers. Very common in India — zero tools exist for managing this today.</div>
+    </div>
+  </div>
+
+  <div class="doc-footer">
+    <div class="doc-footer-brand">PropGenius AI</div>
+    <div class="doc-footer-date">Feature Roadmap · April 2026 · Page 4</div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+     PAGE 5 — ANALYTICS & OPERATIONS
+════════════════════════════════════════ -->
+<div class="page page-break">
+  <div class="section-label">Category 5 & 6</div>
+  <div class="section-title">📊 Analytics & Agency Operations</div>
+  <div class="section-desc">Features that give agency owners visibility into their business and tools that help larger teams operate like a well-run company.</div>
+
+  <div class="category-header">
+    <div class="category-icon" style="background:#fef3c7;">📊</div>
+    <div>
+      <div class="category-title">Analytics & Intelligence</div>
+      <div class="category-count">4 features</div>
+    </div>
+  </div>
+
+  <div class="feature-grid">
+    <div class="feature-card">
+      <div class="feature-card-header">
+        <div class="feature-name">Agent Performance Dashboard</div>
+        <span class="feature-tag tag-high">Phase 2</span>
+      </div>
+      <div class="feature-desc">Which agent converts the most leads? Whose leads go cold? Average deal time per agent. Conversion rate comparison. Owners need this visibility — currently invisible in every small agency. Critical for managing a team of 3+ agents.</div>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-card-header">
+        <div class="feature-name">Lead Source ROI</div>
+        <span class="feature-tag tag-high">Phase 2</span>
+      </div>
+      <div class="feature-desc">"You got 40 leads from 99acres, 12 from MagicBricks, 8 from Instagram. 99acres converted at 15%, MagicBricks at 5%, Instagram at 25%." Tells brokers exactly where to spend their ₹50,000/month portal subscription budget.</div>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-card-header">
+        <div class="feature-name">Market Pulse</div>
+        <span class="feature-tag tag-medium">Phase 4</span>
+      </div>
+      <div class="feature-desc">Aggregate anonymized data across PropGenius users to show city-level trends: average price/sqft by area this month, which micro-markets are trending, how long properties are sitting. Brokers love market data — this becomes a unique moat.</div>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-card-header">
+        <div class="feature-name">Deal Probability Score</div>
+        <span class="feature-tag tag-medium">Phase 3</span>
+      </div>
+      <div class="feature-desc">Live % probability that a lead will convert. Calculated from days in pipeline, contacts made, site visit completed, budget match, and AI score. Updates automatically. Helps broker prioritize which deals to focus energy on.</div>
+    </div>
+  </div>
+
+  <div class="category-header" style="margin-top: 24px;">
+    <div class="category-icon" style="background:#f0fdf4;">⚙️</div>
+    <div>
+      <div class="category-title">Agency Operations</div>
+      <div class="category-count">4 features</div>
+    </div>
+  </div>
+
+  <div class="feature-grid">
+    <div class="feature-card">
+      <div class="feature-card-header">
+        <div class="feature-name">Commission Tracker</div>
+        <span class="feature-tag tag-high">Phase 2</span>
+      </div>
+      <div class="feature-desc">Track expected vs received commission per deal. Which deals are pending payment? Who owes what to whom? Agencies with 5+ agents lose track of this constantly. Simple table with deal → commission → status → paid date.</div>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-card-header">
+        <div class="feature-name">Inventory Pipeline (Builder)</div>
+        <span class="feature-tag tag-medium">Phase 4</span>
+      </div>
+      <div class="feature-desc">For agencies that work with builders — track which units in a project are available, booked, or sold. Assign units to specific agents. Update availability in real time. Particularly valuable for pre-launch project sales teams.</div>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-card-header">
+        <div class="feature-name">Mobile App (PWA)</div>
+        <span class="feature-tag tag-high">Phase 2</span>
+      </div>
+      <div class="feature-desc">Most Indian brokers work entirely on mobile. A Progressive Web App (PWA) that works offline — add a lead from a site visit even without internet signal, syncs when back online. "Add to home screen" install, no app store needed.</div>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-card-header">
+        <div class="feature-name">Bulk Import / Migration</div>
+        <span class="feature-tag tag-high">Phase 2</span>
+      </div>
+      <div class="feature-desc">Import 500 listings or leads at once from an Excel/CSV sheet. For agencies migrating from other CRMs or starting fresh with years of data. Currently a very painful onboarding blocker that causes churn during trial period.</div>
+    </div>
+  </div>
+
+  <div class="doc-footer">
+    <div class="doc-footer-brand">PropGenius AI</div>
+    <div class="doc-footer-date">Feature Roadmap · April 2026 · Page 5</div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+     PAGE 6 — MONETIZATION & TIMELINE
+════════════════════════════════════════ -->
+<div class="page page-break">
+  <div class="section-label">Business Model</div>
+  <div class="section-title">💰 Monetization Strategy</div>
+  <div class="section-desc">Beyond subscriptions — features that unlock additional revenue streams without disrupting the core plan pricing.</div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Feature</th>
+        <th>Revenue Model</th>
+        <th>Suggested Pricing</th>
+        <th>Plan Availability</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Virtual Staging AI</strong></td>
+        <td><span class="model-badge model-payper">Pay-per-use</span></td>
+        <td>₹49 / image (≈$0.60)</td>
+        <td>All plans</td>
+      </tr>
+      <tr>
+        <td><strong>WhatsApp Broadcasts</strong></td>
+        <td><span class="model-badge model-payper">Pay-per-message</span></td>
+        <td>₹1 / message above 500/month</td>
+        <td>Pro & Business</td>
+      </tr>
+      <tr>
+        <td><strong>Multi-Portal Publishing</strong></td>
+        <td><span class="model-badge model-addon">Add-on</span></td>
+        <td>₹299/month (≈$4)</td>
+        <td>Pro & Business</td>
+      </tr>
+      <tr>
+        <td><strong>NRI Client Mode</strong></td>
+        <td><span class="model-badge model-addon">Add-on</span></td>
+        <td>₹499/month (≈$6)</td>
+        <td>Pro & Business</td>
+      </tr>
+      <tr>
+        <td><strong>RERA Compliance Checker</strong></td>
+        <td><span class="model-badge model-included">Included</span></td>
+        <td>Business plan feature</td>
+        <td>Business only</td>
+      </tr>
+      <tr>
+        <td><strong>Market Pulse Data</strong></td>
+        <td><span class="model-badge model-included">Included</span></td>
+        <td>Business plan feature</td>
+        <td>Business only</td>
+      </tr>
+      <tr>
+        <td><strong>Bulk Import / Migration</strong></td>
+        <td><span class="model-badge model-included">Included</span></td>
+        <td>Onboarding feature (all plans)</td>
+        <td>All plans</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="divider"></div>
+
+  <div class="section-label">Implementation Timeline</div>
+  <div class="section-title">5-Phase Build Plan</div>
+  <div class="section-desc">Sequenced to deliver user value fast, then expand. Each phase should take 4–6 weeks.</div>
+
+  <div class="timeline">
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-phase">Phase 1 — Now (Current)</div>
+      <div class="timeline-title">Foundation Complete ✓</div>
+      <div class="timeline-features">
+        <span class="timeline-feature-chip">AI Listing Generation</span>
+        <span class="timeline-feature-chip">CRM & Lead Scoring</span>
+        <span class="timeline-feature-chip">WhatsApp Integration</span>
+        <span class="timeline-feature-chip">Team Management</span>
+        <span class="timeline-feature-chip">Analytics Dashboard</span>
+        <span class="timeline-feature-chip">Billing / Subscriptions</span>
+      </div>
+      <div class="timeline-outcome">Foundation is live. Time to add features that drive retention.</div>
+    </div>
+
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-phase">Phase 2 — Next (4–6 weeks)</div>
+      <div class="timeline-title">Lead Generation & Professionalism</div>
+      <div class="timeline-features">
+        <span class="timeline-feature-chip">Lead Capture Forms</span>
+        <span class="timeline-feature-chip">Buyer Portal Pages</span>
+        <span class="timeline-feature-chip">Document Manager</span>
+        <span class="timeline-feature-chip">Site Visit Scheduler</span>
+        <span class="timeline-feature-chip">RERA Checker</span>
+        <span class="timeline-feature-chip">Mobile PWA</span>
+      </div>
+      <div class="timeline-outcome">Brokers can now generate their own leads and present properties professionally.</div>
+    </div>
+
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-phase">Phase 3 — Growth (8–12 weeks)</div>
+      <div class="timeline-title">Automation & Intelligence</div>
+      <div class="timeline-features">
+        <span class="timeline-feature-chip">Property Match Engine</span>
+        <span class="timeline-feature-chip">AI Follow-up Autopilot</span>
+        <span class="timeline-feature-chip">Multi-Portal Publish</span>
+        <span class="timeline-feature-chip">Agent Performance</span>
+        <span class="timeline-feature-chip">Lead Source ROI</span>
+        <span class="timeline-feature-chip">Post-Sale Follow-up</span>
+      </div>
+      <div class="timeline-outcome">PropGenius works in the background for the broker. Sticky, hard to churn from.</div>
+    </div>
+
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-phase">Phase 4 — Expansion (16–20 weeks)</div>
+      <div class="timeline-title">Agency & Revenue Features</div>
+      <div class="timeline-features">
+        <span class="timeline-feature-chip">Virtual Staging AI</span>
+        <span class="timeline-feature-chip">Commission Tracker</span>
+        <span class="timeline-feature-chip">Multilingual Listings</span>
+        <span class="timeline-feature-chip">NRI Client Mode</span>
+        <span class="timeline-feature-chip">WhatsApp Broadcasts</span>
+        <span class="timeline-feature-chip">AI Negotiation Coach</span>
+      </div>
+      <div class="timeline-outcome">New revenue streams unlock. Business plan becomes clearly worth it for agencies.</div>
+    </div>
+
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-phase">Phase 5 — Moat (24+ weeks)</div>
+      <div class="timeline-title">Data & Network Effects</div>
+      <div class="timeline-features">
+        <span class="timeline-feature-chip">Market Pulse</span>
+        <span class="timeline-feature-chip">Referral Partner Network</span>
+        <span class="timeline-feature-chip">Inventory Pipeline</span>
+        <span class="timeline-feature-chip">Voice Note AI</span>
+        <span class="timeline-feature-chip">Builder Integrations</span>
+      </div>
+      <div class="timeline-outcome">Network effects kick in. PropGenius becomes the data layer for Indian real estate brokers.</div>
+    </div>
+  </div>
+
+  <div class="doc-footer">
+    <div class="doc-footer-brand">PropGenius AI</div>
+    <div class="doc-footer-date">Feature Roadmap · April 2026 · Page 6</div>
+  </div>
+</div>
+
+</body>
+</html>

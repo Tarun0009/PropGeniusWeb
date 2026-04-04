@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Menu, Bell, LogOut, X } from "lucide-react";
+import { AlignLeft, BellDot, LogOut, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useSidebarStore } from "@/stores/sidebar-store";
 import { Avatar } from "@/components/ui/avatar";
 import { Dropdown, DropdownItem, DropdownSeparator } from "@/components/ui/dropdown";
 import { GlobalSearch } from "@/components/global-search";
+import { useAuthStore } from "@/stores/auth-store";
 import { cn, formatRelativeTime } from "@/lib/utils";
 
 interface Notification {
@@ -23,6 +24,7 @@ interface Notification {
 export function Topbar() {
   const router = useRouter();
   const { isCollapsed, toggleMobile } = useSidebarStore();
+  const profile = useAuthStore((s) => s.profile);
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
@@ -96,7 +98,7 @@ export function Topbar() {
   return (
     <header
       className={cn(
-        "fixed top-0 right-0 h-16 bg-white border-b border-slate-200 z-30 flex items-center justify-between px-4 sm:px-6 transition-all duration-200",
+        "fixed top-0 right-0 h-16 bg-white/95 backdrop-blur-md border-b border-slate-200/80 z-30 flex items-center justify-between px-4 sm:px-6 transition-all duration-200",
         isCollapsed ? "lg:left-16" : "lg:left-64",
         "left-0"
       )}
@@ -107,7 +109,7 @@ export function Topbar() {
           onClick={toggleMobile}
           className="lg:hidden p-2 rounded-lg hover:bg-slate-100"
         >
-          <Menu className="h-5 w-5 text-slate-600" />
+          <AlignLeft className="h-5 w-5 text-slate-500" />
         </button>
 
         <GlobalSearch />
@@ -121,7 +123,7 @@ export function Topbar() {
             className="relative p-2 rounded-lg hover:bg-slate-100"
             onClick={() => setShowNotifications(!showNotifications)}
           >
-            <Bell className="h-5 w-5 text-slate-600" />
+            <BellDot className="h-5 w-5 text-slate-500" />
             {unreadCount > 0 && (
               <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-danger-500 text-[10px] font-bold text-white">
                 {unreadCount > 9 ? "9+" : unreadCount}
@@ -182,11 +184,22 @@ export function Topbar() {
         <Dropdown
           trigger={
             <button className="p-1 rounded-lg hover:bg-slate-100">
-              <Avatar name="User" size="sm" />
+              <Avatar name={profile?.full_name || "User"} src={profile?.avatar_url} size="sm" />
             </button>
           }
           align="right"
         >
+          <div className="px-3 py-2 border-b border-slate-100">
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-medium text-slate-900 truncate">{profile?.full_name || "User"}</p>
+              {profile?.role && (
+                <span className="inline-flex items-center rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium capitalize text-slate-600">
+                  {profile.role}
+                </span>
+              )}
+            </div>
+            <p className="text-xs text-slate-500 truncate">{profile?.email}</p>
+          </div>
           <DropdownItem onClick={() => router.push("/settings")}>
             Profile & Settings
           </DropdownItem>

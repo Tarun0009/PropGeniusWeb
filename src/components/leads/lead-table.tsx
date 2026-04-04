@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Modal } from "@/components/ui/modal";
+import { Avatar } from "@/components/ui/avatar";
 import { LeadScoreBadge } from "./lead-score-badge";
 import { useDeleteLead, useUpdateLeadStatus } from "@/hooks/use-leads";
 import { useNotificationStore } from "@/stores/notification-store";
@@ -15,6 +16,7 @@ import { formatRelativeTime } from "@/lib/utils";
 import { LEAD_STATUSES, LEAD_SOURCES } from "@/lib/constants";
 import type { Lead } from "@/types/lead";
 import type { LeadFilters } from "@/lib/validations";
+import type { MemberLookup } from "@/hooks/use-team-lookup";
 
 const statusVariant: Record<string, "primary" | "purple" | "warning" | "cyan" | "orange" | "success" | "danger"> = {
   new: "primary",
@@ -30,9 +32,10 @@ interface LeadTableProps {
   data: Lead[];
   filters: LeadFilters;
   onFiltersChange: (filters: LeadFilters) => void;
+  memberLookup?: MemberLookup;
 }
 
-function LeadTable({ data, filters, onFiltersChange }: LeadTableProps) {
+function LeadTable({ data, filters, onFiltersChange, memberLookup }: LeadTableProps) {
   const router = useRouter();
   const [search, setSearch] = useState(filters.search || "");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -136,6 +139,26 @@ function LeadTable({ data, filters, onFiltersChange }: LeadTableProps) {
             }
           />
         </div>
+        {memberLookup && memberLookup.size > 1 && (
+          <div className="w-40">
+            <Select
+              options={[
+                { value: "", label: "All Agents" },
+                ...Array.from(memberLookup.entries()).map(([id, m]) => ({
+                  value: id,
+                  label: m.name,
+                })),
+              ]}
+              value={filters.assigned_to || ""}
+              onChange={(e) =>
+                onFiltersChange({
+                  ...filters,
+                  assigned_to: e.target.value || undefined,
+                })
+              }
+            />
+          </div>
+        )}
       </div>
 
       {/* Bulk Actions Bar */}
@@ -190,6 +213,9 @@ function LeadTable({ data, filters, onFiltersChange }: LeadTableProps) {
               <th className="px-4 py-3 text-left font-medium text-slate-600">Source</th>
               <th className="px-4 py-3 text-left font-medium text-slate-600">AI Score</th>
               <th className="px-4 py-3 text-left font-medium text-slate-600">Status</th>
+              {memberLookup && memberLookup.size > 1 && (
+                <th className="px-4 py-3 text-left font-medium text-slate-600">Assigned To</th>
+              )}
               <th className="px-4 py-3 text-left font-medium text-slate-600">Next Follow-up</th>
               <th className="px-4 py-3 text-left font-medium text-slate-600">Created</th>
             </tr>
@@ -197,7 +223,7 @@ function LeadTable({ data, filters, onFiltersChange }: LeadTableProps) {
           <tbody>
             {data.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-4 py-8 text-center text-slate-500">No results found</td>
+                <td colSpan={memberLookup && memberLookup.size > 1 ? 8 : 7} className="px-4 py-8 text-center text-slate-500">No results found</td>
               </tr>
             ) : (
               data.map((lead) => {
@@ -236,6 +262,25 @@ function LeadTable({ data, filters, onFiltersChange }: LeadTableProps) {
                         {statusLabel}
                       </Badge>
                     </td>
+                    {memberLookup && memberLookup.size > 1 && (
+                      <td className="px-4 py-3" onClick={() => router.push(`/leads/${lead.id}`)}>
+                        {lead.assigned_to && memberLookup.get(lead.assigned_to) ? (
+                          <div className="flex items-center gap-2">
+                            <Avatar
+                              name={memberLookup.get(lead.assigned_to)!.name}
+                              src={memberLookup.get(lead.assigned_to)!.avatar_url}
+                              size="sm"
+                              className="h-6 w-6 text-[10px]"
+                            />
+                            <span className="text-sm text-slate-600 truncate max-w-[120px]">
+                              {memberLookup.get(lead.assigned_to)!.name}
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-slate-400">Unassigned</span>
+                        )}
+                      </td>
+                    )}
                     <td className="px-4 py-3" onClick={() => router.push(`/leads/${lead.id}`)}>
                       {lead.next_followup_at ? (
                         <span className={isPastFollowup ? "text-sm font-medium text-danger-600" : "text-sm text-slate-600"}>

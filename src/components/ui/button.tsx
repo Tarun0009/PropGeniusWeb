@@ -3,21 +3,21 @@ import { cn } from "@/lib/utils";
 
 const variantStyles = {
   primary:
-    "bg-primary-600 text-white hover:bg-primary-700 focus-visible:ring-primary-500 shadow-sm",
+    "bg-primary-600 text-white hover:bg-primary-700 active:bg-primary-800 focus-visible:ring-primary-500/40 shadow-sm active:scale-[0.98]",
   secondary:
-    "bg-primary-50 text-primary-700 hover:bg-primary-100 focus-visible:ring-primary-500",
+    "bg-primary-50 text-primary-700 hover:bg-primary-100 active:bg-primary-200 focus-visible:ring-primary-500/40",
   outline:
-    "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 focus-visible:ring-primary-500",
+    "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:border-slate-300 active:bg-slate-100 focus-visible:ring-primary-500/40",
   ghost:
-    "text-slate-700 hover:bg-slate-100 focus-visible:ring-primary-500",
+    "text-slate-600 hover:bg-slate-100 hover:text-slate-900 active:bg-slate-200 focus-visible:ring-primary-500/40",
   danger:
-    "bg-danger-600 text-white hover:bg-danger-700 focus-visible:ring-danger-500 shadow-sm",
+    "bg-danger-600 text-white hover:bg-danger-700 active:bg-danger-800 focus-visible:ring-danger-500/40 shadow-sm active:scale-[0.98]",
 } as const;
 
 const sizeStyles = {
-  sm: "h-8 px-3 text-xs gap-1.5",
+  sm: "h-8 px-3 text-xs gap-1.5 rounded-md",
   md: "h-9 px-4 text-sm gap-2",
-  lg: "h-11 px-5 text-base gap-2",
+  lg: "h-11 px-5 text-sm gap-2",
 } as const;
 
 export interface ButtonProps
@@ -45,7 +45,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         disabled={disabled || isLoading}
         className={cn(
-          "inline-flex items-center justify-center rounded-lg font-medium transition-colors",
+          "inline-flex items-center justify-center rounded-lg font-medium transition-all duration-150",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
           "disabled:pointer-events-none disabled:opacity-50",
           variantStyles[variant],

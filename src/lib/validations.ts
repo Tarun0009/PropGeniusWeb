@@ -100,6 +100,7 @@ export const listingFilterSchema = z.object({
   property_type: z.enum(["apartment", "house", "villa", "plot", "commercial", "pg"]).optional(),
   transaction_type: z.enum(["sale", "rent", "lease"]).optional(),
   city: z.string().optional(),
+  created_by: z.string().optional(),
   search: z.string().optional(),
 });
 
@@ -125,6 +126,7 @@ export const leadFormSchema = z.object({
     "new", "contacted", "interested", "site_visit",
     "negotiation", "converted", "lost",
   ]),
+  assigned_to: z.string().optional(),
   notes: z.string().optional(),
   tags: z.array(z.string()).optional(),
   next_followup_at: z.string().optional(),
@@ -145,6 +147,7 @@ export const leadFilterSchema = z.object({
     "website", "whatsapp", "phone", "walkin",
     "referral", "99acres", "magicbricks", "housing", "other",
   ]).optional(),
+  assigned_to: z.string().optional(),
   search: z.string().optional(),
 });
 

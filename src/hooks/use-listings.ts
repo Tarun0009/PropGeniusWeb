@@ -23,6 +23,7 @@ export function useListings(filters?: ListingFilters) {
       if (filters?.property_type) query = query.eq("property_type", filters.property_type);
       if (filters?.transaction_type) query = query.eq("transaction_type", filters.transaction_type);
       if (filters?.city) query = query.ilike("city", `%${filters.city}%`);
+      if (filters?.created_by) query = query.eq("created_by", filters.created_by);
       if (filters?.search) query = query.or(`title.ilike.%${filters.search}%,city.ilike.%${filters.search}%`);
 
       const { data, error } = await query;

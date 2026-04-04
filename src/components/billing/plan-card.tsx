@@ -11,6 +11,7 @@ interface PlanCardProps {
   description: string;
   priceMonthly: number;
   priceAnnual: number;
+  currency?: "INR" | "USD";
   features: readonly string[];
   isCurrentPlan: boolean;
   isPopular?: boolean;
@@ -24,6 +25,7 @@ function PlanCard({
   description,
   priceMonthly,
   priceAnnual,
+  currency = "INR",
   features,
   isCurrentPlan,
   isPopular,
@@ -33,6 +35,11 @@ function PlanCard({
 }: PlanCardProps) {
   const isEnterprise = priceMonthly === -1;
   const isFree = priceMonthly === 0;
+
+  function displayPrice(amount: number) {
+    if (currency === "USD") return `$${amount}`;
+    return formatPrice(amount);
+  }
 
   return (
     <div
@@ -63,13 +70,13 @@ function PlanCard({
           <p className="text-2xl font-bold text-slate-900">Free</p>
         ) : (
           <div>
-            <span className="text-3xl font-bold text-slate-900">
-              {formatPrice(isAnnual ? Math.round(priceAnnual / 12) : priceMonthly)}
+            <span className="text-3xl font-bold text-slate-900 tabular-nums">
+              {displayPrice(isAnnual ? Math.round(priceAnnual / 12) : priceMonthly)}
             </span>
             <span className="text-sm text-slate-500">/month</span>
             {isAnnual && priceAnnual > 0 && (
               <p className="mt-0.5 text-xs text-slate-400">
-                {formatPrice(priceAnnual)}/year (save 20%)
+                {displayPrice(priceAnnual)}/year (save 20%)
               </p>
             )}
           </div>

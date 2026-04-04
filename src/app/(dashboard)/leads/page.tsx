@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { Users, Upload, Download, Sparkles } from "lucide-react";
+import { Contact, Upload, Download, Wand2, Plus } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import { LeadTable } from "@/components/leads/lead-table";
 import { CSVImportModal } from "@/components/leads/csv-import-modal";
 import { useLeads, useScoreLead, useUpdateLead } from "@/hooks/use-leads";
 import { useQuota } from "@/hooks/use-quota";
+import { useTeamMemberLookup } from "@/hooks/use-team-lookup";
 import { useNotificationStore } from "@/stores/notification-store";
 import { exportToCSV } from "@/lib/export-csv";
 import type { LeadFilters } from "@/lib/validations";
@@ -42,6 +43,7 @@ export default function LeadsPage() {
 
   const { data: leads, isLoading } = useLeads(filters);
   const { data: quota } = useQuota();
+  const memberLookup = useTeamMemberLookup();
   const scoreMutation = useScoreLead();
   const updateMutation = useUpdateLead();
   const addToast = useNotificationStore((s) => s.addToast);
@@ -128,7 +130,7 @@ export default function LeadsPage() {
                 onClick={handleBulkScore}
                 disabled={scoringProgress !== null}
               >
-                <Sparkles className="mr-1.5 h-3.5 w-3.5" />
+                <Wand2 className="mr-1.5 h-3.5 w-3.5" />
                 {scoringProgress
                   ? `Scoring ${scoringProgress.current}/${scoringProgress.total}...`
                   : `AI Score (${unscoredLeads.length})`}
@@ -146,7 +148,7 @@ export default function LeadsPage() {
               </Link>
             ) : (
               <Link href="/leads/new">
-                <Button size="sm">+ Add Lead</Button>
+                <Button size="sm"><Plus className="mr-1.5 h-3.5 w-3.5" />Add Lead</Button>
               </Link>
             )}
           </div>
@@ -167,7 +169,7 @@ export default function LeadsPage() {
         ) : !leads || leads.length === 0 ? (
           <div className="mt-8">
             <EmptyState
-              icon={Users}
+              icon={Contact}
               title="No leads yet"
               description="Add your first lead manually or import from a CSV file."
               action={
@@ -183,7 +185,7 @@ export default function LeadsPage() {
             />
           </div>
         ) : view === "table" ? (
-          <LeadTable data={leads} filters={filters} onFiltersChange={setFilters} />
+          <LeadTable data={leads} filters={filters} onFiltersChange={setFilters} memberLookup={memberLookup} />
         ) : (
           <LeadKanban leads={leads} />
         )}

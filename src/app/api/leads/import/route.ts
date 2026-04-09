@@ -17,15 +17,41 @@ const VALID_SOURCES = [
   "referral", "99acres", "magicbricks", "housing", "other",
 ];
 
+function parseCSVLine(line: string): string[] {
+  const fields: string[] = [];
+  let current = "";
+  let inQuotes = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') {
+      if (inQuotes && line[i + 1] === '"') {
+        current += '"';
+        i++;
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (ch === "," && !inQuotes) {
+      fields.push(current.trim());
+      current = "";
+    } else {
+      current += ch;
+    }
+  }
+  fields.push(current.trim());
+  return fields;
+}
+
 function parseCSV(text: string): CSVRow[] {
-  const lines = text.trim().split("\n");
+  const lines = text.trim().replace(/\r\n/g, "\n").replace(/\r/g, "\n").split("\n");
   if (lines.length < 2) return [];
 
-  const headers = lines[0].split(",").map((h) => h.trim().toLowerCase().replace(/\s+/g, "_"));
+  const headers = parseCSVLine(lines[0]).map((h) => h.toLowerCase().replace(/\s+/g, "_"));
   const rows: CSVRow[] = [];
 
   for (let i = 1; i < lines.length; i++) {
-    const values = lines[i].split(",").map((v) => v.trim());
+    if (!lines[i].trim()) continue;
+    const values = parseCSVLine(lines[i]);
     const row: Record<string, string> = {};
     headers.forEach((h, idx) => {
       if (values[idx]) row[h] = values[idx];

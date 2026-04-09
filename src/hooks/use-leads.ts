@@ -3,6 +3,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import { useNotificationStore } from "@/stores/notification-store";
+import { useAuthStore } from "@/stores/auth-store";
+import { PLAN_LIMITS } from "@/lib/constants";
 import type { Lead, LeadActivity } from "@/types/lead";
 import type {
   LeadFormData, LeadFilters, ScoreLeadRequest, AILeadScore, LeadActivityFormData,
@@ -14,14 +16,21 @@ const ACTIVITIES_KEY = ["lead-activities"];
 
 export function useLeads(filters?: LeadFilters) {
   const supabase = createClient();
+  const profile = useAuthStore((s) => s.profile);
+  const isAgent = profile?.role === "agent";
 
   return useQuery({
-    queryKey: [...LEADS_KEY, filters],
+    queryKey: [...LEADS_KEY, filters, profile?.id, profile?.role],
     queryFn: async () => {
       let query = supabase
         .from("leads")
         .select("*")
         .order("created_at", { ascending: false });
+
+      // Agents only see leads assigned to them
+      if (isAgent && profile?.id) {
+        query = query.eq("assigned_to", profile.id);
+      }
 
       if (filters?.status) query = query.eq("status", filters.status);
       if (filters?.source) query = query.eq("source", filters.source);
@@ -32,6 +41,7 @@ export function useLeads(filters?: LeadFilters) {
       if (error) throw error;
       return data as Lead[];
     },
+    enabled: !!profile,
   });
 }
 
@@ -70,6 +80,26 @@ export function useCreateLead() {
         .single();
 
       if (!profile) throw new Error("Profile not found");
+
+      const { data: org } = await supabase
+        .from("organizations")
+        .select("plan")
+        .eq("id", profile.organization_id)
+        .single();
+
+      const plan = (org?.plan || "free") as keyof typeof PLAN_LIMITS;
+      const limits = PLAN_LIMITS[plan];
+
+      if (limits.maxLeads !== Infinity) {
+        const { count } = await supabase
+          .from("leads")
+          .select("id", { count: "exact", head: true })
+          .eq("organization_id", profile.organization_id);
+
+        if ((count ?? 0) >= limits.maxLeads) {
+          throw new Error(`You've reached the ${limits.maxLeads} lead limit on your ${plan} plan. Upgrade to add more.`);
+        }
+      }
 
       const { data: lead, error } = await supabase
         .from("leads")

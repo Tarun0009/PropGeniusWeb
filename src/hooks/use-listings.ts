@@ -3,6 +3,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import { useNotificationStore } from "@/stores/notification-store";
+import { useAuthStore } from "@/stores/auth-store";
+import { PLAN_LIMITS } from "@/lib/constants";
 import type { Listing } from "@/types/listing";
 import type { ListingFilters, ListingFormData, AIListingContent, GenerateListingRequest, OptimizeListingRequest, OptimizeListingResponse } from "@/lib/validations";
 
@@ -10,14 +12,20 @@ const LISTINGS_KEY = ["listings"];
 
 export function useListings(filters?: ListingFilters) {
   const supabase = createClient();
+  const profile = useAuthStore((s) => s.profile);
 
   return useQuery({
-    queryKey: [...LISTINGS_KEY, filters],
+    queryKey: [...LISTINGS_KEY, filters, profile?.id, profile?.role],
     queryFn: async () => {
       let query = supabase
         .from("listings")
         .select("*")
         .order("created_at", { ascending: false });
+
+      // Agents only see listings they created
+      if (profile?.role === "agent" && profile?.id) {
+        query = query.eq("created_by", profile.id);
+      }
 
       if (filters?.status) query = query.eq("status", filters.status);
       if (filters?.property_type) query = query.eq("property_type", filters.property_type);
@@ -30,6 +38,7 @@ export function useListings(filters?: ListingFilters) {
       if (error) throw error;
       return data as Listing[];
     },
+    enabled: !!profile,
   });
 }
 
@@ -68,6 +77,27 @@ export function useCreateListing() {
         .single();
 
       if (!profile) throw new Error("Profile not found");
+
+      // Quota enforcement: count current listings and check plan limit
+      const { data: org } = await supabase
+        .from("organizations")
+        .select("plan")
+        .eq("id", profile.organization_id)
+        .single();
+
+      const plan = (org?.plan || "free") as keyof typeof PLAN_LIMITS;
+      const limits = PLAN_LIMITS[plan];
+
+      if (limits.maxListings !== Infinity) {
+        const { count } = await supabase
+          .from("listings")
+          .select("id", { count: "exact", head: true })
+          .eq("organization_id", profile.organization_id);
+
+        if ((count ?? 0) >= limits.maxListings) {
+          throw new Error(`You've reached the ${limits.maxListings} listing limit on your ${plan} plan. Upgrade to add more.`);
+        }
+      }
 
       const { data: listing, error } = await supabase
         .from("listings")

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useRef, useMemo } from "react";
-import { Check, Pencil, Shield, UserX, UserCheck, Plus, Camera, Lock, Landmark, KeyRound, AlertTriangle, LogOut } from "lucide-react";
+import { useState, useRef, useMemo, useEffect } from "react";
+import { Check, Pencil, Shield, UserX, UserCheck, Plus, Camera, Lock, Landmark, KeyRound, AlertTriangle, LogOut, Trash2, Crown, Clock, X } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs } from "@/components/ui/tabs";
@@ -14,9 +14,14 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar } from "@/components/ui/avatar";
 import { BillingInfo } from "@/components/billing/billing-info";
 import { PlanSelector } from "@/components/billing/plan-selector";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useAuthStore } from "@/stores/auth-store";
 import { useNotificationStore } from "@/stores/notification-store";
-import { useTeamMembers, useUpdateMemberRole, useToggleMemberStatus } from "@/hooks/use-team";
+import {
+  useTeamMembers, useUpdateMemberRole, useToggleMemberStatus,
+  useRemoveMember, useRevokeInvite, usePendingInvites,
+  useTransferOwnership, useTeamPermissions,
+} from "@/hooks/use-team";
 import { useTeamMemberStats } from "@/hooks/use-team-stats";
 import { createClient } from "@/lib/supabase/client";
 import { USER_ROLES, PLAN_LIMITS } from "@/lib/constants";
@@ -81,13 +86,40 @@ export default function SettingsPage() {
   // Team tab state
   const { data: teamMembers = [], isLoading: teamLoading } = useTeamMembers();
   const { data: teamStats } = useTeamMemberStats();
+  const { data: pendingInvites = [], isLoading: invitesLoading } = usePendingInvites();
   const updateRoleMutation = useUpdateMemberRole();
   const toggleStatusMutation = useToggleMemberStatus();
+  const removeMembers = useRemoveMember();
+  const revokeInviteMutation = useRevokeInvite();
+  const transferOwnership = useTransferOwnership();
+  const { isOwner } = useTeamPermissions();
+
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState("agent");
   const [isInviting, setIsInviting] = useState(false);
   const [inviteSent, setInviteSent] = useState(false);
+
+  // Remove member modal state
+  const [removeMemberId, setRemoveMemberId] = useState<string | null>(null);
+  const [reassignLeadsTo, setReassignLeadsTo] = useState("");
+  const [removeMemberLeadCount, setRemoveMemberLeadCount] = useState<number | null>(null);
+  const removeMember = removeMemberId ? teamMembers.find((m) => m.id === removeMemberId) : null;
+
+  useEffect(() => {
+    if (!removeMemberId) { setRemoveMemberLeadCount(null); return; }
+    const supabase = createClient();
+    supabase
+      .from("leads")
+      .select("id", { count: "exact", head: true })
+      .eq("assigned_to", removeMemberId)
+      .then(({ count }) => setRemoveMemberLeadCount(count ?? 0));
+  }, [removeMemberId]);
+
+  // Ownership transfer modal state
+  const [showTransferModal, setShowTransferModal] = useState(false);
+  const [transferToId, setTransferToId] = useState("");
+  const [transferConfirmText, setTransferConfirmText] = useState("");
 
   // Security tab state
   const [currentPassword, setCurrentPassword] = useState("");
@@ -259,18 +291,36 @@ export default function SettingsPage() {
 
   const handleChangePassword = async () => {
     setPasswordError(null);
+    if (!currentPassword) {
+      setPasswordError("Please enter your current password");
+      return;
+    }
     if (!newPassword || newPassword.length < 8) {
-      setPasswordError("Password must be at least 8 characters");
+      setPasswordError("New password must be at least 8 characters");
       return;
     }
     if (newPassword !== confirmPassword) {
       setPasswordError("Passwords do not match");
       return;
     }
+    if (currentPassword === newPassword) {
+      setPasswordError("New password must be different from current password");
+      return;
+    }
 
     setIsChangingPassword(true);
     try {
       const supabase = createClient();
+      // Verify current password first by re-authenticating
+      const { error: verifyError } = await supabase.auth.signInWithPassword({
+        email: profile!.email,
+        password: currentPassword,
+      });
+      if (verifyError) {
+        setPasswordError("Current password is incorrect");
+        setIsChangingPassword(false);
+        return;
+      }
       const { error } = await supabase.auth.updateUser({ password: newPassword });
       if (error) throw error;
       setCurrentPassword("");
@@ -671,7 +721,18 @@ export default function SettingsPage() {
               </CardHeader>
               <CardContent className="p-0">
                 {teamLoading ? (
-                  <div className="flex items-center justify-center py-8"><Spinner /></div>
+                  <div className="divide-y divide-slate-100">
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} className="flex items-center gap-3 px-5 py-4">
+                        <Skeleton variant="circular" className="h-8 w-8 shrink-0" />
+                        <div className="flex-1 space-y-2">
+                          <Skeleton className="h-3.5 w-36" />
+                          <Skeleton className="h-3 w-48" />
+                        </div>
+                        <Skeleton className="h-6 w-16 rounded-full" />
+                      </div>
+                    ))}
+                  </div>
                 ) : teamMembers.length === 0 ? (
                   <p className="px-5 py-8 text-center text-sm text-slate-400">No team members yet</p>
                 ) : (
@@ -713,14 +774,17 @@ export default function SettingsPage() {
                           </span>
                         </div>
                         {/* Admin controls on separate row for clean mobile layout */}
-                        {userCanManageTeam && member.id !== profile?.id && (
+                        {userCanManageTeam && member.id !== profile?.id && member.role !== "owner" && (
                           <div className="flex items-center gap-2 mt-2 ml-11">
-                            <Select
-                              options={USER_ROLES.filter((r) => r.value !== "owner").map((r) => ({ value: r.value, label: r.label }))}
-                              value={member.role}
-                              onChange={(e) => updateRoleMutation.mutate({ memberId: member.id, role: e.target.value })}
-                              className="w-24 text-xs"
-                            />
+                            {/* Role change: owner can change anyone, admin can only change agents */}
+                            {(isOwner || member.role === "agent") && (
+                              <Select
+                                options={USER_ROLES.filter((r) => r.value !== "owner").map((r) => ({ value: r.value, label: r.label }))}
+                                value={member.role}
+                                onChange={(e) => updateRoleMutation.mutate({ memberId: member.id, role: e.target.value })}
+                                className="w-24 text-xs"
+                              />
+                            )}
                             <Button
                               variant="ghost"
                               size="sm"
@@ -728,6 +792,14 @@ export default function SettingsPage() {
                               title={member.is_active ? "Deactivate" : "Activate"}
                             >
                               {member.is_active ? <UserX className="h-4 w-4 text-slate-400" /> : <UserCheck className="h-4 w-4 text-green-500" />}
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => { setRemoveMemberId(member.id); setReassignLeadsTo(""); }}
+                              title="Remove member"
+                            >
+                              <Trash2 className="h-4 w-4 text-danger-400 hover:text-danger-600" />
                             </Button>
                           </div>
                         )}
@@ -750,6 +822,88 @@ export default function SettingsPage() {
                       </p>
                     </div>
                   </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Pending Invites */}
+            {userCanManageTeam && (
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-slate-400" />
+                    <CardTitle className="text-base">
+                      Pending Invites
+                      {pendingInvites.length > 0 && (
+                        <span className="ml-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-warning-100 text-[10px] font-semibold text-warning-700">
+                          {pendingInvites.length}
+                        </span>
+                      )}
+                    </CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-0">
+                  {invitesLoading ? (
+                    <div className="px-5 py-4 space-y-3">
+                      {[1, 2].map((i) => (
+                        <div key={i} className="flex items-center gap-3">
+                          <Skeleton className="h-3.5 w-48" />
+                          <Skeleton className="h-5 w-14 rounded-full ml-auto" />
+                        </div>
+                      ))}
+                    </div>
+                  ) : pendingInvites.length === 0 ? (
+                    <p className="px-5 py-6 text-center text-sm text-slate-400">No pending invites</p>
+                  ) : (
+                    <div className="divide-y divide-slate-100">
+                      {pendingInvites.map((invite) => (
+                        <div key={invite.id} className="flex items-center justify-between px-5 py-3">
+                          <div className="min-w-0">
+                            <p className="text-sm font-medium text-slate-800 truncate">{invite.email}</p>
+                            <p className="text-xs text-slate-500">
+                              Invited as <span className="capitalize font-medium">{invite.role}</span>
+                              {" · "}
+                              {new Date(invite.invited_at).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
+                            </p>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => revokeInviteMutation.mutate(invite.id)}
+                            title="Revoke invite"
+                            className="ml-3 shrink-0"
+                          >
+                            <X className="h-4 w-4 text-slate-400 hover:text-danger-500" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Ownership Transfer — owner only, shown in team tab */}
+            {isOwner && (
+              <Card className="border-warning-200">
+                <CardHeader>
+                  <div className="flex items-center gap-2">
+                    <Crown className="h-4 w-4 text-warning-500" />
+                    <CardTitle className="text-base text-warning-700">Transfer Ownership</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-slate-600 mb-4">
+                    Transfer your owner role to another team member. You will become an admin. This action cannot be undone without their cooperation.
+                  </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-warning-300 text-warning-700 hover:bg-warning-50"
+                    onClick={() => { setShowTransferModal(true); setTransferToId(""); setTransferConfirmText(""); }}
+                  >
+                    <Crown className="mr-1.5 h-3.5 w-3.5" /> Transfer Ownership
+                  </Button>
                 </CardContent>
               </Card>
             )}
@@ -980,6 +1134,126 @@ export default function SettingsPage() {
               disabled={deleteConfirmText !== "DELETE"}
             >
               Deactivate Account
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Remove Member Modal */}
+      <Modal
+        isOpen={!!removeMemberId}
+        onClose={() => setRemoveMemberId(null)}
+        title="Remove Team Member"
+        size="sm"
+      >
+        {removeMember && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-3 rounded-lg border border-danger-200 bg-danger-50 p-3">
+              <AlertTriangle className="h-5 w-5 shrink-0 text-danger-500" />
+              <p className="text-sm text-danger-700">
+                <span className="font-medium">{removeMember.full_name}</span> will lose access to your organization immediately.
+              </p>
+            </div>
+            {removeMemberLeadCount !== null && removeMemberLeadCount > 0 && (
+              <div className="flex items-center gap-2 rounded-lg border border-warning-200 bg-warning-50 px-3 py-2">
+                <Shield className="h-3.5 w-3.5 shrink-0 text-warning-600" />
+                <p className="text-xs text-warning-700">
+                  This member has <span className="font-semibold">{removeMemberLeadCount} assigned lead{removeMemberLeadCount !== 1 ? "s" : ""}</span>. Choose what to do with them below.
+                </p>
+              </div>
+            )}
+            <div>
+              <p className="mb-1.5 text-sm font-medium text-slate-700">Reassign their leads to (optional)</p>
+              <Select
+                options={[
+                  { value: "", label: "Unassign leads" },
+                  ...teamMembers
+                    .filter((m) => m.is_active && m.id !== removeMemberId)
+                    .map((m) => ({ value: m.id, label: m.full_name || m.email })),
+                ]}
+                value={reassignLeadsTo}
+                onChange={(e) => setReassignLeadsTo(e.target.value)}
+              />
+              <p className="mt-1 text-xs text-slate-400">
+                {reassignLeadsTo ? "Their leads will be transferred to the selected member." : "Their leads will become unassigned."}
+              </p>
+            </div>
+            <div className="flex justify-end gap-3">
+              <Button variant="outline" size="sm" onClick={() => setRemoveMemberId(null)}>
+                Cancel
+              </Button>
+              <Button
+                size="sm"
+                className="bg-danger-500 hover:bg-danger-600 text-white"
+                isLoading={removeMembers.isPending}
+                disabled={removeMembers.isPending}
+                onClick={() => {
+                  removeMembers.mutate(
+                    { memberId: removeMemberId!, reassignLeadsTo: reassignLeadsTo || undefined },
+                    { onSuccess: () => setRemoveMemberId(null) }
+                  );
+                }}
+              >
+                <Trash2 className="mr-1.5 h-3.5 w-3.5" /> Remove Member
+              </Button>
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      {/* Transfer Ownership Modal */}
+      <Modal
+        isOpen={showTransferModal}
+        onClose={() => setShowTransferModal(false)}
+        title="Transfer Ownership"
+        size="sm"
+      >
+        <div className="space-y-4">
+          <div className="flex items-center gap-3 rounded-lg border border-warning-200 bg-warning-50 p-3">
+            <Crown className="h-5 w-5 shrink-0 text-warning-500" />
+            <p className="text-sm text-warning-700">
+              You will become an admin. The new owner will have full control of the organization.
+            </p>
+          </div>
+          <div>
+            <p className="mb-1.5 text-sm font-medium text-slate-700">Transfer to</p>
+            <Select
+              options={[
+                { value: "", label: "Select a member..." },
+                ...teamMembers
+                  .filter((m) => m.is_active && m.id !== profile?.id)
+                  .map((m) => ({ value: m.id, label: `${m.full_name || m.email} (${m.role})` })),
+              ]}
+              value={transferToId}
+              onChange={(e) => setTransferToId(e.target.value)}
+            />
+          </div>
+          <div>
+            <p className="mb-1.5 text-sm font-medium text-slate-700">
+              Type <span className="font-mono font-bold">TRANSFER</span> to confirm
+            </p>
+            <Input
+              value={transferConfirmText}
+              onChange={(e) => setTransferConfirmText(e.target.value)}
+              placeholder="TRANSFER"
+            />
+          </div>
+          <div className="flex justify-end gap-3">
+            <Button variant="outline" size="sm" onClick={() => setShowTransferModal(false)}>
+              Cancel
+            </Button>
+            <Button
+              size="sm"
+              className="bg-warning-500 hover:bg-warning-600 text-white"
+              isLoading={transferOwnership.isPending}
+              disabled={!transferToId || transferConfirmText !== "TRANSFER" || transferOwnership.isPending}
+              onClick={() => {
+                transferOwnership.mutate(transferToId, {
+                  onSuccess: () => setShowTransferModal(false),
+                });
+              }}
+            >
+              <Crown className="mr-1.5 h-3.5 w-3.5" /> Transfer Ownership
             </Button>
           </div>
         </div>

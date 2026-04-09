@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import {
   Landmark,
@@ -11,13 +12,17 @@ import {
   House,
   MessageCircleMore,
   ArrowRight,
+  CheckCheck,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Spinner } from "@/components/ui/spinner";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
+
 import { Avatar } from "@/components/ui/avatar";
 import { StatCard } from "@/components/analytics/stat-card";
+import { QuickAddLeadModal } from "@/components/dashboard/quick-add-lead-modal";
 import { useDashboardStats, useRecentLeads, useRecentListings, usePendingFollowUps, useSalesFunnel } from "@/hooks/use-analytics";
+import { useUpdateLead } from "@/hooks/use-leads";
 import { useAuthStore } from "@/stores/auth-store";
 import { formatRelativeTime, formatPrice } from "@/lib/utils";
 import { LEAD_STATUSES } from "@/lib/constants";
@@ -51,7 +56,7 @@ const QUICK_ACTIONS = [
   {
     label: "New Lead",
     desc: "Add a prospect",
-    href: "/leads/new",
+    href: "#quick-add",
     icon: UserPlus,
     color: "bg-primary-50 text-primary-600",
     border: "hover:border-primary-200",
@@ -93,12 +98,23 @@ const funnelColors: Record<string, string> = {
 };
 
 export default function DashboardPage() {
+  const [showQuickAdd, setShowQuickAdd] = useState(false);
   const { data: stats, isLoading: statsLoading } = useDashboardStats();
   const { data: recentLeads = [], isLoading: leadsLoading } = useRecentLeads();
   const { data: recentListings = [], isLoading: listingsLoading } = useRecentListings();
   const { data: pendingFollowUps = [] } = usePendingFollowUps();
   const { data: funnelData = [] } = useSalesFunnel();
+  const updateLead = useUpdateLead();
   const profile = useAuthStore((s) => s.profile);
+
+  const handleMarkFollowUpDone = async (leadId: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    await updateLead.mutateAsync({
+      id: leadId,
+      data: { next_followup_at: null, followup_notes: null } as Record<string, unknown>,
+    });
+  };
   const firstName = profile?.full_name?.split(" ")[0] || "there";
 
   return (
@@ -141,9 +157,15 @@ export default function DashboardPage() {
       {/* ── Stat cards ───────────────────────────────────────── */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {statsLoading ? (
-          <div className="col-span-4 flex items-center justify-center py-10">
-            <Spinner />
-          </div>
+          <>
+            {[1,2,3,4].map((i) => (
+              <div key={i} className="rounded-xl border border-slate-200 bg-white p-5">
+                <Skeleton className="mb-3 h-3 w-24" />
+                <Skeleton className="mb-2 h-8 w-20" />
+                <Skeleton className="h-3 w-32" />
+              </div>
+            ))}
+          </>
         ) : (
           <>
             <StatCard
@@ -188,21 +210,39 @@ export default function DashboardPage() {
           </p>
           <div className="grid grid-cols-2 gap-2.5">
             {QUICK_ACTIONS.map((a) => (
-              <Link
-                key={a.href}
-                href={a.href}
-                className={`group flex flex-col gap-2.5 rounded-xl border border-slate-200/80 bg-white p-4 transition-all duration-150 hover:shadow-md ${a.border}`}
-              >
-                <div className={`w-fit rounded-lg p-2 ${a.color}`}>
-                  <a.icon className="h-4 w-4" />
-                </div>
-                <div>
-                  <p className="text-[13px] font-semibold text-slate-900 group-hover:text-primary-600 transition-colors">
-                    {a.label}
-                  </p>
-                  <p className="text-[11px] text-slate-400">{a.desc}</p>
-                </div>
-              </Link>
+              a.href === "#quick-add" ? (
+                <button
+                  key={a.href}
+                  onClick={() => setShowQuickAdd(true)}
+                  className={`group flex flex-col gap-2.5 rounded-xl border border-slate-200/80 bg-white p-4 text-left transition-all duration-150 hover:shadow-md ${a.border}`}
+                >
+                  <div className={`w-fit rounded-lg p-2 ${a.color}`}>
+                    <a.icon className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <p className="text-[13px] font-semibold text-slate-900 group-hover:text-primary-600 transition-colors">
+                      {a.label}
+                    </p>
+                    <p className="text-[11px] text-slate-400">{a.desc}</p>
+                  </div>
+                </button>
+              ) : (
+                <Link
+                  key={a.href}
+                  href={a.href}
+                  className={`group flex flex-col gap-2.5 rounded-xl border border-slate-200/80 bg-white p-4 transition-all duration-150 hover:shadow-md ${a.border}`}
+                >
+                  <div className={`w-fit rounded-lg p-2 ${a.color}`}>
+                    <a.icon className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <p className="text-[13px] font-semibold text-slate-900 group-hover:text-primary-600 transition-colors">
+                      {a.label}
+                    </p>
+                    <p className="text-[11px] text-slate-400">{a.desc}</p>
+                  </div>
+                </Link>
+              )
             ))}
           </div>
         </div>
@@ -237,22 +277,28 @@ export default function DashboardPage() {
                 {pendingFollowUps.slice(0, 5).map((lead) => {
                   const isPast = new Date(lead.next_followup_at!) < new Date();
                   return (
-                    <Link
-                      key={lead.id}
-                      href={`/leads/${lead.id}`}
-                      className="flex items-center gap-3 px-5 py-3 transition-colors hover:bg-slate-50/80"
-                    >
-                      <Avatar name={lead.name} size="sm" className="h-7 w-7 text-[10px] shrink-0" />
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-[13px] font-semibold text-slate-900">{lead.name}</p>
-                        {lead.followup_notes && (
-                          <p className="truncate text-[11px] text-slate-400">{lead.followup_notes}</p>
-                        )}
-                      </div>
-                      <span className={`shrink-0 text-[11px] font-medium ${isPast ? "text-danger-600" : "text-slate-400"}`}>
-                        {formatRelativeTime(lead.next_followup_at!)}
-                      </span>
-                    </Link>
+                    <div key={lead.id} className="group flex items-center gap-3 px-5 py-3 transition-colors hover:bg-slate-50/80">
+                      <Link href={`/leads/${lead.id}`} className="flex items-center gap-3 flex-1 min-w-0">
+                        <Avatar name={lead.name} size="sm" className="h-7 w-7 text-[10px] shrink-0" />
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-[13px] font-semibold text-slate-900">{lead.name}</p>
+                          {lead.followup_notes ? (
+                            <p className="truncate text-[11px] text-slate-400">{lead.followup_notes}</p>
+                          ) : (
+                            <span className={`text-[11px] font-medium ${isPast ? "text-danger-600" : "text-slate-400"}`}>
+                              {isPast ? "Overdue · " : ""}{formatRelativeTime(lead.next_followup_at!)}
+                            </span>
+                          )}
+                        </div>
+                      </Link>
+                      <button
+                        onClick={(e) => handleMarkFollowUpDone(lead.id, e)}
+                        className="shrink-0 rounded-lg p-1.5 text-slate-300 opacity-0 transition-all group-hover:opacity-100 hover:bg-success-50 hover:text-success-600"
+                        title="Mark as done"
+                      >
+                        <CheckCheck className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
                   );
                 })}
               </div>
@@ -311,8 +357,17 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent className="p-0">
             {leadsLoading ? (
-              <div className="flex items-center justify-center py-10">
-                <Spinner />
+              <div className="divide-y divide-slate-100/80">
+                {[1,2,3].map((i) => (
+                  <div key={i} className="flex items-center gap-3 px-5 py-3">
+                    <Skeleton variant="circular" className="h-8 w-8 shrink-0" />
+                    <div className="flex-1 space-y-1.5">
+                      <Skeleton className="h-3.5 w-28" />
+                      <Skeleton className="h-3 w-20" />
+                    </div>
+                    <Skeleton className="h-5 w-16 rounded-full" />
+                  </div>
+                ))}
               </div>
             ) : recentLeads.length === 0 ? (
               <p className="px-5 py-10 text-center text-[13px] text-slate-400">No leads yet</p>
@@ -365,8 +420,20 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent className="p-0">
             {listingsLoading ? (
-              <div className="flex items-center justify-center py-10">
-                <Spinner />
+              <div className="divide-y divide-slate-100/80">
+                {[1,2,3].map((i) => (
+                  <div key={i} className="flex items-center gap-3 px-5 py-3">
+                    <Skeleton className="h-9 w-9 rounded-lg shrink-0" />
+                    <div className="flex-1 space-y-1.5">
+                      <Skeleton className="h-3.5 w-36" />
+                      <Skeleton className="h-3 w-24" />
+                    </div>
+                    <div className="text-right space-y-1.5">
+                      <Skeleton className="h-4 w-20" />
+                      <Skeleton className="h-4 w-14 rounded-full" />
+                    </div>
+                  </div>
+                ))}
               </div>
             ) : recentListings.length === 0 ? (
               <p className="px-5 py-10 text-center text-[13px] text-slate-400">No listings yet</p>
@@ -409,6 +476,8 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      <QuickAddLeadModal isOpen={showQuickAdd} onClose={() => setShowQuickAdd(false)} />
     </div>
   );
 }

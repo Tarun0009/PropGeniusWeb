@@ -37,6 +37,7 @@ import { Modal } from "@/components/ui/modal";
 import { Spinner } from "@/components/ui/spinner";
 import { Select } from "@/components/ui/select";
 import { useListing, useDeleteListing, useUpdateListing, useOptimizeListing } from "@/hooks/use-listings";
+import { useLeads } from "@/hooks/use-leads";
 import { formatPrice, formatDate, formatRelativeTime } from "@/lib/utils";
 import { LISTING_STATUSES, LISTING_PLATFORMS } from "@/lib/constants";
 import { Input } from "@/components/ui/input";
@@ -57,11 +58,14 @@ export default function ListingDetailPage() {
   const id = params.id as string;
 
   const { data: listing, isLoading } = useListing(id);
+  const { data: allLeads = [] } = useLeads();
   const deleteMutation = useDeleteListing();
   const updateMutation = useUpdateListing();
   const optimizeMutation = useOptimizeListing();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showStatusModal, setShowStatusModal] = useState(false);
+  const [showMatchModal, setShowMatchModal] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
   const [newStatus, setNewStatus] = useState<ListingStatus>("active");
   const [optimizeData, setOptimizeData] = useState<OptimizeListingResponse | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
@@ -122,6 +126,27 @@ export default function ListingDetailPage() {
     router.push("/listings");
   };
 
+  const handleShareLink = async () => {
+    const url = `${window.location.origin}/p/${id}`;
+    await navigator.clipboard.writeText(url);
+    setLinkCopied(true);
+    setTimeout(() => setLinkCopied(false), 2000);
+  };
+
+  const matchingLeads = listing ? allLeads.filter((lead) => {
+    const price = listing.price;
+    const budgetMatch =
+      !lead.budget_min && !lead.budget_max
+        ? false
+        : (lead.budget_min ? lead.budget_min <= price * 1.2 : true) &&
+          (lead.budget_max ? lead.budget_max >= price * 0.8 : true);
+    const locationMatch = listing.city && lead.preferred_location
+      ? lead.preferred_location.toLowerCase().includes(listing.city.toLowerCase()) ||
+        listing.city.toLowerCase().includes(lead.preferred_location.toLowerCase())
+      : false;
+    return budgetMatch || locationMatch;
+  }) : [];
+
   const handleOptimize = async () => {
     if (!listing) return;
     const daysActive = Math.floor((Date.now() - new Date(listing.created_at).getTime()) / (1000 * 60 * 60 * 24));
@@ -158,6 +183,27 @@ export default function ListingDetailPage() {
         ]}
         actions={
           <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowMatchModal(true)}
+            >
+              <Search className="mr-1.5 h-3.5 w-3.5" />
+              Match Leads
+              {matchingLeads.length > 0 && (
+                <span className="ml-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary-600 text-[10px] font-bold text-white">
+                  {matchingLeads.length}
+                </span>
+              )}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleShareLink}
+            >
+              {linkCopied ? <Check className="mr-1.5 h-3.5 w-3.5 text-success-600" /> : <LinkIcon className="mr-1.5 h-3.5 w-3.5" />}
+              {linkCopied ? "Copied!" : "Share Link"}
+            </Button>
             <Button
               variant="outline"
               size="sm"
@@ -762,6 +808,49 @@ export default function ListingDetailPage() {
           >
             Update Status
           </Button>
+        </div>
+      </Modal>
+
+      {/* Match Leads Modal */}
+      <Modal isOpen={showMatchModal} onClose={() => setShowMatchModal(false)} title="Matching Leads" size="md">
+        <div className="space-y-4">
+          <p className="text-sm text-slate-500">
+            Leads matching <span className="font-medium text-slate-700">{listing?.title}</span> by budget or location:
+          </p>
+          {matchingLeads.length === 0 ? (
+            <div className="rounded-lg border border-slate-200 py-10 text-center">
+              <p className="text-sm text-slate-400">No matching leads found</p>
+              <p className="mt-1 text-xs text-slate-400">Add leads with budget or location preferences to see matches here.</p>
+            </div>
+          ) : (
+            <div className="divide-y divide-slate-100 rounded-lg border border-slate-200 overflow-hidden">
+              {matchingLeads.map((lead) => (
+                <Link
+                  key={lead.id}
+                  href={`/leads/${lead.id}`}
+                  onClick={() => setShowMatchModal(false)}
+                  className="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors"
+                >
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-100 text-[11px] font-bold text-primary-700">
+                    {lead.name.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium text-slate-900">{lead.name}</p>
+                    <p className="truncate text-xs text-slate-400">
+                      {lead.preferred_location && `📍 ${lead.preferred_location}`}
+                      {lead.budget_min && lead.budget_max && ` · ${formatPrice(lead.budget_min)} – ${formatPrice(lead.budget_max)}`}
+                    </p>
+                  </div>
+                  <Badge variant={lead.status === "converted" ? "success" : lead.status === "lost" ? "danger" : "default"} size="sm">
+                    {lead.status}
+                  </Badge>
+                </Link>
+              ))}
+            </div>
+          )}
+          <p className="text-xs text-slate-400">
+            Matching criteria: leads whose budget range overlaps with listing price (±20%) or whose preferred location matches the listing city.
+          </p>
         </div>
       </Modal>
     </div>

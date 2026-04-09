@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { Clock, X } from "lucide-react";
 import { PlanCard } from "./plan-card";
-import { CheckoutButton } from "./checkout-button";
 import { SUBSCRIPTION_PLANS } from "@/lib/constants";
 import type { SubscriptionPlan } from "@/types/subscription";
 
@@ -72,13 +72,36 @@ function PlanSelector({ currentPlan }: PlanSelectorProps) {
         ))}
       </div>
 
-      {/* Checkout Button (hidden, triggered by plan selection) */}
+      {/* Coming Soon notice when plan is selected */}
       {selectedPlan && selectedPlan !== "free" && (
-        <CheckoutButton
-          plan={selectedPlan as "pro" | "business"}
-          billingCycle={isAnnual ? "annual" : "monthly"}
-          onClose={() => setSelectedPlan(null)}
-        />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="relative w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl text-center">
+            <button
+              onClick={() => setSelectedPlan(null)}
+              className="absolute right-4 top-4 rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-50">
+              <Clock className="h-7 w-7 text-amber-500" />
+            </div>
+            <h3 className="mb-2 text-lg font-semibold text-slate-900">Payment Coming Soon</h3>
+            <p className="mb-6 text-sm text-slate-500 leading-relaxed">
+              Our payment system is currently being set up. You&apos;ll be able to upgrade to{" "}
+              <span className="font-semibold text-primary-600 capitalize">{selectedPlan}</span>{" "}
+              very soon.
+            </p>
+            <p className="text-xs text-slate-400">
+              In the meantime, use the dev upgrade tool in browser console to test Pro features.
+            </p>
+            <button
+              onClick={() => setSelectedPlan(null)}
+              className="mt-6 w-full rounded-lg bg-slate-100 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-200 transition-colors"
+            >
+              Got it
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );

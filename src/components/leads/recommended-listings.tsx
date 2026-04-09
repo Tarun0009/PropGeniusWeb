@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Sparkles, Building2, MapPin, MessageSquare } from "lucide-react";
+import { Sparkles, Building2, MapPin, MessageSquare, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useListings } from "@/hooks/use-listings";
 import { useMatchListings } from "@/hooks/use-leads";
 import { formatPrice } from "@/lib/utils";
@@ -21,8 +21,6 @@ function RecommendedListings({ lead }: RecommendedListingsProps) {
   const [matches, setMatches] = useState<{ listing_id: string; match_score: number; reason: string }[]>([]);
 
   const hasPreferences = !!(lead.budget_min || lead.budget_max || lead.preferred_location || lead.preferred_property_type);
-
-  if (!hasPreferences || allListings.length === 0) return null;
 
   const handleMatch = async () => {
     const listingSummaries = allListings.map((l) => ({
@@ -48,6 +46,15 @@ function RecommendedListings({ lead }: RecommendedListingsProps) {
     setMatches(result.matches);
   };
 
+  useEffect(() => {
+    if (hasPreferences && allListings.length > 0 && matches.length === 0 && !matchMutation.isPending) {
+      handleMatch();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasPreferences, allListings.length]);
+
+  if (!hasPreferences || allListings.length === 0) return null;
+
   const matchedListings = matches
     .map((m) => {
       const listing = allListings.find((l) => l.id === m.listing_id);
@@ -67,18 +74,31 @@ function RecommendedListings({ lead }: RecommendedListingsProps) {
           variant="outline"
           onClick={handleMatch}
           disabled={matchMutation.isPending}
+          isLoading={matchMutation.isPending}
         >
-          {matchMutation.isPending ? (
-            <><Spinner size="sm" /> Matching...</>
-          ) : matches.length > 0 ? (
-            "Re-match"
-          ) : (
-            "Find Matches"
+          {!matchMutation.isPending && (
+            <RefreshCw className="mr-1.5 h-3 w-3" />
           )}
+          {matches.length > 0 ? "Re-match" : "Refresh"}
         </Button>
       </div>
 
-      {matchedListings.length > 0 ? (
+      {matchMutation.isPending ? (
+        <div className="space-y-3">
+          {[1, 2].map((i) => (
+            <div key={i} className="rounded-lg border border-slate-100 p-3 space-y-2">
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex-1 space-y-1.5">
+                  <Skeleton className="h-4 w-48" />
+                  <Skeleton className="h-3 w-32" />
+                </div>
+                <Skeleton className="h-5 w-10 rounded-full" />
+              </div>
+              <Skeleton className="h-3 w-full" />
+            </div>
+          ))}
+        </div>
+      ) : matchedListings.length > 0 ? (
         <div className="space-y-3">
           {matchedListings.map(({ listing, match_score, reason }) => (
             <div
@@ -125,11 +145,11 @@ function RecommendedListings({ lead }: RecommendedListingsProps) {
             </div>
           ))}
         </div>
-      ) : !matchMutation.isPending ? (
+      ) : (
         <p className="text-sm text-slate-400">
-          Click &quot;Find Matches&quot; to get AI-powered listing recommendations for this lead.
+          No matching listings found. Try adding more active listings.
         </p>
-      ) : null}
+      )}
     </div>
   );
 }

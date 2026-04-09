@@ -34,7 +34,9 @@
     ],
     "additionalDirectories": [
       "c:\\Users\\Tarun\\Documents\\propgenius\\src\\app\\p",
-      "c:\\Users\\Tarun\\.claude\\plans"
+      "c:\\Users\\Tarun\\.claude\\plans",
+      "c:\\Users\\Tarun\\Documents\\propgenius\\src\\app\\p\\[id]",
+      "c:\\Users\\Tarun\\Documents\\propgenius\\src\\app\\api\\team\\members"
     ]
   }
 }

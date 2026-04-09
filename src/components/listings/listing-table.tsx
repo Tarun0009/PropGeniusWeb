@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
-import { Building2, Home, Building, Landmark, Store, Users } from "lucide-react";
+import { Building2, Home, Building, Landmark, Store, Users, Link2, Check } from "lucide-react";
 import { DataTable } from "@/components/ui/data-table";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,25 @@ import { formatPrice, formatRelativeTime } from "@/lib/utils";
 import { PROPERTY_TYPES, LISTING_STATUSES } from "@/lib/constants";
 import type { Listing } from "@/types/listing";
 import type { ListingFilters } from "@/lib/validations";
+
+function CopyLinkButton({ listingId }: { listingId: string }) {
+  const [copied, setCopied] = useState(false);
+  const handleCopy = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    await navigator.clipboard.writeText(`${window.location.origin}/p/${listingId}`);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+  return (
+    <button
+      onClick={handleCopy}
+      className="rounded-lg p-1.5 text-slate-400 transition-all hover:bg-slate-100 hover:text-slate-700"
+      title="Copy public link"
+    >
+      {copied ? <Check className="h-3.5 w-3.5 text-success-600" /> : <Link2 className="h-3.5 w-3.5" />}
+    </button>
+  );
+}
 import type { MemberLookup } from "@/hooks/use-team-lookup";
 
 const statusVariant: Record<string, "default" | "success" | "primary" | "purple" | "warning"> = {
@@ -113,6 +132,15 @@ function getColumns(memberLookup?: MemberLookup) {
       cell: (info) => (
         <span className="text-slate-500">{formatRelativeTime(info.getValue())}</span>
       ),
+    }),
+    columnHelper.accessor("id", {
+      header: "",
+      id: "actions",
+      cell: (info) => {
+        const listing = info.row.original;
+        if (listing.status !== "active") return null;
+        return <CopyLinkButton listingId={info.getValue()} />;
+      },
     })
   );
 

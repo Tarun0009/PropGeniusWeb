@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import { Building2, Users, Flame, TrendingUp } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Tabs } from "@/components/ui/tabs";
-import { Spinner } from "@/components/ui/spinner";
+import { Skeleton } from "@/components/ui/skeleton";
 import { StatCard } from "@/components/analytics/stat-card";
 import { AIInsights } from "@/components/analytics/ai-insights";
 import {
@@ -20,8 +20,17 @@ import {
 } from "@/hooks/use-analytics";
 
 const ChartSkeleton = () => (
-  <div className="flex h-80 items-center justify-center rounded-lg border border-slate-200 bg-white">
-    <Spinner />
+  <div className="rounded-xl border border-slate-200 bg-white p-5">
+    <Skeleton className="mb-4 h-5 w-36" />
+    <Skeleton className="h-60 w-full" />
+  </div>
+);
+
+const StatCardSkeleton = () => (
+  <div className="rounded-xl border border-slate-200 bg-white p-5">
+    <Skeleton className="mb-3 h-3 w-24" />
+    <Skeleton className="mb-2 h-8 w-20" />
+    <Skeleton className="h-3 w-32" />
   </div>
 );
 
@@ -63,7 +72,7 @@ const PERIOD_TABS = [
 
 export default function AnalyticsPage() {
   const [period, setPeriod] = useState("30d");
-  const { data: stats, isLoading: statsLoading } = useDashboardStats();
+  const { data: stats, isLoading: statsLoading, isError: statsError } = useDashboardStats();
   const { data: funnelData = [], isLoading: funnelLoading } = useLeadsByStatus();
   const { data: sourceData = [], isLoading: sourceLoading } = useLeadsBySource();
   const { data: typeData = [], isLoading: typeLoading } = useListingsByType();
@@ -87,8 +96,16 @@ export default function AnalyticsPage() {
       {/* Stat Cards */}
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {statsLoading ? (
-          <div className="col-span-4 flex items-center justify-center py-8">
-            <Spinner />
+          <>
+            <StatCardSkeleton />
+            <StatCardSkeleton />
+            <StatCardSkeleton />
+            <StatCardSkeleton />
+          </>
+        ) : statsError ? (
+          <div className="col-span-4 rounded-xl border border-danger-200 bg-danger-50 p-6 text-center">
+            <p className="text-sm font-medium text-danger-700">Failed to load analytics data</p>
+            <p className="mt-1 text-xs text-danger-500">Please refresh the page to try again.</p>
           </div>
         ) : (
           <>

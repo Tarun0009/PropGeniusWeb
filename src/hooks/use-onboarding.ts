@@ -1,42 +1,38 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useAuthStore } from "@/stores/auth-store";
 
 const NEW_USER_THRESHOLD_MS = 15 * 60 * 1000; // 15 minutes
+// Captured at module load (not during render) so the compiler treats it as a stable value
+const MODULE_LOAD_TIME = Date.now();
 
 export function useOnboarding() {
   const { profile } = useAuthStore();
-  const [isComplete, setIsComplete] = useState(true); // default hidden until we check
+  const [dismissed, setDismissed] = useState(false);
 
-  useEffect(() => {
-    if (!profile) return;
-
-    const storageKey = `propgenius_onboarding_${profile.id}`;
-
-    // Already completed on this device
-    if (localStorage.getItem(storageKey) === "true") {
-      setIsComplete(true);
-      return;
+  // Derive completion state without calling setState inside an effect
+  const isComplete = useMemo(() => {
+    if (dismissed) return true;
+    if (!profile) return true;
+    if (typeof window !== "undefined") {
+      const storageKey = `propgenius_onboarding_${profile.id}`;
+      if (localStorage.getItem(storageKey) === "true") return true;
     }
-
-    // Only show onboarding if user was created within the last 15 minutes
     const createdAt = new Date(profile.created_at).getTime();
-    const isNewUser = Date.now() - createdAt < NEW_USER_THRESHOLD_MS;
+    return MODULE_LOAD_TIME - createdAt >= NEW_USER_THRESHOLD_MS;
+  }, [profile, dismissed]);
 
-    if (isNewUser) {
-      setIsComplete(false);
-    } else {
-      // Existing user — mark complete so it never shows again
-      localStorage.setItem(storageKey, "true");
-      setIsComplete(true);
-    }
-  }, [profile]);
+  // Persist completion to localStorage as a side effect only
+  useEffect(() => {
+    if (!profile || !isComplete || typeof window === "undefined") return;
+    localStorage.setItem(`propgenius_onboarding_${profile.id}`, "true");
+  }, [profile, isComplete]);
 
   const complete = useCallback(() => {
     if (!profile) return;
     localStorage.setItem(`propgenius_onboarding_${profile.id}`, "true");
-    setIsComplete(true);
+    setDismissed(true);
   }, [profile]);
 
   return { isComplete, complete };

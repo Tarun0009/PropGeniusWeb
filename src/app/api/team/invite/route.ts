@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { canManageTeam } from "@/lib/permissions";
+import { PLAN_LIMITS } from "@/lib/constants";
 import type { UserRole } from "@/types/user";
 
 export async function POST(request: NextRequest) {
@@ -55,6 +56,31 @@ export async function POST(request: NextRequest) {
         { error: "A team member with this email already exists in your organization" },
         { status: 409 }
       );
+    }
+
+    // Check seat quota before sending invite
+    const { data: org } = await supabase
+      .from("organizations")
+      .select("plan")
+      .eq("id", profile.organization_id)
+      .single();
+
+    const plan = ((org?.plan || "free") as keyof typeof PLAN_LIMITS);
+    const maxAgents = PLAN_LIMITS[plan].maxAgents;
+
+    if (maxAgents !== -1) {
+      const { count } = await supabase
+        .from("profiles")
+        .select("id", { count: "exact", head: true })
+        .eq("organization_id", profile.organization_id)
+        .eq("is_active", true);
+
+      if ((count ?? 0) >= maxAgents) {
+        return NextResponse.json(
+          { error: `You've reached the ${maxAgents} member limit on your ${plan} plan. Upgrade to add more.` },
+          { status: 403 }
+        );
+      }
     }
 
     const appUrl =

@@ -3,14 +3,15 @@
 import { useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { Contact, Upload, Download, Wand2, Plus } from "lucide-react";
+import { Contact, Upload, Download, Wand2, Plus, Zap } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Button } from "@/components/ui/button";
 import { Tabs } from "@/components/ui/tabs";
-import { Spinner } from "@/components/ui/spinner";
+import { Skeleton } from "@/components/ui/skeleton";
 import { LeadTable } from "@/components/leads/lead-table";
 import { CSVImportModal } from "@/components/leads/csv-import-modal";
+import { QuickAddLeadModal } from "@/components/dashboard/quick-add-lead-modal";
 import { useLeads, useScoreLead, useUpdateLead } from "@/hooks/use-leads";
 import { useQuota } from "@/hooks/use-quota";
 import { useTeamMemberLookup } from "@/hooks/use-team-lookup";
@@ -23,8 +24,10 @@ const LeadKanban = dynamic(
   () => import("@/components/leads/lead-kanban").then((m) => ({ default: m.LeadKanban })),
   {
     loading: () => (
-      <div className="flex min-h-75 items-center justify-center">
-        <Spinner size="lg" />
+      <div className="space-y-3 pt-4">
+        {[1, 2, 3, 4, 5, 6, 7].map((i) => (
+          <Skeleton key={i} className="h-24 w-full rounded-xl" />
+        ))}
       </div>
     ),
   }
@@ -39,9 +42,10 @@ export default function LeadsPage() {
   const [view, setView] = useState("table");
   const [filters, setFilters] = useState<LeadFilters>({});
   const [showImport, setShowImport] = useState(false);
+  const [showQuickAdd, setShowQuickAdd] = useState(false);
   const [scoringProgress, setScoringProgress] = useState<{ current: number; total: number } | null>(null);
 
-  const { data: leads, isLoading } = useLeads(filters);
+  const { data: leads, isLoading, isError } = useLeads(filters);
   const { data: quota } = useQuota();
   const memberLookup = useTeamMemberLookup();
   const scoreMutation = useScoreLead();
@@ -147,9 +151,15 @@ export default function LeadsPage() {
                 </Button>
               </Link>
             ) : (
-              <Link href="/leads/new">
-                <Button size="sm"><Plus className="mr-1.5 h-3.5 w-3.5" />Add Lead</Button>
-              </Link>
+              <>
+                <Button size="sm" variant="outline" onClick={() => setShowQuickAdd(true)}>
+                  <Zap className="mr-1.5 h-3.5 w-3.5" />
+                  Quick Add
+                </Button>
+                <Link href="/leads/new">
+                  <Button size="sm"><Plus className="mr-1.5 h-3.5 w-3.5" />Add Lead</Button>
+                </Link>
+              </>
             )}
           </div>
         }
@@ -163,8 +173,29 @@ export default function LeadsPage() {
       {/* Content */}
       <div className="mt-4">
         {isLoading ? (
-          <div className="flex min-h-75 items-center justify-center">
-            <Spinner size="lg" />
+          <div className="rounded-xl border border-slate-200 bg-white overflow-hidden">
+            <div className="border-b border-slate-100 px-5 py-3 flex items-center gap-3">
+              <Skeleton className="h-8 w-40" />
+              <Skeleton className="h-8 w-28" />
+              <Skeleton className="ml-auto h-8 w-20" />
+            </div>
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="flex items-center gap-4 border-b border-slate-50 px-5 py-3.5 last:border-0">
+                <Skeleton variant="circular" className="h-8 w-8 shrink-0" />
+                <div className="flex-1 space-y-1.5">
+                  <Skeleton className="h-3.5 w-36" />
+                  <Skeleton className="h-3 w-24" />
+                </div>
+                <Skeleton className="h-6 w-16 rounded-full" />
+                <Skeleton className="h-6 w-12 rounded-full" />
+                <Skeleton className="h-3 w-20" />
+              </div>
+            ))}
+          </div>
+        ) : isError ? (
+          <div className="rounded-xl border border-danger-200 bg-danger-50 p-8 text-center">
+            <p className="text-sm font-medium text-danger-700">Failed to load leads</p>
+            <p className="mt-1 text-xs text-danger-500">Please refresh the page to try again.</p>
           </div>
         ) : !leads || leads.length === 0 ? (
           <div className="mt-8">
@@ -193,6 +224,9 @@ export default function LeadsPage() {
 
       {/* CSV Import Modal */}
       <CSVImportModal isOpen={showImport} onClose={() => setShowImport(false)} />
+
+      {/* Quick Add Modal */}
+      <QuickAddLeadModal isOpen={showQuickAdd} onClose={() => setShowQuickAdd(false)} />
     </div>
   );
 }

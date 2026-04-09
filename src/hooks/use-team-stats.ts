@@ -7,6 +7,7 @@ import { useAuthStore } from "@/stores/auth-store";
 export interface TeamMemberStats {
   listingsCreated: number;
   leadsAssigned: number;
+  leadsConverted: number;
 }
 
 export function useTeamMemberStats() {
@@ -18,36 +19,37 @@ export function useTeamMemberStats() {
     queryFn: async (): Promise<Map<string, TeamMemberStats>> => {
       if (!profile) return new Map();
 
-      const [listingsRes, leadsRes] = await Promise.all([
-        supabase
-          .from("listings")
-          .select("created_by"),
-        supabase
-          .from("leads")
-          .select("assigned_to"),
+      const [listingsRes, leadsRes, convertedRes] = await Promise.all([
+        supabase.from("listings").select("created_by"),
+        supabase.from("leads").select("assigned_to"),
+        supabase.from("leads").select("assigned_to").eq("status", "converted"),
       ]);
 
       if (listingsRes.error) throw listingsRes.error;
       if (leadsRes.error) throw leadsRes.error;
+      if (convertedRes.error) throw convertedRes.error;
 
       const statsMap = new Map<string, TeamMemberStats>();
 
       for (const listing of listingsRes.data) {
         const id = listing.created_by;
         if (!id) continue;
-        if (!statsMap.has(id)) {
-          statsMap.set(id, { listingsCreated: 0, leadsAssigned: 0 });
-        }
+        if (!statsMap.has(id)) statsMap.set(id, { listingsCreated: 0, leadsAssigned: 0, leadsConverted: 0 });
         statsMap.get(id)!.listingsCreated++;
       }
 
       for (const lead of leadsRes.data) {
         const id = lead.assigned_to;
         if (!id) continue;
-        if (!statsMap.has(id)) {
-          statsMap.set(id, { listingsCreated: 0, leadsAssigned: 0 });
-        }
+        if (!statsMap.has(id)) statsMap.set(id, { listingsCreated: 0, leadsAssigned: 0, leadsConverted: 0 });
         statsMap.get(id)!.leadsAssigned++;
+      }
+
+      for (const lead of convertedRes.data) {
+        const id = lead.assigned_to;
+        if (!id) continue;
+        if (!statsMap.has(id)) statsMap.set(id, { listingsCreated: 0, leadsAssigned: 0, leadsConverted: 0 });
+        statsMap.get(id)!.leadsConverted++;
       }
 
       return statsMap;

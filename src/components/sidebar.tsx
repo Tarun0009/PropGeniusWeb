@@ -122,7 +122,11 @@ export function Sidebar() {
                 <Avatar name={profile.full_name} src={profile.avatar_url} size="sm" />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-xs font-medium text-slate-200">{profile.full_name}</p>
-                  <p className="text-[10px] truncate text-slate-500">{profile.organization?.name ?? profile.role}</p>
+                  {profile.organization?.name ? (
+                    <p className="text-[10px] truncate text-slate-500">{profile.organization.name}</p>
+                  ) : (
+                    <p className="text-[10px] capitalize truncate text-slate-500">{profile.role}</p>
+                  )}
                 </div>
               </div>
             )}

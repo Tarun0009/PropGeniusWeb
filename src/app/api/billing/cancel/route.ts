@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { cancelSubscriptionSchema } from "@/lib/validations";
 import { cancelRazorpaySubscription } from "@/lib/razorpay";
+import { PLAN_LIMITS } from "@/lib/constants";
 
 export async function POST(request: NextRequest) {
   try {
@@ -74,9 +75,9 @@ export async function POST(request: NextRequest) {
       .update({
         plan: "free",
         razorpay_subscription_id: null,
-        max_listings: 5,
-        max_leads: 50,
-        max_agents: 1,
+        max_listings: PLAN_LIMITS.free.maxListings,
+        max_leads: PLAN_LIMITS.free.maxLeads,
+        max_agents: PLAN_LIMITS.free.maxAgents,
         updated_at: now,
       })
       .eq("id", profile.organization_id);

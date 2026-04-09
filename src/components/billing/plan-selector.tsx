@@ -87,7 +87,7 @@ function PlanSelector({ currentPlan }: PlanSelectorProps) {
             </div>
             <h3 className="mb-2 text-lg font-semibold text-slate-900">Payment Coming Soon</h3>
             <p className="mb-6 text-sm text-slate-500 leading-relaxed">
-              Our payment system is currently being set up. You'll be able to upgrade to{" "}
+              Our payment system is currently being set up. You&apos;ll be able to upgrade to{" "}
               <span className="font-semibold text-primary-600 capitalize">{selectedPlan}</span>{" "}
               very soon.
             </p>

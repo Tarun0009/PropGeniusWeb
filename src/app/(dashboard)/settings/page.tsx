@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useMemo, useEffect } from "react";
-import { Check, Pencil, Shield, UserX, UserCheck, Plus, Camera, Lock, Landmark, KeyRound, AlertTriangle, LogOut, Mail, Trash2, Crown, Clock, X } from "lucide-react";
+import { Check, Pencil, Shield, UserX, UserCheck, Plus, Camera, Lock, Landmark, KeyRound, AlertTriangle, LogOut, Trash2, Crown, Clock, X } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs } from "@/components/ui/tabs";

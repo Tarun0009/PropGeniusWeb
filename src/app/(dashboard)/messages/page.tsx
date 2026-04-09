@@ -22,7 +22,7 @@ export default function MessagesPage() {
               WhatsApp Messaging
             </h2>
             <p className="mb-6 max-w-sm text-sm text-slate-500 leading-relaxed">
-              Our team is working on integrating WhatsApp Business API. You'll be able to send and receive messages from your leads directly here.
+              Our team is working on integrating WhatsApp Business API. You&apos;ll be able to send and receive messages from your leads directly here.
             </p>
 
             <div className="w-full max-w-xs space-y-3 text-left">

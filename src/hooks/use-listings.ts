@@ -88,7 +88,7 @@ export function useCreateListing() {
       const plan = (org?.plan || "free") as keyof typeof PLAN_LIMITS;
       const limits = PLAN_LIMITS[plan];
 
-      if (limits.maxListings !== Infinity) {
+      if (limits.maxListings !== -1) {
         const { count } = await supabase
           .from("listings")
           .select("id", { count: "exact", head: true })
@@ -115,6 +115,7 @@ export function useCreateListing() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: LISTINGS_KEY });
+      queryClient.invalidateQueries({ queryKey: ["quota"] });
       addToast({ type: "success", title: "Listing created successfully" });
     },
     onError: (error) => {
@@ -127,9 +128,22 @@ export function useUpdateListing() {
   const supabase = createClient();
   const queryClient = useQueryClient();
   const addToast = useNotificationStore((s) => s.addToast);
+  const profile = useAuthStore((s) => s.profile);
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<ListingFormData> }) => {
+      // Agents can only update listings they created
+      if (profile?.role === "agent" && profile?.id) {
+        const { data: existing } = await supabase
+          .from("listings")
+          .select("created_by")
+          .eq("id", id)
+          .single();
+        if (!existing || existing.created_by !== profile.id) {
+          throw new Error("You can only edit your own listings");
+        }
+      }
+
       const { data: listing, error } = await supabase
         .from("listings")
         .update({ ...data, updated_at: new Date().toISOString() })
@@ -155,14 +169,28 @@ export function useDeleteListing() {
   const supabase = createClient();
   const queryClient = useQueryClient();
   const addToast = useNotificationStore((s) => s.addToast);
+  const profile = useAuthStore((s) => s.profile);
 
   return useMutation({
     mutationFn: async (id: string) => {
+      // Agents can only delete their own listings
+      if (profile?.role === "agent" && profile?.id) {
+        const { data: existing } = await supabase
+          .from("listings")
+          .select("created_by")
+          .eq("id", id)
+          .single();
+        if (!existing || existing.created_by !== profile.id) {
+          throw new Error("You can only delete your own listings");
+        }
+      }
+
       const { error } = await supabase.from("listings").delete().eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: LISTINGS_KEY });
+      queryClient.invalidateQueries({ queryKey: ["quota"] });
       addToast({ type: "success", title: "Listing deleted" });
     },
     onError: (error) => {

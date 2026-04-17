@@ -9,5 +9,5 @@ export function canManageTeam(role: UserRole): boolean {
 }
 
 export function canManageBilling(role: UserRole): boolean {
-  return role === "owner" || role === "admin";
+  return role === "owner";
 }

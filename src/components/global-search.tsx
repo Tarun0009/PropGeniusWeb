@@ -104,6 +104,7 @@ function GlobalSearch() {
           type="text"
           placeholder="Search... (Ctrl+K)"
           className="bg-transparent text-sm text-slate-700 placeholder:text-slate-400 outline-none w-full"
+          autoComplete="off"
           value={query}
           onChange={(e) => {
             setQuery(e.target.value);

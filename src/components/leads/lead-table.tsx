@@ -2,7 +2,8 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Trash2, ArrowRight } from "lucide-react";
+import Link from "next/link";
+import { Trash2, ArrowRight, MessageSquare } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -113,6 +114,7 @@ function LeadTable({ data, filters, onFiltersChange, memberLookup }: LeadTablePr
             placeholder="Search leads..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            autoComplete="off"
           />
         </form>
         <div className="w-40">
@@ -243,9 +245,28 @@ function LeadTable({ data, filters, onFiltersChange, memberLookup }: LeadTablePr
                         className="h-4 w-4 rounded border-slate-300"
                       />
                     </td>
-                    <td className="px-4 py-3" onClick={() => router.push(`/leads/${lead.id}`)}>
-                      <p className="font-medium text-slate-900">{lead.name}</p>
-                      {lead.phone && <p className="text-xs text-slate-500">{lead.phone}</p>}
+                    <td className="px-4 py-3">
+                      <p
+                        className="font-medium text-slate-900 cursor-pointer hover:text-primary-600"
+                        onClick={() => router.push(`/leads/${lead.id}`)}
+                      >
+                        {lead.name}
+                      </p>
+                      <div className="flex items-center gap-2">
+                        {lead.phone && (
+                          <p className="text-xs text-slate-500">{lead.phone}</p>
+                        )}
+                        {lead.whatsapp_number && (
+                          <Link
+                            href={`/messages?lead=${lead.id}`}
+                            onClick={(e) => e.stopPropagation()}
+                            className="text-green-500 hover:text-green-600"
+                            title="Open WhatsApp chat"
+                          >
+                            <MessageSquare className="h-3.5 w-3.5" />
+                          </Link>
+                        )}
+                      </div>
                     </td>
                     <td className="px-4 py-3 text-sm capitalize text-slate-600" onClick={() => router.push(`/leads/${lead.id}`)}>
                       {sourceLabel}
@@ -272,7 +293,7 @@ function LeadTable({ data, filters, onFiltersChange, memberLookup }: LeadTablePr
                               size="sm"
                               className="h-6 w-6 text-[10px]"
                             />
-                            <span className="text-sm text-slate-600 truncate max-w-[120px]">
+                            <span className="text-sm text-slate-600 truncate max-w-30">
                               {memberLookup.get(lead.assigned_to)!.name}
                             </span>
                           </div>

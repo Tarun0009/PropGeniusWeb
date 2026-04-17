@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   DndContext,
@@ -12,7 +12,7 @@ import {
   type DragStartEvent,
   type DragEndEvent,
 } from "@dnd-kit/core";
-import { useDroppable } from "@dnd-kit/core";
+import { useDroppable, useDraggable } from "@dnd-kit/core";
 import { Badge } from "@/components/ui/badge";
 import { LeadCard } from "./lead-card";
 import { useUpdateLeadStatus } from "@/hooks/use-leads";
@@ -75,30 +75,13 @@ function KanbanColumn({ status, label, leads, onLeadClick }: KanbanColumnProps) 
 }
 
 function DraggableLeadCard({ lead, onClick }: { lead: Lead; onClick: () => void }) {
-  const { attributes, listeners, setNodeRef, isDragging } = useDraggable(lead.id);
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: lead.id });
 
   return (
-    <div ref={setNodeRef} {...attributes} {...listeners}>
+    <div ref={setNodeRef} {...attributes} {...listeners} style={{ opacity: isDragging ? 0.4 : 1 }}>
       <LeadCard lead={lead} onClick={onClick} isDragging={isDragging} />
     </div>
   );
-}
-
-function useDraggable(id: string) {
-  const [isDragging, setIsDragging] = React.useState(false);
-  const nodeRef = React.useRef<HTMLDivElement>(null);
-
-  return {
-    attributes: { "data-draggable-id": id },
-    listeners: {
-      onPointerDown: () => setIsDragging(false),
-    },
-    setNodeRef: (node: HTMLDivElement | null) => {
-      (nodeRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
-    },
-    isDragging,
-    setIsDragging,
-  };
 }
 
 interface LeadKanbanProps {
@@ -127,40 +110,21 @@ function LeadKanban({ leads }: LeadKanbanProps) {
   const activeLead = activeId ? leads.find((l) => l.id === activeId) : null;
 
   const handleDragStart = (event: DragStartEvent) => {
-    // The active id comes from the draggable item
-    const leadId = findLeadIdFromEvent(event);
-    if (leadId) setActiveId(leadId);
+    setActiveId(event.active.id as string);
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
     setActiveId(null);
     const { active, over } = event;
-
     if (!over) return;
 
-    const leadId = findLeadIdFromDragEvent(active);
+    const leadId = active.id as string;
     const newStatus = over.id as string;
-
-    if (!leadId || !newStatus) return;
-
     const lead = leads.find((l) => l.id === leadId);
     if (lead && lead.status !== newStatus) {
       updateStatusMutation.mutate({ id: leadId, status: newStatus });
     }
   };
-
-  // Find lead ID from drag events by walking up the DOM
-  function findLeadIdFromEvent(event: DragStartEvent): string | null {
-    const node = event.active.id;
-    // Since we can't easily use dnd-kit's built-in draggable with our card structure,
-    // we use the data-lead-id attribute approach
-    const el = document.querySelector(`[data-lead-id="${node}"]`);
-    return el?.getAttribute("data-lead-id") || (node as string);
-  }
-
-  function findLeadIdFromDragEvent(active: DragEndEvent["active"]): string | null {
-    return active.id as string;
-  }
 
   return (
     <DndContext

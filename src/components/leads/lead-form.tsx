@@ -32,11 +32,13 @@ function LeadForm({ lead }: LeadFormProps) {
 
   const profile = useAuthStore((s) => s.profile);
   const { data: teamMembers = [] } = useTeamMembers();
-  const showAssignment = teamMembers.length > 1;
+  const isManager = profile?.role === "owner" || profile?.role === "admin";
+  const showAssignment = isManager && teamMembers.length > 1;
 
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<LeadFormData>({
     resolver: zodResolver(leadFormSchema),
@@ -60,6 +62,8 @@ function LeadForm({ lead }: LeadFormProps) {
       lost_reason: lead?.lost_reason || "",
     },
   });
+
+  const watchedStatus = watch("status");
 
   const checkDuplicate = async (data: LeadFormData): Promise<string | null> => {
     const supabase = createClient();
@@ -197,13 +201,27 @@ function LeadForm({ lead }: LeadFormProps) {
             ]}
             {...register("preferred_property_type")}
           />
+          <Input
+            label="Interested In"
+            placeholder="e.g. 3BHK apartment in Whitefield"
+            className="sm:col-span-2"
+            {...register("interested_in")}
+          />
+          {watchedStatus === "lost" && (
+            <Input
+              label="Lost Reason"
+              placeholder="e.g. Budget mismatch, went with competitor..."
+              className="sm:col-span-2"
+              {...register("lost_reason")}
+            />
+          )}
           {showAssignment && (
             <div className="sm:col-span-2">
               <label className="mb-1.5 block text-sm font-medium text-slate-700">
                 Assign To
               </label>
               <div className="flex flex-wrap gap-2">
-                {teamMembers.map((member) => {
+                {teamMembers.filter((m) => m.is_active).map((member) => {
                   const isSelected = false; // handled by register
                   return (
                     <label

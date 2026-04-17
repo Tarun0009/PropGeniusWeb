@@ -16,8 +16,8 @@ CREATE TABLE public.organizations (
   plan text NOT NULL DEFAULT 'free' CHECK (plan IN ('free', 'pro', 'business', 'enterprise')),
   razorpay_customer_id text,
   razorpay_subscription_id text,
-  max_listings integer NOT NULL DEFAULT 5,
-  max_leads integer NOT NULL DEFAULT 50,
+  max_listings integer NOT NULL DEFAULT 25,
+  max_leads integer NOT NULL DEFAULT 500,
   max_agents integer NOT NULL DEFAULT 1,
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now()
@@ -284,7 +284,7 @@ DECLARE
   org_slug text := lower(regexp_replace(org_name, '[^a-zA-Z0-9]+', '-', 'g'));
 BEGIN
   INSERT INTO public.organizations (id, name, slug, plan, max_listings, max_leads, max_agents)
-  VALUES (org_id, org_name, org_slug || '-' || substr(org_id::text, 1, 8), 'free', 10, 50, 1);
+  VALUES (org_id, org_name, org_slug || '-' || substr(org_id::text, 1, 8), 'free', 25, 500, 1);
 
   INSERT INTO public.profiles (id, organization_id, full_name, email, role, monthly_listing_count, is_active)
   VALUES (

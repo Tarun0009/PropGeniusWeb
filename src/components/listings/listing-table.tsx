@@ -118,7 +118,7 @@ function getColumns(memberLookup?: MemberLookup) {
           return (
             <div className="flex items-center gap-2">
               <Avatar name={member.name} src={member.avatar_url} size="sm" className="h-6 w-6 text-[10px]" />
-              <span className="text-sm text-slate-600 truncate max-w-[120px]">{member.name}</span>
+              <span className="text-sm text-slate-600 truncate max-w-30">{member.name}</span>
             </div>
           );
         },
@@ -174,6 +174,7 @@ function ListingTable({ data, filters, onFiltersChange, memberLookup }: ListingT
             placeholder="Search listings..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            autoComplete="off"
           />
         </form>
         <div className="w-40">

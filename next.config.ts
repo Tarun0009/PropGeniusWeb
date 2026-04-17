@@ -13,6 +13,9 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ["lucide-react", "recharts"],
   },
+  turbopack: {
+    root: ".",
+  },
   async headers() {
     return [
       {

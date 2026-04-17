@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useMemo, useEffect } from "react";
-import { Check, Pencil, Shield, UserX, UserCheck, Plus, Camera, Lock, Landmark, KeyRound, AlertTriangle, LogOut, Trash2, Crown, Clock, X } from "lucide-react";
+import { Check, Pencil, Shield, UserX, UserCheck, Plus, Camera, Lock, Landmark, KeyRound, AlertTriangle, LogOut, Trash2, Crown, Clock, X, TrendingUp } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs } from "@/components/ui/tabs";
@@ -30,6 +30,7 @@ import { useQuota } from "@/hooks/use-quota";
 import type { Plan } from "@/types/user";
 import { formatRelativeTime } from "@/lib/utils";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 
 const roleVariant: Record<string, "primary" | "purple" | "default"> = {
   owner: "primary",
@@ -42,6 +43,7 @@ export default function SettingsPage() {
   const profile = useAuthStore((s) => s.profile);
   const setProfile = useAuthStore((s) => s.setProfile);
   const addToast = useNotificationStore((s) => s.addToast);
+  const queryClient = useQueryClient();
   const currentPlan = (profile?.organization?.plan || "free") as Plan;
 
   const userCanManageOrg = canManageOrg(profile?.role || "agent");
@@ -135,7 +137,7 @@ export default function SettingsPage() {
 
   const planLimits = PLAN_LIMITS[currentPlan];
   const activeMembers = teamMembers.filter((m) => m.is_active).length;
-  const canAddMore = (planLimits.maxAgents as number) === -1 || activeMembers < planLimits.maxAgents;
+  const canAddMore = (planLimits.maxAgents as number) === -1 || (activeMembers + pendingInvites.length) < planLimits.maxAgents;
 
   // --- Profile Handlers ---
 
@@ -364,6 +366,7 @@ export default function SettingsPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to send invite");
       setInviteSent(true);
+      queryClient.invalidateQueries({ queryKey: ["team-invites"] });
       addToast({
         type: "success",
         title: "Invite sent!",
@@ -699,10 +702,13 @@ export default function SettingsPage() {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle className="text-base">Team Members ({teamMembers.length})</CardTitle>
+                    <CardTitle className="text-base">
+                      Team Members ({activeMembers} active{teamMembers.length > activeMembers ? `, ${teamMembers.length - activeMembers} inactive` : ""})
+                    </CardTitle>
                     <p className="mt-1 text-xs text-slate-500">
-                      {activeMembers} of {(planLimits.maxAgents as number) === -1 ? "unlimited" : planLimits.maxAgents} seats used
-                      <span className="ml-1">({currentPlan === "free" ? "Starter" : currentPlan === "pro" ? "Pro" : "Business"} plan)</span>
+                      {activeMembers + pendingInvites.length} of {(planLimits.maxAgents as number) === -1 ? "unlimited" : planLimits.maxAgents} seats used
+                      {pendingInvites.length > 0 && <span className="ml-1 text-warning-600">({pendingInvites.length} pending)</span>}
+                      <span className="ml-1">· {currentPlan === "free" ? "Starter" : currentPlan === "pro" ? "Pro" : "Business"} plan</span>
                     </p>
                   </div>
                   {userCanManageTeam && (
@@ -711,10 +717,12 @@ export default function SettingsPage() {
                         <Plus className="mr-1.5 h-3.5 w-3.5" />
                         Invite Member
                       </Button>
-                    ) : (
+                    ) : isOwner ? (
                       <Button size="sm" variant="outline" onClick={() => setActiveTab("billing")}>
                         Upgrade to add more
                       </Button>
+                    ) : (
+                      <p className="text-xs text-slate-500">Ask owner to upgrade</p>
                     )
                   )}
                 </div>
@@ -765,6 +773,12 @@ export default function SettingsPage() {
                                     <Shield className="mr-0.5 inline h-3 w-3" />
                                     {teamStats.get(member.id)?.leadsAssigned ?? 0} leads
                                   </span>
+                                  {(teamStats.get(member.id)?.leadsConverted ?? 0) > 0 && (
+                                    <span className="text-[11px] font-medium text-emerald-600">
+                                      <TrendingUp className="mr-0.5 inline h-3 w-3" />
+                                      {teamStats.get(member.id)?.leadsConverted} converted
+                                    </span>
+                                  )}
                                 </div>
                               )}
                             </div>
@@ -818,7 +832,8 @@ export default function SettingsPage() {
                     <div>
                       <p className="text-sm font-medium text-warning-800">Team limit reached</p>
                       <p className="text-xs text-warning-700">
-                        Your {currentPlan === "free" ? "Starter" : currentPlan === "pro" ? "Pro" : "Business"} plan supports up to {planLimits.maxAgents} team member(s). Upgrade to add more agents.
+                        Your {currentPlan === "free" ? "Starter" : currentPlan === "pro" ? "Pro" : "Business"} plan supports up to {planLimits.maxAgents} seat(s).{" "}
+                        {isOwner ? "Upgrade your plan to add more members." : "Contact your organization owner to upgrade."}
                       </p>
                     </div>
                   </div>
@@ -924,7 +939,7 @@ export default function SettingsPage() {
               <div className="flex flex-col items-center text-center">
                 <Lock className="h-8 w-8 text-slate-300 mb-3" />
                 <p className="text-sm font-medium text-slate-600">Billing access restricted</p>
-                <p className="text-xs text-slate-400 mt-1">Contact your organization owner or admin to manage billing.</p>
+                <p className="text-xs text-slate-400 mt-1">Contact your organization owner to manage billing.</p>
               </div>
             </CardContent>
           </Card>
@@ -1093,8 +1108,8 @@ export default function SettingsPage() {
             />
             <div className="rounded-lg bg-slate-50 p-3 text-xs text-slate-500 space-y-1">
               <p className="font-medium text-slate-600">Role permissions:</p>
-              <p><span className="font-medium text-slate-700">Admin</span> — can manage listings, leads, team, and billing</p>
-              <p><span className="font-medium text-slate-700">Agent</span> — can manage listings and leads only</p>
+              <p><span className="font-medium text-slate-700">Admin</span> — can manage listings, leads, and team members</p>
+              <p><span className="font-medium text-slate-700">Agent</span> — can manage their own listings and assigned leads</p>
             </div>
             <div className="flex justify-end gap-3">
               <Button variant="outline" size="sm" onClick={handleCloseInviteModal}>Cancel</Button>

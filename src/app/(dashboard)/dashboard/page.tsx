@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Landmark,
   Contact,
@@ -13,6 +14,7 @@ import {
   MessageCircleMore,
   ArrowRight,
   CheckCheck,
+  AlertTriangle,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -99,6 +101,7 @@ const funnelColors: Record<string, string> = {
 
 export default function DashboardPage() {
   const [showQuickAdd, setShowQuickAdd] = useState(false);
+  const router = useRouter();
   const { data: stats, isLoading: statsLoading } = useDashboardStats();
   const { data: recentLeads = [], isLoading: leadsLoading } = useRecentLeads();
   const { data: recentListings = [], isLoading: listingsLoading } = useRecentListings();
@@ -106,6 +109,10 @@ export default function DashboardPage() {
   const { data: funnelData = [] } = useSalesFunnel();
   const updateLead = useUpdateLead();
   const profile = useAuthStore((s) => s.profile);
+
+  const overdueCount = pendingFollowUps.filter(
+    (l) => l.next_followup_at && new Date(l.next_followup_at) < new Date()
+  ).length;
 
   const handleMarkFollowUpDone = async (leadId: string, e: React.MouseEvent) => {
     e.preventDefault();
@@ -154,6 +161,20 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* ── Overdue follow-up alert ───────────────────────────── */}
+      {overdueCount > 0 && (
+        <Link
+          href="/leads"
+          className="flex items-center gap-3 rounded-xl border border-danger-200 bg-danger-50 px-4 py-3 transition-colors hover:bg-danger-100"
+        >
+          <AlertTriangle className="h-4 w-4 shrink-0 text-danger-500" />
+          <p className="text-sm font-medium text-danger-700">
+            {overdueCount} overdue follow-up{overdueCount !== 1 ? "s" : ""} — these leads need your attention
+          </p>
+          <ArrowRight className="ml-auto h-4 w-4 shrink-0 text-danger-400" />
+        </Link>
+      )}
+
       {/* ── Stat cards ───────────────────────────────────────── */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {statsLoading ? (
@@ -168,34 +189,42 @@ export default function DashboardPage() {
           </>
         ) : (
           <>
-            <StatCard
-              title="Total Listings"
-              value={stats?.totalListings ?? 0}
-              change={`${stats?.listingsThisMonth ?? 0} this month`}
-              changeType={stats?.listingsThisMonth ? "positive" : "neutral"}
-              icon={Landmark}
-              accent="violet"
-            />
-            <StatCard
-              title="Active Leads"
-              value={stats?.totalLeads ?? 0}
-              change={`${stats?.hotLeads ?? 0} hot leads`}
-              changeType={stats?.hotLeads ? "positive" : "neutral"}
-              icon={Contact}
-              accent="emerald"
-            />
-            <StatCard
-              title="Conversion Rate"
-              value={`${stats?.conversionRate ?? 0}%`}
-              icon={TrendingUp}
-              accent="amber"
-            />
-            <StatCard
-              title="Active Listings"
-              value={stats?.activeListings ?? 0}
-              icon={Wand2}
-              accent="sky"
-            />
+            <div onClick={() => router.push("/listings")} className="cursor-pointer">
+              <StatCard
+                title="Total Listings"
+                value={stats?.totalListings ?? 0}
+                change={`${stats?.listingsThisMonth ?? 0} this month`}
+                changeType={stats?.listingsThisMonth ? "positive" : "neutral"}
+                icon={Landmark}
+                accent="violet"
+              />
+            </div>
+            <div onClick={() => router.push("/leads")} className="cursor-pointer">
+              <StatCard
+                title="Active Leads"
+                value={stats?.totalLeads ?? 0}
+                change={`${stats?.hotLeads ?? 0} hot leads`}
+                changeType={stats?.hotLeads ? "positive" : "neutral"}
+                icon={Contact}
+                accent="emerald"
+              />
+            </div>
+            <div onClick={() => router.push("/analytics")} className="cursor-pointer">
+              <StatCard
+                title="Conversion Rate"
+                value={`${stats?.conversionRate ?? 0}%`}
+                icon={TrendingUp}
+                accent="amber"
+              />
+            </div>
+            <div onClick={() => router.push("/listings?status=active")} className="cursor-pointer">
+              <StatCard
+                title="Active Listings"
+                value={stats?.activeListings ?? 0}
+                icon={Wand2}
+                accent="sky"
+              />
+            </div>
           </>
         )}
       </div>

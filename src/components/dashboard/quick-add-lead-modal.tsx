@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { useCreateLead } from "@/hooks/use-leads";
+import { useAuthStore } from "@/stores/auth-store";
 import { LEAD_SOURCES } from "@/lib/constants";
 
 interface QuickAddLeadModalProps {
@@ -16,6 +17,7 @@ interface QuickAddLeadModalProps {
 
 export function QuickAddLeadModal({ isOpen, onClose }: QuickAddLeadModalProps) {
   const createMutation = useCreateLead();
+  const profile = useAuthStore((s) => s.profile);
 
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -48,6 +50,7 @@ export function QuickAddLeadModal({ isOpen, onClose }: QuickAddLeadModalProps) {
       budget_min: budgetMin ? Number(budgetMin) : undefined,
       budget_max: budgetMax ? Number(budgetMax) : undefined,
       status: "new",
+      assigned_to: profile?.id,
     } as Parameters<typeof createMutation.mutateAsync>[0]);
 
     handleClose();

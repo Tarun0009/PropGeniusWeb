@@ -43,6 +43,7 @@ import {
   useFollowUpSuggestions,
 } from "@/hooks/use-leads";
 import { useTeamMembers } from "@/hooks/use-team";
+import { useAuthStore } from "@/stores/auth-store";
 import { LEAD_STATUSES, LEAD_SOURCES } from "@/lib/constants";
 import { formatPrice, formatDate, formatRelativeTime } from "@/lib/utils";
 import type { ActivityType } from "@/types/lead";
@@ -80,6 +81,13 @@ export default function LeadDetailPage() {
   const updateMutation = useUpdateLead();
   const createActivityMutation = useCreateActivity();
   const followUpMutation = useFollowUpSuggestions();
+  const profile = useAuthStore((s) => s.profile);
+  const isManager = profile?.role === "owner" || profile?.role === "admin";
+  const isAgent = profile?.role === "agent";
+  const isAssignedToMe = !!profile?.id && lead?.assigned_to === profile.id;
+  const canEdit = isManager || (isAgent && isAssignedToMe);
+  const canDelete = isManager || (isAgent && isAssignedToMe);
+  const activeTeamMembers = teamMembers.filter((m) => m.is_active);
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showActivityModal, setShowActivityModal] = useState(false);
@@ -93,7 +101,7 @@ export default function LeadDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-[400px] items-center justify-center">
+      <div className="flex min-h-100 items-center justify-center">
         <Spinner size="lg" />
       </div>
     );
@@ -128,6 +136,7 @@ export default function LeadDetailPage() {
       source: lead.source,
       budget_min: lead.budget_min ?? undefined,
       budget_max: lead.budget_max ?? undefined,
+      listing_title: lead.interested_in ?? undefined,
       preferred_location: lead.preferred_location ?? undefined,
       days_ago: daysAgo,
       contact_count: activities.filter((a) => ["call", "email", "whatsapp"].includes(a.type)).length,
@@ -209,22 +218,26 @@ export default function LeadDetailPage() {
                 </Button>
               </Link>
             )}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => router.push(`/leads/${lead.id}/edit`)}
-            >
-              <Pencil className="mr-1.5 h-3.5 w-3.5" />
-              Edit
-            </Button>
-            <Button
-              variant="danger"
-              size="sm"
-              onClick={() => setShowDeleteModal(true)}
-            >
-              <Trash2 className="mr-1.5 h-3.5 w-3.5" />
-              Delete
-            </Button>
+            {canEdit && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => router.push(`/leads/${lead.id}/edit`)}
+              >
+                <Pencil className="mr-1.5 h-3.5 w-3.5" />
+                Edit
+              </Button>
+            )}
+            {canDelete && (
+              <Button
+                variant="danger"
+                size="sm"
+                onClick={() => setShowDeleteModal(true)}
+              >
+                <Trash2 className="mr-1.5 h-3.5 w-3.5" />
+                Delete
+              </Button>
+            )}
           </div>
         }
       />
@@ -363,13 +376,13 @@ export default function LeadDetailPage() {
           </div>
 
           {/* Assigned To */}
-          {teamMembers.length > 1 && (
+          {isManager && activeTeamMembers.length > 1 ? (
             <div className="rounded-lg border border-slate-200 bg-white p-5">
               <h3 className="mb-3 text-sm font-semibold text-slate-900">Assigned To</h3>
               <Select
                 options={[
                   { value: "", label: "Unassigned" },
-                  ...teamMembers.map((m) => ({ value: m.id, label: m.full_name })),
+                  ...activeTeamMembers.map((m) => ({ value: m.id, label: m.full_name })),
                 ]}
                 value={lead.assigned_to || ""}
                 onChange={(e) =>
@@ -380,7 +393,35 @@ export default function LeadDetailPage() {
                 }
               />
             </div>
-          )}
+          ) : isAgent ? (
+            <div className="rounded-lg border border-slate-200 bg-white p-5">
+              <h3 className="mb-3 text-sm font-semibold text-slate-900">Assigned To</h3>
+              {lead.assigned_to ? (
+                <p className="text-sm text-slate-700">
+                  {activeTeamMembers.find((m) => m.id === lead.assigned_to)?.full_name || "Assigned agent"}
+                  {isAssignedToMe && <span className="ml-1.5 text-xs text-slate-400">(you)</span>}
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  <p className="text-sm text-slate-400">Unassigned</p>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() =>
+                      updateMutation.mutate({
+                        id: lead.id,
+                        data: { assigned_to: profile?.id } as Record<string, unknown>,
+                      })
+                    }
+                    isLoading={updateMutation.isPending}
+                    disabled={updateMutation.isPending}
+                  >
+                    Claim Lead
+                  </Button>
+                </div>
+              )}
+            </div>
+          ) : null}
 
           {/* AI Score */}
           <div className="rounded-lg border border-slate-200 bg-white p-5">

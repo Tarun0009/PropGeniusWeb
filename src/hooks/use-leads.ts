@@ -27,9 +27,9 @@ export function useLeads(filters?: LeadFilters) {
         .select("*")
         .order("created_at", { ascending: false });
 
-      // Agents only see leads assigned to them
+      // Agents see leads assigned to them OR unassigned leads
       if (isAgent && profile?.id) {
-        query = query.eq("assigned_to", profile.id);
+        query = query.or(`assigned_to.eq.${profile.id},assigned_to.is.null`);
       }
 
       if (filters?.status) query = query.eq("status", filters.status);
@@ -90,7 +90,7 @@ export function useCreateLead() {
       const plan = (org?.plan || "free") as keyof typeof PLAN_LIMITS;
       const limits = PLAN_LIMITS[plan];
 
-      if (limits.maxLeads !== Infinity) {
+      if (limits.maxLeads !== -1) {
         const { count } = await supabase
           .from("leads")
           .select("id", { count: "exact", head: true })
@@ -115,6 +115,7 @@ export function useCreateLead() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: LEADS_KEY });
+      queryClient.invalidateQueries({ queryKey: ["quota"] });
       addToast({ type: "success", title: "Lead added successfully" });
     },
     onError: (error) => {
@@ -177,14 +178,28 @@ export function useDeleteLead() {
   const supabase = createClient();
   const queryClient = useQueryClient();
   const addToast = useNotificationStore((s) => s.addToast);
+  const profile = useAuthStore((s) => s.profile);
 
   return useMutation({
     mutationFn: async (id: string) => {
+      // Agents can only delete leads assigned to them; managers can delete any
+      if (profile?.role === "agent" && profile?.id) {
+        const { data: existing } = await supabase
+          .from("leads")
+          .select("assigned_to")
+          .eq("id", id)
+          .single();
+        if (!existing || existing.assigned_to !== profile.id) {
+          throw new Error("You can only delete leads assigned to you");
+        }
+      }
+
       const { error } = await supabase.from("leads").delete().eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: LEADS_KEY });
+      queryClient.invalidateQueries({ queryKey: ["quota"] });
       addToast({ type: "success", title: "Lead deleted" });
     },
     onError: (error) => {

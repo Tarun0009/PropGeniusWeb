@@ -180,7 +180,7 @@ const FAQ_ITEMS = [
   {
     question: "Is there a free plan?",
     answer:
-      "Yes! Our Free plan includes 5 AI-generated listings per month, up to 50 leads, and basic CRM features. No credit card required. Upgrade anytime as your business grows.",
+      "Yes! Our Free plan includes 25 AI-generated listings, 500 leads, and basic CRM features. No credit card required. Upgrade anytime as your business grows.",
   },
   {
     question: "How does AI lead scoring work?",

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { PLAN_LIMITS } from "@/lib/constants";
 
 interface CSVRow {
   name: string;
@@ -88,14 +89,44 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "CSV data is required" }, { status: 400 });
     }
 
-    const rows = parseCSV(csvText);
+    let rows = parseCSV(csvText);
 
     if (rows.length === 0) {
       return NextResponse.json({ error: "No valid rows found in CSV" }, { status: 400 });
     }
 
+    // Check plan quota before importing
+    const { data: org } = await supabase
+      .from("organizations")
+      .select("plan")
+      .eq("id", profile.organization_id)
+      .single();
+
+    const plan = ((org?.plan || "free") as keyof typeof PLAN_LIMITS);
+    const limits = PLAN_LIMITS[plan];
+
+    if (limits.maxLeads !== -1) {
+      const { count: currentCount } = await supabase
+        .from("leads")
+        .select("id", { count: "exact", head: true })
+        .eq("organization_id", profile.organization_id);
+
+      const remaining = limits.maxLeads - (currentCount ?? 0);
+      if (remaining <= 0) {
+        return NextResponse.json(
+          { error: `You've reached the ${limits.maxLeads} lead limit on your ${plan} plan. Upgrade to add more.` },
+          { status: 403 }
+        );
+      }
+      // Clamp the import to the remaining quota
+      if (rows.length > remaining) {
+        rows = rows.slice(0, remaining);
+      }
+    }
+
     const leads = rows.map((row) => ({
       organization_id: profile.organization_id,
+      assigned_to: user.id, // Assign to the importer by default
       name: row.name,
       email: row.email || null,
       phone: row.phone || null,

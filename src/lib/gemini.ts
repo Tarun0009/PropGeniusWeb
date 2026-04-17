@@ -57,7 +57,7 @@ Guidelines:
 
 export async function generateListing(data: GenerateListingRequest): Promise<AIListingContent> {
   const model = genAI.getGenerativeModel({
-    model: "gemini-2.5-flash",
+    model: "gemini-1.5-flash",
     generationConfig: {
       responseMimeType: "application/json",
     },
@@ -115,7 +115,7 @@ Return ONLY valid JSON, no markdown or extra text.`;
 
 export async function scoreLead(data: ScoreLeadRequest): Promise<AILeadScore> {
   const model = genAI.getGenerativeModel({
-    model: "gemini-2.5-flash",
+    model: "gemini-1.5-flash",
     generationConfig: {
       responseMimeType: "application/json",
     },
@@ -165,7 +165,7 @@ Return JSON:
 
 export async function generateSmartReplies(data: SmartReplyRequest): Promise<SmartReplyResponse> {
   const model = genAI.getGenerativeModel({
-    model: "gemini-2.5-flash",
+    model: "gemini-1.5-flash",
     generationConfig: { responseMimeType: "application/json" },
   });
 
@@ -218,7 +218,7 @@ Return JSON:
 
 export async function matchListings(data: MatchListingsRequest): Promise<MatchListingsResponse> {
   const model = genAI.getGenerativeModel({
-    model: "gemini-2.5-flash",
+    model: "gemini-1.5-flash",
     generationConfig: { responseMimeType: "application/json" },
   });
 
@@ -270,7 +270,7 @@ Return JSON:
 
 export async function generateFollowUpSuggestions(data: FollowUpRequest): Promise<FollowUpResponse> {
   const model = genAI.getGenerativeModel({
-    model: "gemini-2.5-flash",
+    model: "gemini-1.5-flash",
     generationConfig: { responseMimeType: "application/json" },
   });
 
@@ -324,7 +324,7 @@ Return JSON:
 
 export async function optimizeListing(data: OptimizeListingRequest): Promise<OptimizeListingResponse> {
   const model = genAI.getGenerativeModel({
-    model: "gemini-2.5-flash",
+    model: "gemini-1.5-flash",
     generationConfig: { responseMimeType: "application/json" },
   });
 

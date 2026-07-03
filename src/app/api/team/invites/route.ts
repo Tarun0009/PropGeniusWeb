@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { canManageTeam } from "@/lib/permissions";
-import type { UserRole } from "@/types/user";
+import type { UserRole } from "@/features/users/types";
 
 // GET /api/team/invites — list pending (unconfirmed) invites for the org
 export async function GET() {

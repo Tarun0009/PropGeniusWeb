@@ -4,22 +4,13 @@ import { useState } from "react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { buildAuthCallbackUrl } from "@/features/auth/config";
+import { getAuthErrorMessage } from "@/features/auth/errors";
+import { signupSchema, type SignupFormData } from "@/features/auth/schemas";
 import { Building2, CheckCircle } from "lucide-react";
-
-const signupSchema = z.object({
-  fullName: z.string().min(2, "Name must be at least 2 characters"),
-  organizationName: z
-    .string()
-    .min(2, "Company name must be at least 2 characters"),
-  email: z.string().email("Please enter a valid email"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-});
-
-type SignupForm = z.infer<typeof signupSchema>;
 
 export default function SignupPage() {
   const [error, setError] = useState<string | null>(null);
@@ -30,11 +21,11 @@ export default function SignupPage() {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<SignupForm>({
+  } = useForm<SignupFormData>({
     resolver: zodResolver(signupSchema),
   });
 
-  const onSubmit = async (data: SignupForm) => {
+  const onSubmit = async (data: SignupFormData) => {
     setError(null);
     const supabase = createClient();
 
@@ -42,6 +33,7 @@ export default function SignupPage() {
       email: data.email,
       password: data.password,
       options: {
+        emailRedirectTo: buildAuthCallbackUrl(window.location.origin),
         data: {
           full_name: data.fullName,
           organization_name: data.organizationName,
@@ -50,7 +42,7 @@ export default function SignupPage() {
     });
 
     if (authError) {
-      setError(authError.message);
+      setError(getAuthErrorMessage(authError.message));
       return;
     }
 
@@ -86,7 +78,6 @@ export default function SignupPage() {
 
   return (
     <div>
-      {/* Mobile logo */}
       <div className="flex items-center gap-2 mb-8 lg:hidden">
         <Building2 className="h-8 w-8 text-primary-600" />
         <span className="text-2xl font-bold text-slate-900">PropGenius</span>
@@ -96,7 +87,7 @@ export default function SignupPage() {
         Create your account
       </h2>
       <p className="text-slate-500 mt-1 mb-8">
-        Start generating AI listings in seconds
+        Start organizing listings, leads, and follow-ups
       </p>
 
       {error && (
@@ -109,12 +100,14 @@ export default function SignupPage() {
         <Input
           label="Full Name"
           placeholder="John Doe"
+          autoComplete="name"
           error={errors.fullName?.message}
           {...register("fullName")}
         />
         <Input
           label="Company / Brokerage Name"
           placeholder="Your company name"
+          autoComplete="organization"
           error={errors.organizationName?.message}
           {...register("organizationName")}
         />
@@ -122,13 +115,15 @@ export default function SignupPage() {
           label="Email"
           type="email"
           placeholder="you@example.com"
+          autoComplete="email"
           error={errors.email?.message}
           {...register("email")}
         />
         <Input
           label="Password"
           type="password"
-          placeholder="At least 6 characters"
+          placeholder="At least 8 characters"
+          autoComplete="new-password"
           error={errors.password?.message}
           {...register("password")}
         />

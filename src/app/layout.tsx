@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { Providers } from "@/components/providers";
+import { Providers } from "@/components/layout/providers";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -10,14 +10,14 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "PropGenius AI - AI-Powered Real Estate Listing Generator",
-    template: "%s | PropGenius AI",
+    default: "PropGenius - Real Estate CRM for Indian Agencies",
+    template: "%s | PropGenius",
   },
   description:
-    "Generate professional property listings in seconds with AI. Manage leads with smart CRM, AI scoring, and WhatsApp integration. Built for Indian real estate.",
+    "Manage listings, leads, WhatsApp follow-ups, team work, and reporting in one real estate CRM built for Indian agencies.",
   keywords: [
     "real estate",
-    "AI listing generator",
+    "listing generator",
     "CRM",
     "property management",
     "India",
@@ -25,32 +25,32 @@ export const metadata: Metadata = {
     "lead management",
     "PropGenius",
   ],
-  authors: [{ name: "PropGenius AI" }],
-  creator: "PropGenius AI",
+  authors: [{ name: "PropGenius" }],
+  creator: "PropGenius",
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_APP_URL || "https://propgenius.in"
   ),
   openGraph: {
     type: "website",
     locale: "en_IN",
-    siteName: "PropGenius AI",
-    title: "PropGenius AI - AI-Powered Real Estate Listing Generator",
+    siteName: "PropGenius",
+    title: "PropGenius - Real Estate CRM for Indian Agencies",
     description:
-      "Generate professional property listings in seconds with AI. Smart CRM with WhatsApp integration for Indian real estate.",
+      "Manage property listings, buyer leads, WhatsApp follow-ups, and reporting from one workspace for Indian real estate teams.",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "PropGenius AI - AI-Powered Real Estate Platform",
+        alt: "PropGenius real estate CRM dashboard",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "PropGenius AI - AI-Powered Real Estate Listing Generator",
+    title: "PropGenius - Real Estate CRM for Indian Agencies",
     description:
-      "Generate professional property listings in seconds with AI. Smart CRM for Indian real estate.",
+      "Real estate CRM for listings, leads, WhatsApp follow-ups, and team reporting.",
     images: ["/og-image.png"],
   },
   robots: {

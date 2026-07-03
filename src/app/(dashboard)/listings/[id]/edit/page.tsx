@@ -3,8 +3,8 @@
 import { useParams } from "next/navigation";
 import { PageHeader } from "@/components/ui/page-header";
 import { Spinner } from "@/components/ui/spinner";
-import { ListingForm } from "@/components/listings/listing-form";
-import { useListing } from "@/hooks/use-listings";
+import { ListingForm } from "@/features/listings/components/listing-form";
+import { useListing } from "@/features/listings/hooks/use-listings";
 
 export default function EditListingPage() {
   const params = useParams();

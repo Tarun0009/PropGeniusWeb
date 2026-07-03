@@ -18,6 +18,13 @@ SaaS with subscriptions, team management, WhatsApp messaging, and analytics.
 
 ## Architecture Rules
 
+### Feature Layout
+- Keep App Router route files in `src/app/` because Next.js owns routing there.
+- Put domain code in `src/features/<feature>/` with `components/`, `hooks/`, and `types.ts` as needed.
+- Keep shared UI primitives in `src/components/ui/` and app shell components in `src/components/layout/`.
+- Keep cross-cutting infrastructure in `src/lib/` and shared UI state in `src/stores/`.
+- Current features: `analytics`, `auth`, `billing`, `dashboard`, `landing`, `leads`, `listings`, `messages`, `onboarding`, `search`, `team`, and `users`.
+
 ### Server vs Client
 - `src/app/api/` routes are always server-side
 - `src/app/(dashboard)/` pages are client components (`"use client"`)
@@ -27,9 +34,9 @@ SaaS with subscriptions, team management, WhatsApp messaging, and analytics.
 - Use `createAdminClient()` from `@/lib/supabase/admin` only in API routes (requires `SUPABASE_SERVICE_ROLE_KEY`)
 
 ### Data Fetching
-- All data fetching hooks live in `src/hooks/`
+- Feature data-fetching hooks live in `src/features/<feature>/hooks/`
 - Use TanStack React Query (`useQuery`, `useMutation`) for all server data
-- Auth state is in Zustand `useAuthStore` — `profile` includes nested `organization`
+- Auth state is in Zustand `useAuthStore` from `src/features/auth/stores/auth-store.ts` - `profile` includes nested `organization`
 - The profile query: `select("*, organization:organizations(*)")` — organization is always available on profile
 
 ### Auth Flow
@@ -47,7 +54,7 @@ SaaS with subscriptions, team management, WhatsApp messaging, and analytics.
 - `pro`:      unlimited listings, unlimited leads, 5 agents ($10/mo)
 - `business`: unlimited everything ($29/mo)
 - Plan is stored on `organizations.plan` column — NOT the `subscriptions` table
-- `useQuota()` hook reads from `profile.organization.plan` → resolves limits
+- `useQuota()` hook lives in `src/features/billing/hooks/use-quota.ts` and reads from `profile.organization.plan` → resolves limits
 
 ### Team & Permissions
 - Roles: `owner`, `admin`, `agent`
@@ -69,8 +76,8 @@ SaaS with subscriptions, team management, WhatsApp messaging, and analytics.
 - `z.record()` requires 2 args: `z.record(z.string(), z.unknown())`
 
 ### Components
-- UI primitives in `src/components/ui/` — use these, don't create new ones
-- Heavy components use `next/dynamic` for code splitting (Kanban, charts)
+- UI primitives in `src/components/ui/` - use these, don't create new ones
+- Feature components live in `src/features/<feature>/components/`; heavy components use `next/dynamic` for code splitting (Kanban, charts)
 - `next/image` for all listing images (configured for `*.supabase.co`)
 
 ### External Services — Lazy Init

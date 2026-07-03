@@ -9,19 +9,19 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Button } from "@/components/ui/button";
 import { Tabs } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
-import { LeadTable } from "@/components/leads/lead-table";
-import { CSVImportModal } from "@/components/leads/csv-import-modal";
-import { QuickAddLeadModal } from "@/components/dashboard/quick-add-lead-modal";
-import { useLeads, useScoreLead, useUpdateLead } from "@/hooks/use-leads";
-import { useQuota } from "@/hooks/use-quota";
-import { useTeamMemberLookup } from "@/hooks/use-team-lookup";
+import { LeadTable } from "@/features/leads/components/lead-table";
+import { CSVImportModal } from "@/features/leads/components/csv-import-modal";
+import { QuickAddLeadModal } from "@/features/dashboard/components/quick-add-lead-modal";
+import { useLeads, useScoreLead, useUpdateLead } from "@/features/leads/hooks/use-leads";
+import { useQuota } from "@/features/billing/hooks/use-quota";
+import { useTeamMemberLookup } from "@/features/team/hooks/use-team-lookup";
 import { useNotificationStore } from "@/stores/notification-store";
 import { exportToCSV } from "@/lib/export-csv";
 import type { LeadFilters } from "@/lib/validations";
-import type { Lead } from "@/types/lead";
+import type { Lead } from "@/features/leads/types";
 
 const LeadKanban = dynamic(
-  () => import("@/components/leads/lead-kanban").then((m) => ({ default: m.LeadKanban })),
+  () => import("@/features/leads/components/lead-kanban").then((m) => ({ default: m.LeadKanban })),
   {
     loading: () => (
       <div className="space-y-3 pt-4">

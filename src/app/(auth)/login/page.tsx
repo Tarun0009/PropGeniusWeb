@@ -1,51 +1,57 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { getSafeRedirectPath } from "@/features/auth/config";
+import { getAuthErrorMessage } from "@/features/auth/errors";
+import { loginSchema, type LoginFormData } from "@/features/auth/schemas";
 import { Building2 } from "lucide-react";
 
-const loginSchema = z.object({
-  email: z.string().email("Please enter a valid email"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-});
-
-type LoginForm = z.infer<typeof loginSchema>;
+const callbackErrors: Record<string, string> = {
+  missing_code: "The sign-in link is invalid or incomplete.",
+  auth_callback_failed: "We could not complete sign-in. Please try again.",
+  invite_setup_failed: "We could not set up your invitation. Please ask the owner to resend it.",
+};
 
 export default function LoginPage() {
   const router = useRouter();
-  const [error, setError] = useState<string | null>(null);
+  const searchParams = useSearchParams();
+  const redirectTo = useMemo(
+    () => getSafeRedirectPath(searchParams.get("next")),
+    [searchParams]
+  );
+  const callbackError = searchParams.get("error");
+  const [error, setError] = useState<string | null>(
+    callbackError ? callbackErrors[callbackError] || "Please sign in again." : null
+  );
   const [showGoogleNotice, setShowGoogleNotice] = useState(false);
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<LoginForm>({
+  } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit = async (data: LoginForm) => {
+  const onSubmit = async (data: LoginFormData) => {
     setError(null);
     const supabase = createClient();
 
-    const { error: authError } = await supabase.auth.signInWithPassword({
-      email: data.email,
-      password: data.password,
-    });
+    const { error: authError } = await supabase.auth.signInWithPassword(data);
 
     if (authError) {
-      setError(authError.message);
+      setError(getAuthErrorMessage(authError.message));
       return;
     }
 
-    router.push("/dashboard");
+    router.replace(redirectTo);
     router.refresh();
   };
 
@@ -55,7 +61,6 @@ export default function LoginPage() {
 
   return (
     <div>
-      {/* Mobile logo */}
       <div className="flex items-center gap-2 mb-8 lg:hidden">
         <Building2 className="h-8 w-8 text-primary-600" />
         <span className="text-2xl font-bold text-slate-900">PropGenius</span>
@@ -77,6 +82,7 @@ export default function LoginPage() {
           label="Email"
           type="email"
           placeholder="you@example.com"
+          autoComplete="email"
           error={errors.email?.message}
           {...register("email")}
         />
@@ -85,6 +91,7 @@ export default function LoginPage() {
             label="Password"
             type="password"
             placeholder="Enter your password"
+            autoComplete="current-password"
             error={errors.password?.message}
             {...register("password")}
           />

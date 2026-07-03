@@ -1,6 +1,6 @@
-export const APP_NAME = "PropGenius AI";
+export const APP_NAME = "PropGenius";
 export const APP_DESCRIPTION =
-  "AI-Powered Real Estate Listing Generator + CRM";
+  "Real Estate CRM and Listing Workspace";
 
 export const PROPERTY_TYPES = [
   { value: "apartment", label: "Apartment" },
@@ -60,8 +60,8 @@ export const USER_ROLES = [
 ] as const;
 
 export const PLAN_LIMITS = {
-  free:     { maxListings: 10,  maxLeads: 100,  maxAgents: 1  },
-  pro:      { maxListings: -1,  maxLeads: -1,   maxAgents: 5  },
+  free:     { maxListings: 25,  maxLeads: 500,  maxAgents: 1  },
+  pro:      { maxListings: -1,  maxLeads: -1,   maxAgents: 15 },
   business: { maxListings: -1,  maxLeads: -1,   maxAgents: -1 },
 } as const;
 
@@ -145,13 +145,13 @@ export const SUBSCRIPTION_PLANS = [
     price_usd_monthly: 0,
     price_usd_annual: 0,
     features: [
-      "10 AI-generated listings",
-      "100 leads",
-      "AI lead scoring",
+      "25 listing drafts",
+      "500 leads",
+      "Lead scoring",
       "Basic CRM",
       "Email support",
     ],
-    limits: { maxListings: 10, maxLeads: 100, maxAgents: 1 },
+    limits: { maxListings: 25, maxLeads: 500, maxAgents: 1 },
   },
   {
     id: "pro",
@@ -163,14 +163,14 @@ export const SUBSCRIPTION_PLANS = [
     price_usd_annual: 96,
     popular: true,
     features: [
-      "Unlimited AI listings",
+      "Unlimited listing drafts",
       "Unlimited leads",
-      "Up to 5 team members",
+      "Up to 15 team members",
       "WhatsApp integration",
       "Analytics dashboard",
       "Priority support",
     ],
-    limits: { maxListings: -1, maxLeads: -1, maxAgents: 5 },
+    limits: { maxListings: -1, maxLeads: -1, maxAgents: 15 },
   },
   {
     id: "business",
@@ -183,7 +183,7 @@ export const SUBSCRIPTION_PLANS = [
     features: [
       "Everything in Pro",
       "Unlimited team members",
-      "Bulk AI generation",
+      "Bulk listing generation",
       "Custom WhatsApp templates",
       "Dedicated account manager",
       "API access",

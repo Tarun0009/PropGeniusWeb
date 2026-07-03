@@ -1,7 +1,7 @@
 "use client";
 
 import { PageHeader } from "@/components/ui/page-header";
-import { ListingForm } from "@/components/listings/listing-form";
+import { ListingForm } from "@/features/listings/components/listing-form";
 
 export default function NewListingPage() {
   return (

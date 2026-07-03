@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { canManageTeam } from "@/lib/permissions";
-import type { UserRole } from "@/types/user";
+import type { UserRole } from "@/features/users/types";
 
 // POST /api/team/remove — remove a member and optionally reassign their leads
 export async function POST(request: NextRequest) {

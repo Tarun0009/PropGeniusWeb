@@ -29,10 +29,8 @@ export function validateTwilioSignature(
   params: Record<string, string>,
   signature: string
 ): boolean {
-  return twilio.validateRequest(
-    process.env.TWILIO_AUTH_TOKEN!,
-    signature,
-    url,
-    params
-  );
+  const authToken = process.env.TWILIO_AUTH_TOKEN;
+  if (!authToken || !signature) return false;
+
+  return twilio.validateRequest(authToken, signature, url, params);
 }

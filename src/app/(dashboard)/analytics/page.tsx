@@ -6,8 +6,8 @@ import { Building2, Users, Flame, TrendingUp } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Tabs } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
-import { StatCard } from "@/components/analytics/stat-card";
-import { AIInsights } from "@/components/analytics/ai-insights";
+import { StatCard } from "@/features/analytics/components/stat-card";
+import { AIInsights } from "@/features/analytics/components/ai-insights";
 import {
   useDashboardStats,
   useLeadsByStatus,
@@ -17,7 +17,7 @@ import {
   usePipelineValue,
   useSourceROI,
   useListingPerformance,
-} from "@/hooks/use-analytics";
+} from "@/features/analytics/hooks/use-analytics";
 
 const ChartSkeleton = () => (
   <div className="rounded-xl border border-slate-200 bg-white p-5">
@@ -35,31 +35,31 @@ const StatCardSkeleton = () => (
 );
 
 const LeadsOverTimeChart = dynamic(
-  () => import("@/components/analytics/leads-over-time-chart").then((m) => ({ default: m.LeadsOverTimeChart })),
+  () => import("@/features/analytics/components/leads-over-time-chart").then((m) => ({ default: m.LeadsOverTimeChart })),
   { loading: ChartSkeleton }
 );
 const LeadSourceChart = dynamic(
-  () => import("@/components/analytics/lead-source-chart").then((m) => ({ default: m.LeadSourceChart })),
+  () => import("@/features/analytics/components/lead-source-chart").then((m) => ({ default: m.LeadSourceChart })),
   { loading: ChartSkeleton }
 );
 const ListingsByTypeChart = dynamic(
-  () => import("@/components/analytics/listings-by-type-chart").then((m) => ({ default: m.ListingsByTypeChart })),
+  () => import("@/features/analytics/components/listings-by-type-chart").then((m) => ({ default: m.ListingsByTypeChart })),
   { loading: ChartSkeleton }
 );
 const ConversionFunnel = dynamic(
-  () => import("@/components/analytics/conversion-funnel").then((m) => ({ default: m.ConversionFunnel })),
+  () => import("@/features/analytics/components/conversion-funnel").then((m) => ({ default: m.ConversionFunnel })),
   { loading: ChartSkeleton }
 );
 const PipelineValueChart = dynamic(
-  () => import("@/components/analytics/pipeline-value-chart").then((m) => ({ default: m.PipelineValueChart })),
+  () => import("@/features/analytics/components/pipeline-value-chart").then((m) => ({ default: m.PipelineValueChart })),
   { loading: ChartSkeleton }
 );
 const SourceROITable = dynamic(
-  () => import("@/components/analytics/source-roi-table").then((m) => ({ default: m.SourceROITable })),
+  () => import("@/features/analytics/components/source-roi-table").then((m) => ({ default: m.SourceROITable })),
   { loading: ChartSkeleton }
 );
 const ListingPerformanceCard = dynamic(
-  () => import("@/components/analytics/listing-performance-card").then((m) => ({ default: m.ListingPerformanceCard })),
+  () => import("@/features/analytics/components/listing-performance-card").then((m) => ({ default: m.ListingPerformanceCard })),
   { loading: ChartSkeleton }
 );
 

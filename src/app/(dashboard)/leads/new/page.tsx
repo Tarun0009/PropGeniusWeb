@@ -1,7 +1,7 @@
 "use client";
 
 import { PageHeader } from "@/components/ui/page-header";
-import { LeadForm } from "@/components/leads/lead-form";
+import { LeadForm } from "@/features/leads/components/lead-form";
 
 export default function NewLeadPage() {
   return (

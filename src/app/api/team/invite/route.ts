@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { canManageTeam } from "@/lib/permissions";
 import { PLAN_LIMITS } from "@/lib/constants";
-import type { UserRole } from "@/types/user";
+import type { UserRole } from "@/features/users/types";
 
 export async function POST(request: NextRequest) {
   try {

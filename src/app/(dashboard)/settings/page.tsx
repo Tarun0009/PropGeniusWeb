@@ -12,24 +12,24 @@ import { Select } from "@/components/ui/select";
 import { Modal } from "@/components/ui/modal";
 import { Badge } from "@/components/ui/badge";
 import { Avatar } from "@/components/ui/avatar";
-import { BillingInfo } from "@/components/billing/billing-info";
-import { PlanSelector } from "@/components/billing/plan-selector";
+import { BillingInfo } from "@/features/billing/components/billing-info";
+import { PlanSelector } from "@/features/billing/components/plan-selector";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useAuthStore } from "@/stores/auth-store";
+import { useAuthStore } from "@/features/auth/stores/auth-store";
+import { useSignOut } from "@/features/auth/hooks/use-sign-out";
 import { useNotificationStore } from "@/stores/notification-store";
 import {
   useTeamMembers, useUpdateMemberRole, useToggleMemberStatus,
   useRemoveMember, useRevokeInvite, usePendingInvites,
   useTransferOwnership, useTeamPermissions,
-} from "@/hooks/use-team";
-import { useTeamMemberStats } from "@/hooks/use-team-stats";
+} from "@/features/team/hooks/use-team";
+import { useTeamMemberStats } from "@/features/team/hooks/use-team-stats";
 import { createClient } from "@/lib/supabase/client";
 import { USER_ROLES, PLAN_LIMITS } from "@/lib/constants";
 import { canManageOrg, canManageTeam, canManageBilling } from "@/lib/permissions";
-import { useQuota } from "@/hooks/use-quota";
-import type { Plan } from "@/types/user";
+import { useQuota } from "@/features/billing/hooks/use-quota";
+import type { Plan } from "@/features/users/types";
 import { formatRelativeTime } from "@/lib/utils";
-import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 
 const roleVariant: Record<string, "primary" | "purple" | "default"> = {
@@ -42,6 +42,7 @@ export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState("general");
   const profile = useAuthStore((s) => s.profile);
   const setProfile = useAuthStore((s) => s.setProfile);
+  const signOut = useSignOut();
   const addToast = useNotificationStore((s) => s.addToast);
   const queryClient = useQueryClient();
   const currentPlan = (profile?.organization?.plan || "free") as Plan;
@@ -50,7 +51,6 @@ export default function SettingsPage() {
   const userCanManageTeam = canManageTeam(profile?.role || "agent");
   const userCanManageBilling = canManageBilling(profile?.role || "agent");
 
-  const router = useRouter();
 
   // Dynamic tabs based on role
   const visibleTabs = useMemo(() => {
@@ -345,8 +345,7 @@ export default function SettingsPage() {
         .from("profiles")
         .update({ is_active: false, updated_at: new Date().toISOString() })
         .eq("id", profile!.id);
-      await supabase.auth.signOut();
-      router.push("/login");
+      await signOut();
     } catch (error) {
       addToast({ type: "error", title: "Failed to delete account", description: (error as Error).message });
     }
@@ -1040,9 +1039,7 @@ export default function SettingsPage() {
                       variant="outline"
                       size="sm"
                       onClick={async () => {
-                        const supabase = createClient();
-                        await supabase.auth.signOut({ scope: "global" });
-                        router.push("/login");
+                        await signOut({ global: true });
                       }}
                     >
                       <LogOut className="mr-1.5 h-3.5 w-3.5" /> Sign Out All

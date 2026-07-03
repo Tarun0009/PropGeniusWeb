@@ -3,8 +3,8 @@
 import { useParams } from "next/navigation";
 import { PageHeader } from "@/components/ui/page-header";
 import { Spinner } from "@/components/ui/spinner";
-import { LeadForm } from "@/components/leads/lead-form";
-import { useLead } from "@/hooks/use-leads";
+import { LeadForm } from "@/features/leads/components/lead-form";
+import { useLead } from "@/features/leads/hooks/use-leads";
 
 export default function EditLeadPage() {
   const params = useParams();

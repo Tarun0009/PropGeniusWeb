@@ -21,11 +21,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 
 import { Avatar } from "@/components/ui/avatar";
-import { StatCard } from "@/components/analytics/stat-card";
-import { QuickAddLeadModal } from "@/components/dashboard/quick-add-lead-modal";
-import { useDashboardStats, useRecentLeads, useRecentListings, usePendingFollowUps, useSalesFunnel } from "@/hooks/use-analytics";
-import { useUpdateLead } from "@/hooks/use-leads";
-import { useAuthStore } from "@/stores/auth-store";
+import { StatCard } from "@/features/analytics/components/stat-card";
+import { QuickAddLeadModal } from "@/features/dashboard/components/quick-add-lead-modal";
+import { useDashboardStats, useRecentLeads, useRecentListings, usePendingFollowUps, useSalesFunnel } from "@/features/analytics/hooks/use-analytics";
+import { useUpdateLead } from "@/features/leads/hooks/use-leads";
+import { useAuthStore } from "@/features/auth/stores/auth-store";
 import { formatRelativeTime, formatPrice } from "@/lib/utils";
 import { LEAD_STATUSES } from "@/lib/constants";
 

@@ -29,9 +29,9 @@ import { Spinner } from "@/components/ui/spinner";
 import { Modal } from "@/components/ui/modal";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { LeadScoreBadge } from "@/components/leads/lead-score-badge";
-import { LeadTimeline } from "@/components/leads/lead-timeline";
-import { RecommendedListings } from "@/components/leads/recommended-listings";
+import { LeadScoreBadge } from "@/features/leads/components/lead-score-badge";
+import { LeadTimeline } from "@/features/leads/components/lead-timeline";
+import { RecommendedListings } from "@/features/leads/components/recommended-listings";
 import {
   useLead,
   useDeleteLead,
@@ -41,12 +41,12 @@ import {
   useCreateActivity,
   useUpdateLead,
   useFollowUpSuggestions,
-} from "@/hooks/use-leads";
-import { useTeamMembers } from "@/hooks/use-team";
-import { useAuthStore } from "@/stores/auth-store";
+} from "@/features/leads/hooks/use-leads";
+import { useTeamMembers } from "@/features/team/hooks/use-team";
+import { useAuthStore } from "@/features/auth/stores/auth-store";
 import { LEAD_STATUSES, LEAD_SOURCES } from "@/lib/constants";
 import { formatPrice, formatDate, formatRelativeTime } from "@/lib/utils";
-import type { ActivityType } from "@/types/lead";
+import type { ActivityType } from "@/features/leads/types";
 import type { FollowUpResponse } from "@/lib/validations";
 
 const statusVariant: Record<string, "primary" | "purple" | "warning" | "cyan" | "orange" | "success" | "danger"> = {

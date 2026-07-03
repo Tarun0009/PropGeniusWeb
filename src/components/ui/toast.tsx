@@ -22,12 +22,6 @@ const typeIconBg: Record<ToastType, string> = {
   info:    "bg-info-50 text-info-600",
 };
 
-const typeIconStyles: Record<ToastType, string> = {
-  success: "text-success-600",
-  error: "text-danger-600",
-  warning: "text-warning-600",
-  info: "text-info-600",
-};
 
 const typeIcons: Record<ToastType, React.ElementType> = {
   success: CheckCircle,

@@ -36,12 +36,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Modal } from "@/components/ui/modal";
 import { Spinner } from "@/components/ui/spinner";
 import { Select } from "@/components/ui/select";
-import { useListing, useDeleteListing, useUpdateListing, useOptimizeListing } from "@/hooks/use-listings";
-import { useLeads } from "@/hooks/use-leads";
+import { useListing, useDeleteListing, useUpdateListing, useOptimizeListing } from "@/features/listings/hooks/use-listings";
+import { useLeads } from "@/features/leads/hooks/use-leads";
 import { formatPrice, formatDate, formatRelativeTime } from "@/lib/utils";
 import { LISTING_STATUSES, LISTING_PLATFORMS } from "@/lib/constants";
 import { Input } from "@/components/ui/input";
-import type { ListingStatus } from "@/types/listing";
+import type { ListingStatus } from "@/features/listings/types";
 import type { OptimizeListingResponse } from "@/lib/validations";
 
 const statusVariant: Record<string, "default" | "success" | "primary" | "purple" | "warning"> = {

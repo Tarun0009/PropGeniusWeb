@@ -4,17 +4,13 @@ import { useState } from "react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { buildAuthCallbackUrl } from "@/features/auth/config";
+import { getAuthErrorMessage } from "@/features/auth/errors";
+import { forgotPasswordSchema, type ForgotPasswordFormData } from "@/features/auth/schemas";
 import { Building2, CheckCircle } from "lucide-react";
-
-const forgotSchema = z.object({
-  email: z.string().email("Please enter a valid email"),
-});
-
-type ForgotForm = z.infer<typeof forgotSchema>;
 
 export default function ForgotPasswordPage() {
   const [error, setError] = useState<string | null>(null);
@@ -24,23 +20,23 @@ export default function ForgotPasswordPage() {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<ForgotForm>({
-    resolver: zodResolver(forgotSchema),
+  } = useForm<ForgotPasswordFormData>({
+    resolver: zodResolver(forgotPasswordSchema),
   });
 
-  const onSubmit = async (data: ForgotForm) => {
+  const onSubmit = async (data: ForgotPasswordFormData) => {
     setError(null);
     const supabase = createClient();
 
     const { error: resetError } = await supabase.auth.resetPasswordForEmail(
       data.email,
       {
-        redirectTo: `${window.location.origin}/api/auth/callback?type=recovery`,
+        redirectTo: buildAuthCallbackUrl(window.location.origin, { type: "recovery" }),
       }
     );
 
     if (resetError) {
-      setError(resetError.message);
+      setError(getAuthErrorMessage(resetError.message));
       return;
     }
 
@@ -57,7 +53,7 @@ export default function ForgotPasswordPage() {
         </div>
         <h2 className="text-2xl font-bold text-slate-900">Check your email</h2>
         <p className="text-slate-500 mt-2 mb-6">
-          We&apos;ve sent a password reset link to your email address.
+          If an account exists for that address, you&apos;ll receive a password reset link shortly.
         </p>
         <Link
           href="/login"
@@ -71,7 +67,6 @@ export default function ForgotPasswordPage() {
 
   return (
     <div>
-      {/* Mobile logo */}
       <div className="flex items-center gap-2 mb-8 lg:hidden">
         <Building2 className="h-8 w-8 text-primary-600" />
         <span className="text-2xl font-bold text-slate-900">PropGenius</span>
@@ -95,6 +90,7 @@ export default function ForgotPasswordPage() {
           label="Email"
           type="email"
           placeholder="you@example.com"
+          autoComplete="email"
           error={errors.email?.message}
           {...register("email")}
         />

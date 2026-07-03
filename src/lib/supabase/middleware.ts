@@ -1,5 +1,12 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import {
+  PROTECTED_HOME,
+  buildLoginRedirect,
+  getSafeRedirectPath,
+  isAuthEntryRoute,
+  isPublicRoute,
+} from "@/features/auth/config";
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -33,26 +40,20 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Auth routes — redirect to dashboard if already logged in
-  const authRoutes = ["/login", "/signup", "/forgot-password"];
-  if (user && authRoutes.some((route) => request.nextUrl.pathname.startsWith(route))) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/dashboard";
-    return NextResponse.redirect(url);
+  const { pathname, search } = request.nextUrl;
+
+  if (user && isAuthEntryRoute(pathname)) {
+    const redirectPath = getSafeRedirectPath(
+      request.nextUrl.searchParams.get("next"),
+      PROTECTED_HOME
+    );
+    return NextResponse.redirect(new URL(redirectPath, request.url));
   }
 
-  // Protected routes — redirect to login if not logged in
-  const publicRoutes = ["/", "/login", "/signup", "/forgot-password", "/api/", "/p/"];
-  const isPublicRoute = publicRoutes.some((route) =>
-    route === "/"
-      ? request.nextUrl.pathname === "/"
-      : request.nextUrl.pathname.startsWith(route)
-  );
-
-  if (!user && !isPublicRoute) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/login";
-    return NextResponse.redirect(url);
+  if (!user && !isPublicRoute(pathname)) {
+    return NextResponse.redirect(
+      new URL(buildLoginRedirect(pathname, search), request.url)
+    );
   }
 
   return supabaseResponse;

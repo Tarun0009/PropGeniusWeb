@@ -7,13 +7,13 @@ import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ListingTable } from "@/components/listings/listing-table";
-import { useListings } from "@/hooks/use-listings";
-import { useQuota } from "@/hooks/use-quota";
-import { useTeamMemberLookup } from "@/hooks/use-team-lookup";
+import { ListingTable } from "@/features/listings/components/listing-table";
+import { useListings } from "@/features/listings/hooks/use-listings";
+import { useQuota } from "@/features/billing/hooks/use-quota";
+import { useTeamMemberLookup } from "@/features/team/hooks/use-team-lookup";
 import { exportToCSV } from "@/lib/export-csv";
 import type { ListingFilters } from "@/lib/validations";
-import type { Listing } from "@/types/listing";
+import type { Listing } from "@/features/listings/types";
 
 export default function ListingsPage() {
   const [filters, setFilters] = useState<ListingFilters>({});

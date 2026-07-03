@@ -28,8 +28,11 @@ function DataTable<TData>({
   pageSize = 10,
   onRowClick,
 }: DataTableProps<TData>) {
+  "use no memo";
+
   const [sorting, setSorting] = React.useState<SortingState>([]);
 
+  // eslint-disable-next-line react-hooks/incompatible-library -- TanStack Table returns non-memo-safe helpers by design.
   const table = useReactTable({
     data,
     columns,

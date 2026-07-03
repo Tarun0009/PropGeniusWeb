@@ -1,6 +1,6 @@
-export const APP_NAME = "PropGenius AI";
+export const APP_NAME = "PropGenius";
 export const APP_DESCRIPTION =
-  "AI-Powered Real Estate Listing Generator + CRM";
+  "Real Estate CRM and Listing Workspace";
 
 export const PROPERTY_TYPES = [
   { value: "apartment", label: "Apartment" },
@@ -145,9 +145,9 @@ export const SUBSCRIPTION_PLANS = [
     price_usd_monthly: 0,
     price_usd_annual: 0,
     features: [
-      "25 AI-generated listings",
+      "25 listing drafts",
       "500 leads",
-      "AI lead scoring",
+      "Lead scoring",
       "Basic CRM",
       "Email support",
     ],
@@ -163,7 +163,7 @@ export const SUBSCRIPTION_PLANS = [
     price_usd_annual: 96,
     popular: true,
     features: [
-      "Unlimited AI listings",
+      "Unlimited listing drafts",
       "Unlimited leads",
       "Up to 15 team members",
       "WhatsApp integration",
@@ -183,7 +183,7 @@ export const SUBSCRIPTION_PLANS = [
     features: [
       "Everything in Pro",
       "Unlimited team members",
-      "Bulk AI generation",
+      "Bulk listing generation",
       "Custom WhatsApp templates",
       "Dedicated account manager",
       "API access",
